@@ -1,0 +1,82 @@
+<div class="hero">
+  <p class="kicker learn">software engineering, from the floor up</p>
+  <h1>What happens between pressing enter and a page</h1>
+  <p class="sub">You type a web address, press enter, and a page appears. Between
+those two moments are a dozen layers most people are taught to take on faith.
+This course removes the faith, one layer at a time, until you can explain the
+whole path yourself and have built a working piece of every floor.</p>
+</div>
+
+<p class="lede">It starts on a single computer, with a program that has not yet
+run, and ends with the systems that serve billions of people, including the AI
+systems everyone is suddenly talking about. Nothing in between is skipped, and
+nothing is called magic.</p>
+
+<p>Most tutorials hand you a framework and a folder of files and have you fill
+in the blanks. You end up able to ship something and unable to say what any of
+it does. This one goes the other way. You meet each problem before you meet the
+tool that solves it, so that when the tool arrives it feels like relief instead
+of another thing to memorise. By the end you will have written a web server in a
+single file, broken it on purpose, and understood every framework you will ever
+pick up as a set of answers to problems you felt in your own hands.</p>
+
+<h2 id="who">Who this is for</h2>
+
+<p>Anyone who can write a little Python and has never been shown what is
+underneath it. No computer science background is assumed. If you have a
+background, the early chapters will be fast and the later ones will still have
+something for you, because the point is not the facts but the way they
+connect.</p>
+
+<h2 id="map">The journey</h2>
+
+<p>Five parts, eighteen chapters. Each one opens with the exact question the
+last one left unanswered, so the whole thing reads as a single line of reasoning
+rather than a pile of topics.</p>
+
+<figure>
+  <div class="dgm">{{ diagram:journey-map }}</div>
+  <figcaption>the whole course on one line: down from the processor to the wire
+and back up to the page, then out to many machines</figcaption>
+</figure>
+
+<p class="thesis">meaning is an agreement; everything else is a cost.</p>
+
+<p>That sentence turns out to be the whole course. A byte means a letter because
+we agreed it would. A request is a request because both sides agreed on the
+shape of the text. Every layer is one more agreement, and every agreement is
+paid for in time, memory, or the risk of getting it wrong.</p>
+
+<h2 id="chapters">The chapters</h2>
+
+{{ toc }}
+
+<p style="margin-top:1.4rem"><a href="further-watching.html">Further
+watching</a>: every outside video and course this site points at, gathered in
+one place and mapped to its chapter.</p>
+
+<h2 id="running">Running the code</h2>
+
+<p>Every chapter that shows code ships that code as a real file you can run,
+under <code>code/</code>, one folder per chapter. The output printed in the text
+is the actual output of the actual file. Where a number depends on your machine,
+the text says so, and what it claims is the shape of the result, not the
+digits.</p>
+
+<div class="callout">
+  <p>Chapters one through twelve and fourteen through eighteen need only Python
+three and its standard library. Chapter thirteen installs one framework, and
+only after you have felt why it needs to exist. The servers run until you stop
+them with control C. Everything here was written and run on macOS and Linux; on
+Windows, use WSL.</p>
+</div>
+
+<h2 id="machine">The machine these numbers came from</h2>
+
+<p>Every measurement on this site was produced by running the code on one
+laptop, an Apple silicon MacBook reporting eighteen processors. Your absolute
+numbers will be different, and that is expected. What the site claims are the
+ratios and the shapes, one strategy against another, and those hold across
+machines.</p>
+
+<p>Start at the floor.</p>

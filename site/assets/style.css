@@ -1,0 +1,647 @@
+/* Beneath the Pipeline — Direction A, "Datasheet"
+ *
+ * Cool paper, hairline rules, monospace for anything that is data and a serif
+ * for anything that is prose. Two colours carry meaning and nothing else:
+ * indigo means you built it, magenta means it broke.
+ *
+ * No web fonts, no CDN, no external anything. Opens from file://.
+ */
+
+:root {
+  --paper:      #eef0f3;
+  --surface:    #ffffff;
+  --sunk:       #e8eaef;
+  --ink:        #14171d;
+  --ink-2:      #565d68;
+  --ink-3:      #878e99;
+  --rule:       #d2d6dd;
+  --rule-hard:  #a8aeb9;
+
+  --learn:      #2c3ba6;   /* Part II — you build it */
+  --learn-soft: #e5e7f6;
+  --break:      #a51f5c;   /* Part III — it breaks */
+  --break-soft: #f8e4ee;
+  --ok:         #1c6b4a;
+
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "DejaVu Sans Mono",
+          "Liberation Mono", Consolas, monospace;
+  --body: "Iowan Old Style", "Charter", "Palatino Linotype", Palatino,
+          "Book Antiqua", Georgia, serif;
+
+  --measure: 66ch;
+  --page: 1080px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+}
+
+/* Focus is always visible. Non-negotiable, unannounced. */
+:focus-visible {
+  outline: 2px solid var(--learn);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* ======================================================================
+   masthead
+   ====================================================================== */
+
+.masthead {
+  position: sticky; top: 0; z-index: 30;
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule-hard);
+}
+.masthead-inner {
+  max-width: var(--page); margin: 0 auto; padding: .6rem 1.5rem;
+  display: flex; align-items: baseline; gap: 1rem;
+}
+
+.brand {
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-2);
+  text-decoration: none; flex: none;
+}
+.brand b { color: var(--ink); font-weight: 600; }
+.brand:hover b { color: var(--learn); }
+
+/* Where you are, named: the page's own title. */
+.crumb {
+  min-width: 0; display: flex; align-items: baseline; gap: .55rem;
+  border-left: 1px solid var(--rule-hard); padding-left: 1rem;
+}
+.crumb .part {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-3); white-space: nowrap;
+}
+.crumb .here {
+  font-weight: 600; font-size: .92rem; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.crumb .hn { color: var(--ink-3); font-family: var(--mono); }
+.crumb .hn::after { content: " · "; }
+.progress-label {
+  margin-left: auto; font-family: var(--mono); font-size: .68rem;
+  color: var(--ink-3); letter-spacing: .06em; flex: none;
+}
+.nav-toggle {
+  display: none; flex: none; margin-left: auto;
+  font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--rule-hard);
+  border-radius: 2px; padding: .3rem .6rem; cursor: pointer;
+}
+.nav-toggle:hover { color: var(--learn); border-color: var(--learn); }
+
+/* ======================================================================
+   the sidebar — the actual navigation
+   ====================================================================== */
+
+.rail {
+  position: sticky; top: 3.1rem; align-self: start;
+  max-height: calc(100vh - 3.1rem); overflow-y: auto;
+  border-right: 1px solid var(--rule);
+  padding: 2.6rem 1.2rem 3rem 0;
+}
+.sitenav { display: block; }
+.nav-part {
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-3);
+  margin: 1.3rem 0 .4rem; padding-bottom: .25rem;
+  border-bottom: 1px solid var(--rule);
+}
+.nav-list { list-style: none; margin: 0; padding: 0; }
+.nav-home, .nav-appendix, .nav-item {
+  display: flex; gap: .55rem; align-items: baseline;
+  padding: .3rem .5rem .3rem .45rem; margin-left: -.45rem;
+  text-decoration: none; color: var(--ink-2);
+  font-size: .82rem; line-height: 1.35;
+  border-left: 2px solid transparent; border-radius: 0 2px 2px 0;
+}
+.nav-home { margin-bottom: .2rem; font-weight: 600; color: var(--ink); }
+.nav-appendix { margin-top: 1.3rem; }
+.nav-home .n, .nav-appendix .n, .nav-item .n {
+  font-family: var(--mono); font-size: .66rem; color: var(--ink-3);
+  flex: none; min-width: 1.2rem;
+}
+.nav-item:hover, .nav-home:hover, .nav-appendix:hover {
+  background: var(--learn-soft); color: var(--learn);
+}
+.nav-item.current, .nav-home.current, .nav-appendix.current {
+  background: var(--learn-soft); color: var(--learn); font-weight: 600;
+  border-left-color: var(--learn);
+}
+.nav-item.current .n, .nav-home.current .n { color: var(--learn); }
+/* site.js marks finished modules; the tick sits after the title */
+.nav-item.done .t::after {
+  content: " ✓"; color: var(--learn); font-weight: 600;
+}
+
+/* ======================================================================
+   page frame
+   ====================================================================== */
+
+.wrap { max-width: var(--page); margin: 0 auto; padding: 0 1.5rem; }
+/* minmax(0, 1fr) rather than 1fr: a bare 1fr track has an automatic minimum
+   of its content's min-content width, so one wide table or hex dump pushes
+   the whole page sideways. overflow-x: clip is the backstop — inner blocks
+   that are meant to scroll still scroll, the page itself never does. */
+.layout {
+  display: grid; grid-template-columns: 15.5rem minmax(0, 1fr);
+  overflow-x: clip; gap: 0;
+}
+
+.col { padding: 2.6rem 0 4rem 2rem; min-width: 0; }
+
+/* ======================================================================
+   headings and prose
+   ====================================================================== */
+
+.kicker {
+  font-family: var(--mono); font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--break); margin: 0 0 .5rem;
+}
+.kicker.learn { color: var(--learn); }
+
+h1 {
+  font-family: var(--mono); font-weight: 600; font-size: 1.85rem;
+  line-height: 1.2; letter-spacing: -.01em; margin: 0 0 .2rem;
+}
+h1 .num { color: var(--ink-3); font-weight: 400; }
+
+.hook { color: var(--ink-2); font-size: 1.02rem; margin: .4rem 0 2.2rem; max-width: 62ch; }
+
+h2 {
+  font-family: var(--mono); font-size: .74rem; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--ink-2); font-weight: 600;
+  margin: 2.8rem 0 .9rem; padding-bottom: .35rem;
+  border-bottom: 1px solid var(--rule);
+  scroll-margin-top: 7rem;
+}
+h3 {
+  font-family: var(--mono); font-size: .95rem; font-weight: 600;
+  margin: 2rem 0 .6rem; letter-spacing: -.01em;
+}
+
+p, ul, ol { max-width: var(--measure); margin: 0 0 1.1rem; }
+ul, ol { padding-left: 1.3rem; }
+li { margin-bottom: .35rem; }
+li > ul, li > ol { margin-top: .35rem; margin-bottom: .5rem; }
+
+strong { font-weight: 600; }
+a { color: var(--learn); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: var(--break); }
+
+code {
+  font-family: var(--mono); font-size: .87em;
+  background: var(--sunk); padding: .06em .3em; border-radius: 2px;
+}
+h1 code, h2 code, .hook code { background: none; padding: 0; }
+
+.lede { font-size: 1.08rem; max-width: 60ch; }
+
+.term {
+  font-weight: 600; font-style: normal;
+  border-bottom: 2px solid var(--learn-soft);
+}
+
+/* ======================================================================
+   callouts
+   ====================================================================== */
+
+.puzzle, .callout {
+  background: var(--surface); border: 1px solid var(--rule-hard);
+  padding: 1.1rem 1.3rem; margin: 0 0 1.4rem; max-width: var(--measure);
+}
+.puzzle { border-left: 4px solid var(--break); }
+.callout { border-left: 4px solid var(--learn); }
+.puzzle > :last-child, .callout > :last-child { margin-bottom: 0; }
+
+.aside {
+  border-left: 2px solid var(--rule-hard); padding-left: 1rem;
+  color: var(--ink-2); font-size: .95rem; max-width: 60ch; margin: 0 0 1.3rem;
+}
+.aside .aside-label {
+  display: block; font-family: var(--mono); font-size: .63rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: .3rem;
+}
+
+.thesis {
+  font-family: var(--mono); font-size: .8rem; letter-spacing: .04em;
+  color: var(--learn); border-left: 3px solid var(--learn);
+  padding-left: .8rem; margin: 1.3rem 0; max-width: 60ch;
+}
+
+/* ======================================================================
+   code, terminals, hex
+   ====================================================================== */
+
+figure { margin: 0 0 1.6rem; }
+
+.code {
+  position: relative; background: var(--sunk); border: 1px solid var(--rule);
+  font-family: var(--mono); font-size: .79rem; line-height: 1.75;
+  overflow-x: auto;
+}
+.code pre { margin: 0; padding: .95rem 1.1rem; }
+.code.wide { max-width: none; }
+
+.copy {
+  position: absolute; top: .4rem; right: .4rem;
+  font-family: var(--mono); font-size: .6rem; letter-spacing: .1em;
+  text-transform: uppercase; background: var(--surface); color: var(--ink-2);
+  border: 1px solid var(--rule-hard); padding: .22rem .5rem; cursor: pointer;
+  transition: background .12s ease, color .12s ease;
+}
+.copy:hover { background: var(--learn); color: #fff; border-color: var(--learn); }
+.copy.copied { background: var(--ok); color: #fff; border-color: var(--ok); }
+
+.c-cm { color: var(--ink-3); }
+.c-kw { color: var(--learn); }
+.c-st { color: var(--break); }
+.c-fn { color: var(--ink); font-weight: 600; }
+.c-todo { color: var(--break); font-weight: 600; }
+
+.term-block { background: var(--surface); border: 1px solid var(--rule); min-width: 0; }
+.term-block .term-head {
+  font-family: var(--mono); font-size: .62rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-3);
+  padding: .3rem .8rem; border-bottom: 1px solid var(--rule);
+  background: var(--sunk);
+}
+.term-block pre {
+  margin: 0; padding: .8rem 1.1rem; font-family: var(--mono);
+  font-size: .76rem; line-height: 1.7; overflow-x: auto;
+}
+.term-block .prompt { color: var(--learn); }
+.term-block .out { color: var(--ink-2); }
+
+.hex {
+  background: var(--surface); border: 1px solid var(--rule);
+  font-family: var(--mono); font-size: .78rem; line-height: 1.85;
+  padding: .9rem 1.1rem; overflow-x: auto; white-space: pre;
+}
+.hex .off { color: var(--ink-3); }
+.hex .hl  { background: var(--break-soft); color: var(--break); }
+.hex .hl2 { background: var(--learn-soft); color: var(--learn); }
+
+figcaption {
+  font-family: var(--mono); font-size: .66rem; color: var(--ink-3);
+  letter-spacing: .06em; margin-top: .4rem; max-width: var(--measure);
+  line-height: 1.5;
+}
+
+/* two shells, side by side, because they disagree */
+.dual {
+  display: grid; gap: .8rem; margin-bottom: 1.6rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.dual > * { min-width: 0; }
+@media (max-width: 760px) { .dual { grid-template-columns: minmax(0, 1fr); } }
+
+/* ======================================================================
+   tables and charts
+   ====================================================================== */
+
+.table-wrap { overflow-x: auto; margin-bottom: .6rem; max-width: 100%; }
+table {
+  border-collapse: collapse; width: 100%; max-width: 46rem;
+  font-size: .9rem; background: var(--surface);
+}
+th, td {
+  border-bottom: 1px solid var(--rule); padding: .5rem .7rem; text-align: right;
+  white-space: nowrap;
+}
+th:first-child, td:first-child { text-align: left; white-space: normal; }
+thead th {
+  font-family: var(--mono); font-size: .64rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-2);
+  border-bottom: 1px solid var(--rule-hard); vertical-align: bottom;
+}
+td.num, th.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+tr.win td { background: var(--learn-soft); }
+tr.lose td { background: var(--break-soft); }
+tbody tr:last-child td { border-bottom: 1px solid var(--rule-hard); }
+caption {
+  caption-side: bottom; text-align: left; padding-top: .5rem;
+  font-family: var(--mono); font-size: .66rem; color: var(--ink-3);
+  letter-spacing: .06em; line-height: 1.5;
+}
+
+.chart { margin: 1.2rem 0 .5rem; max-width: 46rem; width: 100%; height: auto; }
+.chart text { font-family: var(--mono); font-size: 10px; fill: var(--ink-2); }
+.chart .lbl { fill: var(--ink); }
+.chart .bar { fill: var(--learn); }
+.chart .bar.alt { fill: var(--break); }
+.chart .bar.mute { fill: var(--rule-hard); }
+.chart .base { stroke: var(--rule-hard); stroke-width: 1; }
+.chart .grid { stroke: var(--rule); stroke-width: 1; }
+.chart .line { fill: none; stroke: var(--learn); stroke-width: 2; }
+.chart .line.alt { stroke: var(--break); }
+.chart .dot { fill: var(--learn); }
+.chart .dot.alt { fill: var(--break); }
+.chart .axis-title {
+  font-size: 9px; fill: var(--ink-3); letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ======================================================================
+   the assumption inventory — Part 0's table of contents
+   ====================================================================== */
+
+.inventory { list-style: none; padding: 0; max-width: none; }
+.inventory > li {
+  border: 1px solid var(--rule); background: var(--surface);
+  margin-bottom: .55rem; padding: .85rem 1.1rem;
+  display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 1.2rem;
+  align-items: start;
+}
+.inventory .line {
+  font-family: var(--mono); font-size: .78rem; color: var(--learn);
+  word-break: break-word;
+}
+.inventory .asks { margin: 0; }
+.inventory .asks p { margin: 0 0 .45rem; max-width: none; }
+.inventory .asks p:last-child { margin-bottom: 0; }
+.inventory a.answers {
+  display: inline-block; font-family: var(--mono); font-size: .64rem;
+  letter-spacing: .1em; text-transform: uppercase; text-decoration: none;
+  border: 1px solid var(--rule-hard); padding: .18rem .45rem;
+  color: var(--ink-2); margin: .3rem .3rem 0 0;
+}
+.inventory a.answers:hover { background: var(--learn); color: #fff; border-color: var(--learn); }
+.inventory a.answers.iii { color: var(--break); }
+.inventory a.answers.iii:hover { background: var(--break); border-color: var(--break); color: #fff; }
+@media (max-width: 760px) { .inventory > li { grid-template-columns: 1fr; gap: .5rem; } }
+
+/* ======================================================================
+   the map
+   ====================================================================== */
+
+.map { background: var(--surface); border: 1px solid var(--rule-hard); padding: 1.2rem; overflow-x: auto; }
+.map svg { display: block; min-width: 640px; width: 100%; height: auto; }
+.map .m-stage { fill: var(--surface); stroke: var(--rule-hard); }
+.map .m-label { font-family: var(--mono); font-size: 11px; fill: var(--ink); }
+.map .m-sub { font-family: var(--mono); font-size: 8.5px; fill: var(--ink-3); letter-spacing: .08em; }
+.map .m-mod { font-family: var(--mono); font-size: 9px; fill: var(--learn); }
+.map .m-mod.iii { fill: var(--break); }
+.map .m-flow { stroke: var(--rule-hard); fill: none; }
+.map a:hover .m-stage { fill: var(--learn-soft); }
+
+/* ======================================================================
+   read & check
+   ====================================================================== */
+
+.check {
+  background: var(--surface); border: 1px solid var(--rule);
+  padding: 1.1rem 1.3rem; max-width: var(--measure);
+}
+.check > p:first-child { margin-top: 0; }
+.check ol { margin: .6rem 0 0; }
+.trouble {
+  margin-top: 1rem; padding-top: .9rem; border-top: 1px dashed var(--rule-hard);
+  font-size: .92rem; color: var(--ink-2);
+}
+.trouble b {
+  font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--break); display: block; margin-bottom: .3rem;
+}
+.trouble p { max-width: none; }
+.trouble > :last-child { margin-bottom: 0; }
+
+.book {
+  font-family: var(--body);
+}
+.book .title { font-style: italic; }
+
+/* ======================================================================
+   module footer nav
+   ====================================================================== */
+
+.modnav {
+  display: flex; gap: 1rem; margin-top: 3.5rem; padding-top: 1.2rem;
+  border-top: 1px solid var(--rule-hard); flex-wrap: wrap;
+}
+.modnav a {
+  flex: 1 1 14rem; text-decoration: none; border: 1px solid var(--rule);
+  background: var(--surface); padding: .7rem .9rem; color: var(--ink);
+  min-width: 0;
+}
+.modnav a:hover { border-color: var(--learn); background: var(--learn-soft); }
+.modnav .dir {
+  display: block; font-family: var(--mono); font-size: .62rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3);
+  margin-bottom: .2rem;
+}
+.modnav .name { font-family: var(--mono); font-size: .84rem; }
+.modnav a.next { text-align: right; }
+
+/* ======================================================================
+   progress marker
+   ====================================================================== */
+
+.done-toggle {
+  display: inline-flex; align-items: center; gap: .55rem; cursor: pointer;
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-2);
+  border: 1px solid var(--rule-hard); background: var(--surface);
+  padding: .45rem .8rem; margin-top: 2rem;
+}
+.done-toggle:hover { border-color: var(--learn); color: var(--learn); }
+.done-toggle[aria-pressed="true"] {
+  background: var(--learn); border-color: var(--learn); color: #fff;
+}
+.done-toggle .box {
+  width: .8rem; height: .8rem; border: 1px solid currentColor; display: inline-block;
+}
+.done-toggle[aria-pressed="true"] .box { background: #fff; }
+
+/* ======================================================================
+   index page
+   ====================================================================== */
+
+.hero { padding: 3.5rem 0 1rem; }
+.hero h1 { font-size: 2.5rem; max-width: 18ch; }
+.hero .sub { font-size: 1.15rem; color: var(--ink-2); max-width: 54ch; margin-top: .8rem; }
+
+.toc { list-style: none; padding: 0; max-width: none; }
+.toc-part {
+  font-family: var(--mono); font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--ink-3);
+  margin: 2rem 0 .7rem; padding-bottom: .3rem; border-bottom: 1px solid var(--rule);
+}
+.toc li { margin: 0 0 2px; }
+.toc a {
+  display: grid; grid-template-columns: 2.6rem minmax(0, 20rem) minmax(0, 1fr);
+  gap: 1rem; align-items: baseline;
+  text-decoration: none; color: var(--ink); padding: .5rem .8rem;
+  background: var(--surface); border: 1px solid var(--rule);
+}
+.toc a:hover { border-color: var(--learn); background: var(--learn-soft); }
+.toc .n { font-family: var(--mono); font-size: .8rem; color: var(--ink-3); }
+.toc .t { font-family: var(--mono); font-size: .85rem; }
+.toc .d { font-size: .88rem; color: var(--ink-2); }
+.toc a.is-done .n::after { content: " ✓"; color: var(--learn); }
+@media (max-width: 760px) {
+  .toc a { grid-template-columns: 2.2rem minmax(0, 1fr); }
+  .toc .d { grid-column: 2; }
+}
+
+.specs {
+  font-family: var(--mono); font-size: .78rem; background: var(--surface);
+  border: 1px solid var(--rule); padding: .9rem 1.1rem; max-width: 46rem;
+}
+.specs dl { display: grid; grid-template-columns: 9rem 1fr; gap: .2rem 1rem; margin: 0; }
+.specs dt { color: var(--ink-3); letter-spacing: .08em; text-transform: uppercase; font-size: .68rem; }
+.specs dd { margin: 0; }
+
+/* ======================================================================
+   reading list
+   ====================================================================== */
+
+/* A table of prose, not of numbers: every column wraps and reads left to right,
+   so the whole thing fits the column instead of scrolling sideways. */
+.reading { max-width: none; }
+.reading th, .reading td {
+  white-space: normal; text-align: left; vertical-align: top;
+}
+.reading .mods { font-family: var(--mono); font-size: .78rem; white-space: nowrap; }
+.reading .mods a { text-decoration: none; }
+
+/* ======================================================================
+   small screens
+   ====================================================================== */
+
+@media (max-width: 980px) {
+  body { font-size: 16px; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .col { padding-left: 0; padding-top: 2rem; }
+  .wrap { padding: 0 1rem; }
+  .masthead-inner { padding: .5rem 1rem; gap: .7rem; }
+  .hero h1 { font-size: 1.9rem; }
+
+  /* the rail folds into a disclosure the menu button opens */
+  .crumb { padding-left: .7rem; }
+  .crumb .part { display: none; }
+  .progress-label { display: none; }
+  .nav-toggle { display: block; }
+  .rail {
+    position: static; max-height: none; overflow: visible;
+    border-right: none; border-bottom: 1px solid var(--rule-hard);
+    padding: 0 0 1rem; margin-bottom: 1.5rem;
+    display: none;
+  }
+  .rail.open { display: block; }
+  .nav-part { margin-top: 1rem; }
+}
+
+/* On a phone the title has no room, so a numbered page shows its number alone:
+   "06" still says where you are, where five letters and an ellipsis do not. */
+@media (max-width: 640px) {
+  .crumb.numbered .ht { display: none; }
+  .crumb.numbered .hn::after { content: none; }
+}
+
+@media print {
+  .masthead, .modnav, .copy, .done-toggle, .rail { display: none; }
+  body { background: #fff; }
+}
+
+/* ======================================================================
+   diagrams — extends .map with the two-colour semantics of the course.
+   Indigo (.learn) is a thing you built; magenta (.brk) is a thing that broke.
+   Reused across chapters; every diagram is hand-rolled inline SVG.
+   ====================================================================== */
+
+.dgm { background: var(--surface); border: 1px solid var(--rule-hard); padding: 1.1rem 1.2rem; overflow-x: auto; }
+.dgm svg { display: block; width: 100%; height: auto; }
+.dgm .box { fill: var(--surface); stroke: var(--rule-hard); }
+.dgm .box.learn { fill: var(--learn-soft); stroke: var(--learn); }
+.dgm .box.brk   { fill: var(--break-soft); stroke: var(--break); }
+.dgm .box.sunk  { fill: var(--sunk); stroke: var(--rule); }
+.dgm .lbl  { font-family: var(--mono); font-size: 12px; fill: var(--ink); }
+.dgm .lbl.sm { font-size: 10.5px; fill: var(--ink-2); }
+.dgm .lbl.mut { fill: var(--ink-3); }
+.dgm .lbl.learn { fill: var(--learn); }
+.dgm .lbl.brk { fill: var(--break); }
+.dgm .lbl.b { font-weight: 600; }
+.dgm .lbl.mid { text-anchor: middle; }
+.dgm .lbl.end { text-anchor: end; }
+.dgm .flow { fill: none; stroke: var(--rule-hard); stroke-width: 1.5; }
+.dgm .flow.learn { stroke: var(--learn); }
+.dgm .flow.brk { stroke: var(--break); stroke-dasharray: 4 3; }
+.dgm .flow.mut { stroke: var(--rule); }
+.dgm .fillmut { fill: var(--rule-hard); }
+.dgm .fill-learn { fill: var(--learn); }
+.dgm .fill-brk { fill: var(--break); }
+.dgm .tick { stroke: var(--rule); stroke-width: 1; }
+
+/* ======================================================================
+   resource cards — the curated watch/read links for a chapter
+   ====================================================================== */
+
+.resources { border: 1px solid var(--rule-hard); background: var(--surface); padding: 1.1rem 1.3rem 1.2rem; max-width: var(--measure); }
+.resources > h2, .resources > h3 { margin-top: 0; }
+.res-intro { color: var(--ink-2); font-size: .95rem; margin: 0 0 .9rem; max-width: none; }
+.res-list { list-style: none; margin: 0; padding: 0; max-width: none; }
+.res-list > li { border-top: 1px solid var(--rule); padding: .8rem 0; }
+.res-list > li:first-of-type { border-top: none; padding-top: .2rem; }
+.res-list > li:last-child { padding-bottom: 0; }
+.res-head { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+.res-kind {
+  font-family: var(--mono); font-size: .58rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-3);
+  border: 1px solid var(--rule-hard); border-radius: 2px; padding: .1rem .4rem; flex: none;
+}
+.res-kind.video { color: var(--learn); border-color: var(--learn); }
+.res-kind.course { color: var(--break); border-color: var(--break); }
+.res-title { font-weight: 600; text-decoration: none; color: var(--ink); }
+.res-title:hover { color: var(--learn); }
+.res-by { font-family: var(--mono); font-size: .68rem; color: var(--ink-3); }
+.res-note { margin: .35rem 0 0; font-size: .92rem; color: var(--ink-2); max-width: 62ch; }
+
+/* the further-watching appendix groups the same cards under each chapter */
+.watch-part {
+  font-family: var(--mono); font-size: .7rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-3);
+  margin: 2rem 0 .5rem; padding-bottom: .3rem; border-bottom: 1px solid var(--rule);
+}
+.watch-ch { font-family: var(--mono); font-size: .95rem; font-weight: 600; margin: 1.4rem 0 .2rem; }
+.watch-ch .n { color: var(--ink-3); font-weight: 400; }
+
+/* ======================================================================
+   labelled callouts: the puzzle (magenta), and the chapter-closing limit
+   ====================================================================== */
+
+.puzzle-label, .limit-label, .callout-label {
+  display: block; font-family: var(--mono); font-size: .63rem;
+  letter-spacing: .14em; text-transform: uppercase; margin-bottom: .4rem;
+}
+.puzzle-label, .limit-label { color: var(--break); }
+.callout-label { color: var(--learn); }
+
+.limit {
+  background: var(--surface); border: 1px solid var(--rule-hard);
+  border-left: 4px solid var(--break);
+  padding: 1.1rem 1.3rem; margin: 2rem 0 1.4rem; max-width: var(--measure);
+}
+.limit > :last-child { margin-bottom: 0; }
+.limit .to { font-family: var(--mono); font-size: .82rem; color: var(--break); }

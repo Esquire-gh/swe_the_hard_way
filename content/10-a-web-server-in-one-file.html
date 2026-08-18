@@ -1,0 +1,258 @@
+<p class="kicker learn">Part four · building the server</p>
+<h1><span class="num">10 ·</span> A web server in one file</h1>
+<p class="hook">Every piece is now on the table: the loop that waits, the socket
+calls that fill it, and the request text that goes in and comes out. The
+question left over is whether a person can put them together and end up with
+something a real browser will talk to.</p>
+
+<h2 id="really">Can I really build this myself</h2>
+
+<p>Chapter eight gave the loop. Chapter nine gave the calls that fill the one
+line the loop could not express. Chapter six gave the text that goes in and
+comes out, and a parser for it that fitted in thirty lines. So the question is
+whether there is a further layer of difficulty that has been politely hidden so
+far.</p>
+
+<p>There is not. The answer is about twenty lines, and the rest of this chapter
+is spent making it useful and then finding out what it cannot do.</p>
+
+<h2 id="python-names">The same calls, with Python's names on them</h2>
+
+<p>Python's <code>socket</code> module is a thin covering over the calls from
+chapter nine, and the names line up almost exactly. <code>socket.socket()</code>
+is socket. Then <code>bind</code>, <code>listen</code> and <code>accept</code>
+are called <code>bind</code>, <code>listen</code> and <code>accept</code>. Two
+names are different and both differences are worth knowing.</p>
+
+<p>Reading is <code>recv</code> rather than <code>read</code>, and it takes a
+maximum number of bytes. What comes back is whatever has arrived so far, up to
+that maximum, which is chapter two's point about a stream having no message
+boundaries showing up in an argument list. Writing is <code>sendall</code>
+rather than <code>write</code>. The plain <code>send</code> may write only part
+of what you gave it and return how much it managed. <code>sendall</code> loops
+until everything has gone. Using <code>send</code> and ignoring the number it
+returns is a real way to lose the end of a page.</p>
+
+<p>One line in the listings below has no equivalent in chapter nine and needs a
+word now.</p>
+
+<div class="code"><pre>listening.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)</pre></div>
+
+<p>When a server stops, the operating system keeps its port reserved for a
+minute or two, in case packets from the finished conversations are still in
+flight. Without that line, restarting your server during that window fails with
+<code>address already in use</code>, which you would otherwise meet about four
+minutes from now and find baffling.</p>
+
+<h2 id="twenty-lines">A web server in twenty lines</h2>
+
+<figure>
+{{ code:code/10-a-web-server-in-one-file/server_one.py }}
+<figcaption>server_one.py</figcaption>
+</figure>
+
+<p>Start it, and then in a second window ask it for the page.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -D - http://127.0.0.1:8000/</span>
+<span class="out">HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 143
+Connection: close
+
+&lt;!doctype html&gt;
+&lt;html&gt;&lt;body&gt;
+&lt;h1&gt;Hello from a socket&lt;/h1&gt;
+&lt;p&gt;This page was written by hand and sent down a file descriptor.&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</span></pre></div>
+</figure>
+
+<p>Open <code>http://127.0.0.1:8000</code> in an actual browser and the heading
+appears, from a response you assembled out of byte strings. The address is
+<code>127.0.0.1</code>, which chapter four introduced as the name a machine has
+for itself. Nothing here leaves the laptop, and nobody else on the internet can
+reach it. Making it public is a separate job.</p>
+
+<h2 id="what-browser-sent">What the browser sent</h2>
+
+<p>The server prints what arrives, so the first window now holds the other side
+of chapter six.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre class="out">listening on http://127.0.0.1:8000
+--- 127.0.0.1:59470 sent 77 bytes ---
+GET / HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: curl/8.2.1
+Accept: */*</pre></div>
+</figure>
+
+<p>That is chapter seven's hand typed request, arriving from the other
+direction. The port on the visitor's end, 59470, is the fourth number from
+chapter nine, picked by the operating system out of whatever was free. Try it
+with a browser instead and you will get a longer list of headers, and usually a
+second request for <code>/favicon.ico</code> a moment later, which your server
+happily answers with the same page. Being correct is your job.</p>
+
+<h2 id="files">Serving files off the disk</h2>
+
+<p>A server that returns one hard coded page is not much of a claim. The change
+that makes it a web server is to take the path out of the request line and read
+the matching file off the disk, which is exactly what chapter four said a
+website was.</p>
+
+<figure>
+  <div class="dgm">{{ diagram:server-flow }}</div>
+  <figcaption>one visitor, one trip through the loop: accept, read, parse, read
+the file, write it back, close, and around again for the next one</figcaption>
+</figure>
+
+<p>There is a small site to serve, holding two pages and a stylesheet. The file
+below contains a bug on purpose. The next section is about the bug.</p>
+
+<figure>
+{{ code:code/10-a-web-server-in-one-file/server_files.py }}
+<figcaption>server_files.py, with a deliberate bug in it</figcaption>
+</figure>
+
+<p>Point a browser at it and the site works. Following the link to the second
+page works. The stylesheet arrives and the page is laid out. The server's own
+window shows why.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre class="out">serving site/ on http://127.0.0.1:8000
+asked for /
+asked for /style.css
+asked for /missing.html</pre></div>
+</figure>
+
+<p>Three separate requests, three separate connections, three separate trips
+through <code>accept</code>. The browser asked for the page, read it, found it
+referred to a stylesheet, and came back for that. Your twenty lines did not have
+to know anything about stylesheets to serve one, because
+<code>Content-Type</code> is a label and the browser does the rest. The third
+line is a request for a file that does not exist, and the server answered
+<code>404</code>. Chapter three's decision, chapter six's number, your code.</p>
+
+<h2 id="the-bug">The bug you just wrote</h2>
+
+<p>Now the part that makes this a chapter about writing servers rather than a
+chapter about sockets. <code>ROOT / path.lstrip("/")</code> joins whatever the
+visitor typed onto the end of your directory. Visitors are strangers, and one of
+the things a stranger can type is <code>..</code>, which means the folder
+above.</p>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>Next to your server, outside <code>site/</code>, there is a file called
+<code>not-for-the-public.txt</code>. Nobody visiting the site should ever be
+able to read it. A browser will not ask for it, because browsers tidy up paths
+before sending them. But chapter seven showed that you do not need a browser,
+and <code>nc</code> will send exactly the bytes you type.</p>
+  <p><strong>What does your server hand back for <code>GET
+/../not-for-the-public.txt</code>?</strong></p>
+</div>
+
+<figure>
+  <div class="dgm">{{ diagram:path-traversal }}</div>
+  <figcaption>the .. climbs out of the folder you meant to serve and into the one
+above it, where the private file is sitting</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ printf 'GET /../not-for-the-public.txt HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n' \
+    | nc 127.0.0.1 8000</span>
+<span class="out">HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 121
+Connection: close
+
+This file sits next to the server, outside the site/ directory.
+Nobody visiting the site should ever be able to read it.</span></pre></div>
+</figure>
+
+<p>Enough <code>../</code> and the same request reads any file the server
+process has permission to open, anywhere on the machine. This has a name,
+<span class="term">path traversal</span>, and it is one of the oldest mistakes
+in web software. It is worth seeing on your own server, in a file you wrote,
+because the line that causes it looks completely reasonable.</p>
+
+<p>The fix is to work out the real location the path resolves to, and refuse
+anything that is not inside the directory you meant to serve.</p>
+
+<figure>
+{{ code:code/10-a-web-server-in-one-file/server_safe.py#answer }}
+<figcaption>server_safe.py, the corrected answer()</figcaption>
+</figure>
+
+<p><code>resolve</code> follows the <code>..</code> parts and any shortcuts on
+the disk and reports where the path genuinely lands. Then the check is whether
+the directory you are serving is one of its parents. The same request against
+the corrected server gets nothing but a refusal.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ printf 'GET /../not-for-the-public.txt HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n' \
+    | nc 127.0.0.1 8000</span>
+<span class="out">HTTP/1.1 403 Forbidden
+Content-Type: text/html
+Content-Length: 22
+Connection: close
+
+&lt;h1&gt;403 forbidden&lt;/h1&gt;</span></pre></div>
+</figure>
+
+<p>Keep the shape of that reasoning, because it recurs for the rest of this
+course. Everything arriving from outside is text a stranger chose, and every
+place your code uses it to reach something is a place where the stranger is
+choosing what you reach.</p>
+
+<h2 id="check">Check it yourself: ask for a file the server cannot type</h2>
+
+<div class="check">
+  <p>Run <code>server_safe.py</code>, and ask it for something that does not
+exist.</p>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -o /dev/null -w "status for a missing file: %{http_code}\n" \
+    http://127.0.0.1:8000/missing.html</span>
+<span class="out">status for a missing file: 404</span></pre></div>
+  <p>Then add a file to <code>site/</code> while the server is running, without
+restarting it, and ask for that. It works. The server holds no list of pages,
+has no idea what is in the directory, and finds out what exists at the moment
+somebody asks. That is worth a moment, because it is the definition of the thing
+being served. There is no website inside your program. There is a directory, and
+a program that will read out of it when asked.</p>
+</div>
+
+<h2 id="limit">Where this falls apart</h2>
+
+<p>You have a web server, and this is where its limits should be stated plainly,
+because the next chapters are each named after one of them.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>It answers one visitor at a time. The loop accepts a conversation, deals with
+it from start to finish, and only then goes back to <code>accept</code>. Make
+one request slow and everybody behind it stops. That is chapter fourteen.</p>
+  <p>It can only send back files that already exist. Every visitor gets identical
+bytes, which rules out logging in, writing anything, or knowing that a visitor
+was here before. That is chapter twelve.</p>
+  <p>It forgets everything. When you press control C, everything the program knew
+is gone, because it was in memory belonging to a process, as chapter one
+described. That is chapter fifteen.</p>
+  <p class="to">Before any of that, there is a smaller thing to sort out. You have
+written a server, and you are sitting at a laptop, and the same word is being
+used for two different objects. That confusion is chapter eleven.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>The same socket calls and the same by-hand web server, taught from the
+operating system's side, plus where path traversal sits among the classic
+mistakes.</p>
+
+{{ resources }}

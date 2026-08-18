@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · A web server in one file — swe the hard way</title>
+<meta name="description" content="Open a socket, accept a connection, read the request, serve a real file. Then watch it fall apart.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part four · building the server</span><span class="here"><span class="hn">10</span><span class="ht">A web server in one file</span></span></span><span class="progress-label">10 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Front page</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-what-it-means-to-tell-a-computer-what-to-do.html" data-module="01-what-it-means-to-tell-a-computer-what-to-do"><span class="n">01</span><span class="t">What it means to tell a computer what to do</span></a></li></ul><p class="nav-part">Part two · how the machines got connected</p><ul class="nav-list"><li><a class="nav-item" href="02-how-networks-came-about.html" data-module="02-how-networks-came-about"><span class="n">02</span><span class="t">How networks came about</span></a></li><li><a class="nav-item" href="03-how-networks-made-the-web-possible.html" data-module="03-how-networks-made-the-web-possible"><span class="n">03</span><span class="t">How networks made the web possible</span></a></li><li><a class="nav-item" href="04-a-website-is-a-file-on-someone-elses-computer.html" data-module="04-a-website-is-a-file-on-someone-elses-computer"><span class="n">04</span><span class="t">A website is a file on someone else&#x27;s computer</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-the-client-server-model.html" data-module="05-the-client-server-model"><span class="n">05</span><span class="t">The client server model</span></a></li><li><a class="nav-item" href="06-requests-and-responses-are-just-text.html" data-module="06-requests-and-responses-are-just-text"><span class="n">06</span><span class="t">Requests and responses are just text</span></a></li><li><a class="nav-item" href="07-why-we-need-browsers.html" data-module="07-why-we-need-browsers"><span class="n">07</span><span class="t">Why we need browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-how-a-server-receives-a-request.html" data-module="08-how-a-server-receives-a-request"><span class="n">08</span><span class="t">How a server receives a request</span></a></li><li><a class="nav-item" href="09-what-a-socket-is.html" data-module="09-what-a-socket-is"><span class="n">09</span><span class="t">What a socket is</span></a></li><li><a class="nav-item current" href="10-a-web-server-in-one-file.html" data-module="10-a-web-server-in-one-file" aria-current="page"><span class="n">10</span><span class="t">A web server in one file</span></a></li><li><a class="nav-item" href="11-server-as-hardware-server-as-software.html" data-module="11-server-as-hardware-server-as-software"><span class="n">11</span><span class="t">Server as hardware, server as software</span></a></li><li><a class="nav-item" href="12-from-reading-files-to-running-code.html" data-module="12-from-reading-files-to-running-code"><span class="n">12</span><span class="t">From reading files to running code</span></a></li><li><a class="nav-item" href="13-what-a-framework-is-for.html" data-module="13-what-a-framework-is-for"><span class="n">13</span><span class="t">What a framework is for</span></a></li><li><a class="nav-item" href="14-two-people-at-once.html" data-module="14-two-people-at-once"><span class="n">14</span><span class="t">Two people at once</span></a></li></ul><p class="nav-part">Part five · everything on top</p><ul class="nav-list"><li><a class="nav-item" href="15-where-the-data-lives.html" data-module="15-where-the-data-lives"><span class="n">15</span><span class="t">Where the data lives</span></a></li><li><a class="nav-item" href="16-what-makes-real-systems-hard.html" data-module="16-what-makes-real-systems-hard"><span class="n">16</span><span class="t">What makes real systems hard</span></a></li><li><a class="nav-item" href="17-more-than-one-machine.html" data-module="17-more-than-one-machine"><span class="n">17</span><span class="t">More than one machine</span></a></li><li><a class="nav-item" href="18-ai-systems-are-the-same-systems.html" data-module="18-ai-systems-are-the-same-systems"><span class="n">18</span><span class="t">AI systems are the same systems</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part four · building the server</p>
+<h1><span class="num">10 ·</span> A web server in one file</h1>
+<p class="hook">Every piece is now on the table: the loop that waits, the socket
+calls that fill it, and the request text that goes in and comes out. The
+question left over is whether a person can put them together and end up with
+something a real browser will talk to.</p>
+
+<h2 id="really">Can I really build this myself</h2>
+
+<p>Chapter eight gave the loop. Chapter nine gave the calls that fill the one
+line the loop could not express. Chapter six gave the text that goes in and
+comes out, and a parser for it that fitted in thirty lines. So the question is
+whether there is a further layer of difficulty that has been politely hidden so
+far.</p>
+
+<p>There is not. The answer is about twenty lines, and the rest of this chapter
+is spent making it useful and then finding out what it cannot do.</p>
+
+<h2 id="python-names">The same calls, with Python's names on them</h2>
+
+<p>Python's <code>socket</code> module is a thin covering over the calls from
+chapter nine, and the names line up almost exactly. <code>socket.socket()</code>
+is socket. Then <code>bind</code>, <code>listen</code> and <code>accept</code>
+are called <code>bind</code>, <code>listen</code> and <code>accept</code>. Two
+names are different and both differences are worth knowing.</p>
+
+<p>Reading is <code>recv</code> rather than <code>read</code>, and it takes a
+maximum number of bytes. What comes back is whatever has arrived so far, up to
+that maximum, which is chapter two's point about a stream having no message
+boundaries showing up in an argument list. Writing is <code>sendall</code>
+rather than <code>write</code>. The plain <code>send</code> may write only part
+of what you gave it and return how much it managed. <code>sendall</code> loops
+until everything has gone. Using <code>send</code> and ignoring the number it
+returns is a real way to lose the end of a page.</p>
+
+<p>One line in the listings below has no equivalent in chapter nine and needs a
+word now.</p>
+
+<div class="code"><pre>listening.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)</pre></div>
+
+<p>When a server stops, the operating system keeps its port reserved for a
+minute or two, in case packets from the finished conversations are still in
+flight. Without that line, restarting your server during that window fails with
+<code>address already in use</code>, which you would otherwise meet about four
+minutes from now and find baffling.</p>
+
+<h2 id="twenty-lines">A web server in twenty lines</h2>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;A web server. It answers everybody with the same page.
+
+Run it with:  python3 server_one.py
+Then visit:   http://127.0.0.1:8000
+Stop it with control C.
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> socket
+
+PAGE = b<span class="c-st">&quot;&quot;&quot;&lt;!doctype html&gt;
+&lt;html&gt;&lt;body&gt;
+&lt;h1&gt;Hello from a socket&lt;/h1&gt;
+&lt;p&gt;This page was written by hand and sent down a file descriptor.&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
+&quot;&quot;&quot;</span>
+
+listening = socket.socket()
+listening.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+listening.bind((<span class="c-st">&quot;127.0.0.1&quot;</span>, 8000))
+listening.listen(5)
+print(<span class="c-st">&quot;listening on http://127.0.0.1:8000&quot;</span>)
+
+<span class="c-kw">while</span> <span class="c-kw">True</span>:
+    conversation, who = listening.accept()
+    request = conversation.recv(65536)
+
+    print(f<span class="c-st">&quot;--- {who[0]}:{who[1]} sent {len(request)} bytes ---&quot;</span>)
+    print(request.decode(errors=<span class="c-st">&quot;replace&quot;</span>).rstrip())
+
+    conversation.sendall(
+        b<span class="c-st">&quot;HTTP/1.1 200 OK\r\n&quot;</span>
+        b<span class="c-st">&quot;Content-Type: text/html\r\n&quot;</span>
+        b<span class="c-st">&quot;Content-Length: &quot;</span> + str(len(PAGE)).encode() + b<span class="c-st">&quot;\r\n&quot;</span>
+        b<span class="c-st">&quot;Connection: close\r\n&quot;</span>
+        b<span class="c-st">&quot;\r\n&quot;</span> + PAGE
+    )
+    conversation.close()
+</pre></div>
+<figcaption>server_one.py</figcaption>
+</figure>
+
+<p>Start it, and then in a second window ask it for the page.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -D - http://127.0.0.1:8000/</span>
+<span class="out">HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 143
+Connection: close
+
+&lt;!doctype html&gt;
+&lt;html&gt;&lt;body&gt;
+&lt;h1&gt;Hello from a socket&lt;/h1&gt;
+&lt;p&gt;This page was written by hand and sent down a file descriptor.&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</span></pre></div>
+</figure>
+
+<p>Open <code>http://127.0.0.1:8000</code> in an actual browser and the heading
+appears, from a response you assembled out of byte strings. The address is
+<code>127.0.0.1</code>, which chapter four introduced as the name a machine has
+for itself. Nothing here leaves the laptop, and nobody else on the internet can
+reach it. Making it public is a separate job.</p>
+
+<h2 id="what-browser-sent">What the browser sent</h2>
+
+<p>The server prints what arrives, so the first window now holds the other side
+of chapter six.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre class="out">listening on http://127.0.0.1:8000
+--- 127.0.0.1:59470 sent 77 bytes ---
+GET / HTTP/1.1
+Host: 127.0.0.1:8000
+User-Agent: curl/8.2.1
+Accept: */*</pre></div>
+</figure>
+
+<p>That is chapter seven's hand typed request, arriving from the other
+direction. The port on the visitor's end, 59470, is the fourth number from
+chapter nine, picked by the operating system out of whatever was free. Try it
+with a browser instead and you will get a longer list of headers, and usually a
+second request for <code>/favicon.ico</code> a moment later, which your server
+happily answers with the same page. Being correct is your job.</p>
+
+<h2 id="files">Serving files off the disk</h2>
+
+<p>A server that returns one hard coded page is not much of a claim. The change
+that makes it a web server is to take the path out of the request line and read
+the matching file off the disk, which is exactly what chapter four said a
+website was.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 150" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">one trip through the loop, one visitor</text><rect x="20" y="50" width="116" height="56" rx="3" class="box learn"/><text x="78.0" y="73" class="lbl b mid learn">accept</text><text x="78.0" y="88" class="lbl sm mut mid">a connection</text><text x="78.0" y="99" class="lbl sm mut mid">arrives</text><path d="M136,78 L156,78" class="flow" marker-end="url(#arw)"/><rect x="156" y="50" width="116" height="56" rx="3" class="box learn"/><text x="214.0" y="73" class="lbl b mid learn">recv</text><text x="214.0" y="88" class="lbl sm mut mid">read the</text><text x="214.0" y="99" class="lbl sm mut mid">request bytes</text><path d="M272,78 L292,78" class="flow" marker-end="url(#arw)"/><rect x="292" y="50" width="116" height="56" rx="3" class="box learn"/><text x="350.0" y="73" class="lbl b mid learn">parse</text><text x="350.0" y="88" class="lbl sm mut mid">pull the path</text><text x="350.0" y="99" class="lbl sm mut mid">from the line</text><path d="M408,78 L428,78" class="flow" marker-end="url(#arw)"/><rect x="428" y="50" width="116" height="56" rx="3" class="box learn"/><text x="486.0" y="73" class="lbl b mid learn">read file</text><text x="486.0" y="88" class="lbl sm mut mid">off the disk</text><path d="M544,78 L564,78" class="flow" marker-end="url(#arw)"/><rect x="564" y="50" width="116" height="56" rx="3" class="box learn"/><text x="622.0" y="73" class="lbl b mid learn">sendall</text><text x="622.0" y="88" class="lbl sm mut mid">write the</text><text x="622.0" y="99" class="lbl sm mut mid">response back</text><path d="M662,106 L662,132 L78,132 L78,106" class="flow" marker-end="url(#arw)"/><text x="370" y="128" class="lbl sm mut mid">close, then back to accept for the next one</text></svg></div>
+  <figcaption>one visitor, one trip through the loop: accept, read, parse, read
+the file, write it back, close, and around again for the next one</figcaption>
+</figure>
+
+<p>There is a small site to serve, holding two pages and a stylesheet. The file
+below contains a bug on purpose. The next section is about the bug.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;A web server that reads files off the disk and returns them.
+
+This version has the bug that chapter 10 is about. Read that section before
+running it anywhere but your own machine, and use server_safe.py afterwards.
+
+Run it with:  python3 server_files.py
+Then visit:   http://127.0.0.1:8000
+Stop it with control C.
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> pathlib
+<span class="c-kw">import</span> socket
+
+ROOT = pathlib.Path(__file__).parent / <span class="c-st">&quot;site&quot;</span>
+TYPES = {<span class="c-st">&quot;.html&quot;</span>: <span class="c-st">&quot;text/html&quot;</span>, <span class="c-st">&quot;.css&quot;</span>: <span class="c-st">&quot;text/css&quot;</span>, <span class="c-st">&quot;.txt&quot;</span>: <span class="c-st">&quot;text/plain&quot;</span>}
+
+
+<span class="c-kw">def</span> <span class="c-fn">response</span>(status, kind, body):
+    <span class="c-st">&quot;&quot;&quot;One HTTP response, headers and all, as bytes.&quot;&quot;&quot;</span>
+    head = (
+        f<span class="c-st">&quot;HTTP/1.1 {status}\r\n&quot;</span>
+        f<span class="c-st">&quot;Content-Type: {kind}\r\n&quot;</span>
+        f<span class="c-st">&quot;Content-Length: {len(body)}\r\n&quot;</span>
+        <span class="c-st">&quot;Connection: close\r\n\r\n&quot;</span>
+    )
+    <span class="c-kw">return</span> head.encode() + body
+
+
+<span class="c-kw">def</span> <span class="c-fn">answer</span>(path):
+    wanted = ROOT / path.lstrip(<span class="c-st">&quot;/&quot;</span>)
+    <span class="c-kw">if</span> wanted.is_dir():
+        wanted = wanted / <span class="c-st">&quot;index.html&quot;</span>
+    <span class="c-kw">if</span> <span class="c-kw">not</span> wanted.is_file():
+        <span class="c-kw">return</span> response(<span class="c-st">&quot;404 Not Found&quot;</span>, <span class="c-st">&quot;text/html&quot;</span>, b<span class="c-st">&quot;&lt;h1&gt;404 not found&lt;/h1&gt;&quot;</span>)
+    kind = TYPES.get(wanted.suffix, <span class="c-st">&quot;application/octet-stream&quot;</span>)
+    <span class="c-kw">return</span> response(<span class="c-st">&quot;200 OK&quot;</span>, kind, wanted.read_bytes())
+
+
+listening = socket.socket()
+listening.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+listening.bind((<span class="c-st">&quot;127.0.0.1&quot;</span>, 8000))
+listening.listen(5)
+print(f<span class="c-st">&quot;serving {ROOT.name}/ on http://127.0.0.1:8000&quot;</span>)
+
+<span class="c-kw">while</span> <span class="c-kw">True</span>:
+    conversation, _ = listening.accept()
+    request = conversation.recv(65536)
+    path = request.split(b<span class="c-st">&quot; &quot;</span>)[1].decode() <span class="c-kw">if</span> request.count(b<span class="c-st">&quot; &quot;</span>) &gt;= 2 <span class="c-kw">else</span> <span class="c-st">&quot;/&quot;</span>
+    print(f<span class="c-st">&quot;asked for {path}&quot;</span>)
+    conversation.sendall(answer(path))
+    conversation.close()
+</pre></div>
+<figcaption>server_files.py, with a deliberate bug in it</figcaption>
+</figure>
+
+<p>Point a browser at it and the site works. Following the link to the second
+page works. The stylesheet arrives and the page is laid out. The server's own
+window shows why.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre class="out">serving site/ on http://127.0.0.1:8000
+asked for /
+asked for /style.css
+asked for /missing.html</pre></div>
+</figure>
+
+<p>Three separate requests, three separate connections, three separate trips
+through <code>accept</code>. The browser asked for the page, read it, found it
+referred to a stylesheet, and came back for that. Your twenty lines did not have
+to know anything about stylesheets to serve one, because
+<code>Content-Type</code> is a label and the browser does the rest. The third
+line is a request for a file that does not exist, and the server answered
+<code>404</code>. Chapter three's decision, chapter six's number, your code.</p>
+
+<h2 id="the-bug">The bug you just wrote</h2>
+
+<p>Now the part that makes this a chapter about writing servers rather than a
+chapter about sockets. <code>ROOT / path.lstrip("/")</code> joins whatever the
+visitor typed onto the end of your directory. Visitors are strangers, and one of
+the things a stranger can type is <code>..</code>, which means the folder
+above.</p>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>Next to your server, outside <code>site/</code>, there is a file called
+<code>not-for-the-public.txt</code>. Nobody visiting the site should ever be
+able to read it. A browser will not ask for it, because browsers tidy up paths
+before sending them. But chapter seven showed that you do not need a browser,
+and <code>nc</code> will send exactly the bytes you type.</p>
+  <p><strong>What does your server hand back for <code>GET
+/../not-for-the-public.txt</code>?</strong></p>
+</div>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 230" role="img" style="min-width:620px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">what ../ does to a path you trusted</text><rect x="230" y="60" width="260" height="40" rx="3" class="box learn"/><text x="360.0" y="84.0" class="lbl b mid">site/  (what you meant to serve)</text><rect x="255" y="112" width="210" height="34" rx="3" class="box sunk"/><text x="360.0" y="133.0" class="lbl b mid">index.html   style.css</text><path d="M360,100 L360,112" class="flow"/><rect x="520" y="112" width="180" height="34" rx="3" class="box brk"/><text x="610.0" y="133.0" class="lbl b mid">not-for-the-public.txt</text><text x="20" y="180" class="lbl b brk">GET /../not-for-the-public.txt</text><path d="M255,132 C120,132 120,60 230,80" class="flow brk" marker-end="url(#arw)"/><path d="M330,175 L470,146" class="flow brk" fill="none" marker-end="url(#arw)"/><text x="20" y="200" class="lbl sm mut">The .. climbs out of site/ into the parent folder. The fix: resolve the real path and refuse anything not inside site/.</text></svg></div>
+  <figcaption>the .. climbs out of the folder you meant to serve and into the one
+above it, where the private file is sitting</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ printf 'GET /../not-for-the-public.txt HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n' \
+    | nc 127.0.0.1 8000</span>
+<span class="out">HTTP/1.1 200 OK
+Content-Type: text/plain
+Content-Length: 121
+Connection: close
+
+This file sits next to the server, outside the site/ directory.
+Nobody visiting the site should ever be able to read it.</span></pre></div>
+</figure>
+
+<p>Enough <code>../</code> and the same request reads any file the server
+process has permission to open, anywhere on the machine. This has a name,
+<span class="term">path traversal</span>, and it is one of the oldest mistakes
+in web software. It is worth seeing on your own server, in a file you wrote,
+because the line that causes it looks completely reasonable.</p>
+
+<p>The fix is to work out the real location the path resolves to, and refuse
+anything that is not inside the directory you meant to serve.</p>
+
+<figure>
+<div class="code"><pre><span class="c-kw">def</span> <span class="c-fn">answer</span>(path):
+    wanted = (ROOT / path.lstrip(<span class="c-st">&quot;/&quot;</span>)).resolve()
+    <span class="c-kw">if</span> ROOT.resolve() <span class="c-kw">not</span> <span class="c-kw">in</span> wanted.parents <span class="c-kw">and</span> wanted != ROOT.resolve():
+        <span class="c-kw">return</span> response(<span class="c-st">&quot;403 Forbidden&quot;</span>, <span class="c-st">&quot;text/html&quot;</span>, b<span class="c-st">&quot;&lt;h1&gt;403 forbidden&lt;/h1&gt;&quot;</span>)
+    <span class="c-kw">if</span> wanted.is_dir():
+        wanted = wanted / <span class="c-st">&quot;index.html&quot;</span>
+    <span class="c-kw">if</span> <span class="c-kw">not</span> wanted.is_file():
+        <span class="c-kw">return</span> response(<span class="c-st">&quot;404 Not Found&quot;</span>, <span class="c-st">&quot;text/html&quot;</span>, b<span class="c-st">&quot;&lt;h1&gt;404 not found&lt;/h1&gt;&quot;</span>)
+    kind = TYPES.get(wanted.suffix, <span class="c-st">&quot;application/octet-stream&quot;</span>)
+    <span class="c-kw">return</span> response(<span class="c-st">&quot;200 OK&quot;</span>, kind, wanted.read_bytes())</pre></div>
+<figcaption>server_safe.py, the corrected answer()</figcaption>
+</figure>
+
+<p><code>resolve</code> follows the <code>..</code> parts and any shortcuts on
+the disk and reports where the path genuinely lands. Then the check is whether
+the directory you are serving is one of its parents. The same request against
+the corrected server gets nothing but a refusal.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ printf 'GET /../not-for-the-public.txt HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n' \
+    | nc 127.0.0.1 8000</span>
+<span class="out">HTTP/1.1 403 Forbidden
+Content-Type: text/html
+Content-Length: 22
+Connection: close
+
+&lt;h1&gt;403 forbidden&lt;/h1&gt;</span></pre></div>
+</figure>
+
+<p>Keep the shape of that reasoning, because it recurs for the rest of this
+course. Everything arriving from outside is text a stranger chose, and every
+place your code uses it to reach something is a place where the stranger is
+choosing what you reach.</p>
+
+<h2 id="check">Check it yourself: ask for a file the server cannot type</h2>
+
+<div class="check">
+  <p>Run <code>server_safe.py</code>, and ask it for something that does not
+exist.</p>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -o /dev/null -w "status for a missing file: %{http_code}\n" \
+    http://127.0.0.1:8000/missing.html</span>
+<span class="out">status for a missing file: 404</span></pre></div>
+  <p>Then add a file to <code>site/</code> while the server is running, without
+restarting it, and ask for that. It works. The server holds no list of pages,
+has no idea what is in the directory, and finds out what exists at the moment
+somebody asks. That is worth a moment, because it is the definition of the thing
+being served. There is no website inside your program. There is a directory, and
+a program that will read out of it when asked.</p>
+</div>
+
+<h2 id="limit">Where this falls apart</h2>
+
+<p>You have a web server, and this is where its limits should be stated plainly,
+because the next chapters are each named after one of them.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>It answers one visitor at a time. The loop accepts a conversation, deals with
+it from start to finish, and only then goes back to <code>accept</code>. Make
+one request slow and everybody behind it stops. That is chapter fourteen.</p>
+  <p>It can only send back files that already exist. Every visitor gets identical
+bytes, which rules out logging in, writing anything, or knowing that a visitor
+was here before. That is chapter twelve.</p>
+  <p>It forgets everything. When you press control C, everything the program knew
+is gone, because it was in memory belonging to a process, as chapter one
+described. That is chapter fifteen.</p>
+  <p class="to">Before any of that, there is a smaller thing to sort out. You have
+written a server, and you are sitting at a laptop, and the same word is being
+used for two different objects. That confusion is chapter eleven.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>The same socket calls and the same by-hand web server, taught from the
+operating system's side, plus where path traversal sits among the classic
+mistakes.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=XXfdzwEsxFk" target="_blank" rel="noopener">The Linux socket API explained</a><span class="res-by">Chris Kanich · CS 361</span></div><p class="res-note">The socket calls this chapter uses, explained from the operating system&#x27;s side by someone who teaches them for a living.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=zXqblbDLGf0" target="_blank" rel="noopener">A systems programmer&#x27;s introduction to the world wide web</a><span class="res-by">Chris Kanich · CS 361</span></div><p class="res-note">A systems programmer wiring up the web by hand, which is exactly what this chapter has you do.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=bPVaOlJ6ln0" target="_blank" rel="noopener">Cybersecurity (Crash Course #31)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">Path traversal is one of the oldest of the mistakes this chapter has you make and then fix.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="10-a-web-server-in-one-file"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="09-what-a-socket-is.html"><span class="dir">previous</span><span class="name">09 · What a socket is</span></a><a class="next" href="11-server-as-hardware-server-as-software.html"><span class="dir">next</span><span class="name">11 · Server as hardware, server as software</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>
