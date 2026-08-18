@@ -13,11 +13,14 @@ Can I really build this myself.
 
 **The idea this chapter delivers**
 
-Open a socket, accept a connection, read the request text, write back a response with headers and an HTML body. Then extend it to read a real file off disk and return its contents.
+Open a socket, accept a connection, read the request text, write back a
+response with headers and an HTML body. Then extend it to read a real file off
+disk and return its contents.
 
 **The limit this chapter ends on**
 
-It works for one visitor requesting one file, and falls apart on almost everything else.
+It works for one visitor requesting one file, and falls apart on almost
+everything else.
 
 **Required shape**
 
@@ -27,7 +30,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/10-a-web-server-in-one-file/` as a real runnable file, and is
+Any listing goes in `../code/10-a-web-server-in-one-file/` as a real runnable
+file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +42,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./09-what-a-socket-is.md) | [Next chapter](./11-server-as-hardware-server-as-software.md)
+[Previous chapter](./09-what-a-socket-is.md) | [Next
+chapter](./11-server-as-hardware-server-as-software.md)

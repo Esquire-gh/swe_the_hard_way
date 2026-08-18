@@ -51,10 +51,13 @@ For each chapter:
 
 ## Hard rules
 
-No em dashes anywhere in the repository. Run this before every commit and
-expect zero output:
+No em dashes anywhere in the repository. Run the checker before every commit
+and expect it to pass:
 
-    grep -rn "—" --include="*.md" .
+    python3 scripts/check.py
+
+It checks for banned punctuation, over long lines, and links that point at
+nothing. Add rules to it as the repository grows rather than checking by eye.
 
 Every code listing shown in prose must exist on disk under `code/` and must
 run. If you cannot run it, do not claim its output.

@@ -13,11 +13,13 @@ What is a web server, actually.
 
 **The idea this chapter delivers**
 
-A program that waits. It listens for someone to connect, reads their text, and writes text back.
+A program that waits. It listens for someone to connect, reads their text, and
+writes text back.
 
 **The limit this chapter ends on**
 
-Waiting for the network is not something a program can do on its own. It has to ask the operating system.
+Waiting for the network is not something a program can do on its own. It has to
+ask the operating system.
 
 **Required shape**
 
@@ -27,7 +29,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/08-how-a-server-receives-a-request/` as a real runnable file, and is
+Any listing goes in `../code/08-how-a-server-receives-a-request/` as a real
+runnable file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +41,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./07-why-we-need-browsers.md) | [Next chapter](./09-what-a-socket-is.md)
+[Previous chapter](./07-why-we-need-browsers.md) | [Next
+chapter](./09-what-a-socket-is.md)

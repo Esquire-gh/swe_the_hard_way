@@ -27,7 +27,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/11-server-as-hardware-server-as-software/` as a real runnable file, and is
+Any listing goes in `../code/11-server-as-hardware-server-as-software/` as a
+real runnable file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +39,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./10-a-web-server-in-one-file.md) | [Next chapter](./12-from-reading-files-to-running-code.md)
+[Previous chapter](./10-a-web-server-in-one-file.md) | [Next
+chapter](./12-from-reading-files-to-running-code.md)

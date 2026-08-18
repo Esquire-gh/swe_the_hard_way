@@ -13,7 +13,8 @@ What does a request literally look like on the wire.
 
 **The idea this chapter delivers**
 
-An HTTP request and response are text in a strict format. The rules of that format are HTTP. The document that usually comes back is HTML.
+An HTTP request and response are text in a strict format. The rules of that
+format are HTTP. The document that usually comes back is HTML.
 
 **The limit this chapter ends on**
 
@@ -27,7 +28,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/06-requests-and-responses-are-just-text/` as a real runnable file, and is
+Any listing goes in `../code/06-requests-and-responses-are-just-text/` as a
+real runnable file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +40,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./05-the-client-server-model.md) | [Next chapter](./07-why-we-need-browsers.md)
+[Previous chapter](./05-the-client-server-model.md) | [Next
+chapter](./07-why-we-need-browsers.md)

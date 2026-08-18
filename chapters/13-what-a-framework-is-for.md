@@ -13,11 +13,14 @@ Why does everyone use a framework.
 
 **The idea this chapter delivers**
 
-Rebuild the previous chapter in FastAPI, line by line against the hand written version, so every piece of the framework maps to a problem the reader already felt.
+Rebuild the previous chapter in FastAPI, line by line against the hand written
+version, so every piece of the framework maps to a problem the reader already
+felt.
 
 **The limit this chapter ends on**
 
-The framework hides the hard parts, and the hardest one is still there underneath.
+The framework hides the hard parts, and the hardest one is still there
+underneath.
 
 **Required shape**
 
@@ -27,7 +30,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/13-what-a-framework-is-for/` as a real runnable file, and is
+Any listing goes in `../code/13-what-a-framework-is-for/` as a real runnable
+file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +42,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./12-from-reading-files-to-running-code.md) | [Next chapter](./14-two-people-at-once.md)
+[Previous chapter](./12-from-reading-files-to-running-code.md) | [Next
+chapter](./14-two-people-at-once.md)

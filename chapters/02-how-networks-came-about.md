@@ -13,11 +13,13 @@ How do two computers reach each other at all.
 
 **The idea this chapter delivers**
 
-The problem of moving bytes between machines, why wires alone were not enough, and how packet switching and layered protocols solved it.
+The problem of moving bytes between machines, why wires alone were not enough,
+and how packet switching and layered protocols solved it.
 
 **The limit this chapter ends on**
 
-A network gets bytes from one machine to another, but it does not tell you what those bytes mean.
+A network gets bytes from one machine to another, but it does not tell you what
+those bytes mean.
 
 **Required shape**
 
@@ -27,7 +29,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/02-how-networks-came-about/` as a real runnable file, and is
+Any listing goes in `../code/02-how-networks-came-about/` as a real runnable
+file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +41,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./01-what-it-means-to-tell-a-computer-what-to-do.md) | [Next chapter](./03-how-networks-made-the-web-possible.md)
+[Previous chapter](./01-what-it-means-to-tell-a-computer-what-to-do.md) | [Next
+chapter](./03-how-networks-made-the-web-possible.md)

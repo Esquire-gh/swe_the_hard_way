@@ -13,7 +13,9 @@ How does a program talk to the network.
 
 **The idea this chapter delivers**
 
-The operating system owns the network card, so it hands programs a handle. That handle is a socket, and it behaves enough like a file that you can read from it and write to it.
+The operating system owns the network card, so it hands programs a handle. That
+handle is a socket, and it behaves enough like a file that you can read from it
+and write to it.
 
 **The limit this chapter ends on**
 
@@ -27,7 +29,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/09-what-a-socket-is/` as a real runnable file, and is
+Any listing goes in `../code/09-what-a-socket-is/` as a real runnable file, and
+is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +41,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./08-how-a-server-receives-a-request.md) | [Next chapter](./10-a-web-server-in-one-file.md)
+[Previous chapter](./08-how-a-server-receives-a-request.md) | [Next
+chapter](./10-a-web-server-in-one-file.md)

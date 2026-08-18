@@ -13,11 +13,14 @@ What changes when the system spans many computers.
 
 **The idea this chapter delivers**
 
-Why the network is not reliable, why clocks disagree, what consistency costs, and how the common patterns are trades against the same small set of constraints.
+Why the network is not reliable, why clocks disagree, what consistency costs,
+and how the common patterns are trades against the same small set of
+constraints.
 
 **The limit this chapter ends on**
 
-This is where most tutorials stop, and it leaves the newest part of the industry unexplained.
+This is where most tutorials stop, and it leaves the newest part of the
+industry unexplained.
 
 **Required shape**
 
@@ -27,7 +30,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/17-more-than-one-machine/` as a real runnable file, and is
+Any listing goes in `../code/17-more-than-one-machine/` as a real runnable
+file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +42,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./16-what-makes-real-systems-hard.md) | [Next chapter](./18-ai-systems-are-the-same-systems.md)
+[Previous chapter](./16-what-makes-real-systems-hard.md) | [Next
+chapter](./18-ai-systems-are-the-same-systems.md)

@@ -13,11 +13,14 @@ Where does a web page physically live.
 
 **The idea this chapter delivers**
 
-A page is a file on a disk in a machine you do not own. IP addresses are how machines are found on the public network, and DNS turns a name people can remember into an address a machine can use.
+A page is a file on a disk in a machine you do not own. IP addresses are how
+machines are found on the public network, and DNS turns a name people can
+remember into an address a machine can use.
 
 **The limit this chapter ends on**
 
-Knowing where the file is does not explain who asks for it and who hands it over.
+Knowing where the file is does not explain who asks for it and who hands it
+over.
 
 **Required shape**
 
@@ -27,7 +30,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/04-a-website-is-a-file-on-someone-elses-computer/` as a real runnable file, and is
+Any listing goes in `../code/04-a-website-is-a-file-on-someone-elses-computer/`
+as a real runnable file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +42,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./03-how-networks-made-the-web-possible.md) | [Next chapter](./05-the-client-server-model.md)
+[Previous chapter](./03-how-networks-made-the-web-possible.md) | [Next
+chapter](./05-the-client-server-model.md)

@@ -11,9 +11,9 @@ If you want to send a change, read `docs/STYLE.md` first. The writing rules are
 strict on purpose, and a pull request that reads differently from the rest of
 the book will be sent back even if the content is correct.
 
-Before opening a pull request, check that this prints nothing:
+Before opening a pull request, run the checker and make sure it passes:
 
-    grep -rn "—" --include="*.md" .
+    python3 scripts/check.py
 
 Any code you add must live under `code/` as a runnable file and must actually
 run.

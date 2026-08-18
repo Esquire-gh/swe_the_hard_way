@@ -13,11 +13,15 @@ Is any of this different for AI.
 
 **The idea this chapter delivers**
 
-No. Training is a process on a machine, reading files, scheduled by an operating system, spread across many machines with the same coordination problems. Inference is a server, listening on a socket, behind a queue and a cache.
+No. Training is a process on a machine, reading files, scheduled by an
+operating system, spread across many machines with the same coordination
+problems. Inference is a server, listening on a socket, behind a queue and a
+cache.
 
 **The limit this chapter ends on**
 
-Nothing. This is the end of the line, and the reader can now explain the whole path from pressing enter to seeing a page.
+Nothing. This is the end of the line, and the reader can now explain the whole
+path from pressing enter to seeing a page.
 
 **Required shape**
 
@@ -27,7 +31,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/18-ai-systems-are-the-same-systems/` as a real runnable file, and is
+Any listing goes in `../code/18-ai-systems-are-the-same-systems/` as a real
+runnable file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +43,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./17-more-than-one-machine.md) | [Back to the front page](../README.md)
+[Previous chapter](./17-more-than-one-machine.md) | [Back to the front
+page](../README.md)

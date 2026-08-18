@@ -13,7 +13,9 @@ Who is who in this exchange.
 
 **The idea this chapter delivers**
 
-One side has the thing, the other side wants it. The one who starts is the client. The one who answers is the server. This is a role, not a kind of machine.
+One side has the thing, the other side wants it. The one who starts is the
+client. The one who answers is the server. This is a role, not a kind of
+machine.
 
 **The limit this chapter ends on**
 
@@ -27,7 +29,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/05-the-client-server-model/` as a real runnable file, and is
+Any listing goes in `../code/05-the-client-server-model/` as a real runnable
+file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +41,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./04-a-website-is-a-file-on-someone-elses-computer.md) | [Next chapter](./06-requests-and-responses-are-just-text.md)
+[Previous chapter](./04-a-website-is-a-file-on-someone-elses-computer.md) |
+[Next chapter](./06-requests-and-responses-are-just-text.md)

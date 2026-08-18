@@ -13,7 +13,9 @@ What is actually happening when you run a program.
 
 **The idea this chapter delivers**
 
-A computer follows instructions one at a time. A program on disk is just a file. Running it means the operating system makes a process, gives it memory, and takes turns letting the CPU work through its instructions.
+A computer follows instructions one at a time. A program on disk is just a
+file. Running it means the operating system makes a process, gives it memory,
+and takes turns letting the CPU work through its instructions.
 
 **The limit this chapter ends on**
 
@@ -27,7 +29,8 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/01-what-it-means-to-tell-a-computer-what-to-do/` as a real runnable file, and is
+Any listing goes in `../code/01-what-it-means-to-tell-a-computer-what-to-do/`
+as a real runnable file, and is
 referenced from here by path. Do not paste code that does not exist on disk.
 
 **Before you write**
@@ -38,4 +41,5 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Back to the front page](../README.md) | [Next chapter](./02-how-networks-came-about.md)
+[Back to the front page](../README.md) | [Next
+chapter](./02-how-networks-came-about.md)
