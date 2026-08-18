@@ -12,3 +12,4 @@ venv/
 *.response
 knock.txt
 *.pipe
+*.jsonl
