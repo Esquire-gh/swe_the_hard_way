@@ -1,0 +1,3 @@
+A packet is a small block of bytes with a destination written on it.
+
+-> networks

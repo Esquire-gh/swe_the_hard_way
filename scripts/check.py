@@ -54,6 +54,18 @@ PROPER = {
     "PostgreSQL", "Python", "RAM", "RFC", "Redis", "SQL", "SQLite", "TCP",
     "TLS", "UDP", "URL", "URLs", "UTF", "Unix", "W3C", "WHATWG", "Wi-Fi",
     "Berners-Lee", "Cerf", "Kahn", "Baran", "Davies", "Andreessen",
+    "Tim", "Vint", "Bob", "Paul", "Donald", "Ted", "Doug", "Ray", "Vannevar",
+    "Tomlinson", "Nelson", "Engelbart", "Bush", "Metcalfe", "Kleinrock",
+    "Apple", "Gopher", "Usenet", "HyperCard", "Macintosh", "Minnesota",
+    "Xerox", "PARC", "RAND", "NPL", "UCLA", "SRI", "Stanford", "IETF", "NCSA",
+    "England", "American", "America", "United", "States", "Europe", "January",
+    "October", "March", "April", "December", "Internet", "Explorer", "Chrome",
+    "Firefox", "Safari", "Mozilla", "Opera", "Lynx", "Flask", "Django",
+    "Uvicorn", "Starlette", "Pydantic", "Jinja", "Apache", "HAProxy",
+    "Varnish", "Memcached", "RabbitMQ", "Kafka", "Celery", "Kubernetes",
+    "MySQL", "MongoDB", "Oracle", "Amazon", "Google", "Netflix", "Facebook",
+    "GitHub", "PyTorch", "TensorFlow", "NumPy", "CUDA", "NVIDIA", "Claude",
+    "GPT", "Windows", "GNU", "POSIX", "ISO", "YAML", "Slurm", "Redis",
 }
 
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
@@ -63,7 +75,7 @@ CODE_PATH = re.compile(r"`((?:\.\./)*code/[^`\s]+)`")
 # A list item or navigation line that is made entirely of markdown links.
 LINK_LINE = re.compile(
     r"^(?:[-*]|\d+\.)?\s*\[[^\]]+\]\([^)]+\)"
-    r"(?:\s*\|\s*\[[^\]]+\]\([^)]+\))*\s*(?:is [^.]*)?\.?\s*$"
+    r"(?:\s*\|\s*\[[^\]]+\]\([^)]+\))*\s*(?:is [^.]*)?[.,]?\s*$"
 )
 
 # The file that names the banned words cannot avoid containing them.

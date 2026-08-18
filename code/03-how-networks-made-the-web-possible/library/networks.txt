@@ -1,0 +1,3 @@
+A network moves bytes between machines and has no opinion about them.
+
+-> packets

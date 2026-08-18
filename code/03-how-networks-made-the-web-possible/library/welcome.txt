@@ -1,0 +1,8 @@
+A library of four documents, three of which exist.
+
+Any line beginning with an arrow names another document in this library.
+Nothing anywhere checks that the named document is really there.
+
+-> networks
+-> packets
+-> the-one-that-moved
