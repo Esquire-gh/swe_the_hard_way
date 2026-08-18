@@ -1,0 +1,2 @@
+This file sits next to the server, outside the site/ directory.
+Nobody visiting the site should ever be able to read it.
