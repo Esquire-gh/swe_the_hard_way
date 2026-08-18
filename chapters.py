@@ -39,9 +39,9 @@ class Chapter:
         return f"code/{self.slug}"
 
 
-FRONT = Chapter(0, "index", "What happens between pressing enter and a page", 0,
-                "The whole stack, from the processor to the page, with nothing "
-                "left as magic.")
+FRONT = Chapter(0, "index", "Introduction", 0,
+                "What software engineering is underneath the tools, taught by "
+                "building one web server all the way down.")
 
 CHAPTERS = [
     # ---- Part one -------------------------------------------------------

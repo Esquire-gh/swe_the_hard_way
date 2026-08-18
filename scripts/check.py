@@ -54,6 +54,9 @@ PROPER = {
     "cern", "os", "cpu", "gil", "ai", "api", "json", "i", "openapi",
 }
 
+# Proper titles of works, allowed to keep their title-case capitals.
+TITLE_HEADINGS = {"Software Engineering the Hard Way"}
+
 TAG = re.compile(r"<[^>]+>")
 TOKEN = re.compile(r"\{\{.*?\}\}")
 HEADING = re.compile(r"<h([1-3])[^>]*>(.*?)</h\1>", re.S)
@@ -122,8 +125,10 @@ def check_content(problems: list) -> None:
 
         # headings in sentence case
         for _, htext in HEADING.findall(text):
+            clean = TAG.sub("", htext).strip()
+            if clean in TITLE_HEADINGS:
+                continue
             if heading_title_case(htext):
-                clean = TAG.sub("", htext).strip()
                 problems.append(f"{rel}: heading looks like title case: \"{clean}\"")
 
         # code/ paths named on the page must exist

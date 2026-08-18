@@ -205,7 +205,7 @@ def sitenav(chap, *, depth: int, page: str = "") -> str:
     cur_home = " current" if page == "index" else ""
     out.append(
         f'<a class="nav-home{cur_home}" href="{home}"><span class="n">00</span>'
-        '<span class="t">Front page</span></a>')
+        '<span class="t">Introduction</span></a>')
     for part in (1, 2, 3, 4, 5):
         out.append(f'<p class="nav-part">{escape(PART_TITLES[part])}</p>')
         out.append('<ul class="nav-list">')
@@ -231,7 +231,7 @@ def masthead(chap, *, depth: int, page: str = "") -> str:
     if page == "further-watching":
         num, here, part = "", "Further watching", "appendix"
     elif chap.num == 0:
-        num, here, part = "", "Front page", "the whole stack"
+        num, here, part = "00", "Introduction", "the whole stack"
     else:
         num, here, part = chap.nn, chap.title, PART_TITLES[chap.part]
     numbered = " numbered" if num else ""
@@ -259,7 +259,7 @@ def chapnav(chap, *, depth: int = 1) -> str:
     out = ['<nav class="modnav">']
     if prev_c is not None:
         href = "../index.html" if prev_c.num == 0 else f"{prev_c.slug}.html"
-        label = "front page" if prev_c.num == 0 else f"{prev_c.nn} · {prev_c.title}"
+        label = "Introduction" if prev_c.num == 0 else f"{prev_c.nn} · {prev_c.title}"
         out.append(f'<a class="prev" href="{href}"><span class="dir">previous</span>'
                    f'<span class="name">{escape(label)}</span></a>')
     if next_c is not None:
@@ -288,7 +288,7 @@ def render_page(chap, body: str, *, depth: int, page: str = "",
         title = "Further watching — swe the hard way"
         desc = "Every outside video and course, mapped to its chapter."
     elif chap.num == 0:
-        title = "swe the hard way"
+        title = "Software Engineering the Hard Way"
         desc = escape(chap.desc)
     else:
         title = f"{chap.nn} · {chap.title} — swe the hard way"
