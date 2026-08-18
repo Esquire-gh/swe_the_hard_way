@@ -10,3 +10,5 @@ venv/
 .vscode/
 *.request
 *.response
+knock.txt
+*.pipe
