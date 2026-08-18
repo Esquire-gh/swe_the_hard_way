@@ -14,22 +14,28 @@ The voice is fixed. `STYLE.md` is the contract. The single most important rule
 is that no chapter may use a term the reader has not met, and no chapter may
 introduce a tool before the reader has felt the problem the tool solves.
 
-## Step zero, before writing a single word
+## Step zero, which is already done
 
-Read the sibling repository at `../beyond_rag`.
+The sibling repository at `../beyond_rag` has been read and `STYLE.md` has
+been reconciled with it. You do not need to repeat this. What follows is the
+record of what was decided, so nobody has to guess later.
 
-That repository is an earlier tutorial by the same author and it is the
-reference for both layout and voice. Look at how it organises files, how its
-front page reads, how a chapter opens and closes, how code listings are
-presented, and how long a typical paragraph is.
+Its voice rules were taken: full flowing sentences rather than fragments, no
+words that tell the reader a thing is easy, no words that promise more than
+the sentence delivers, headings that say what the reader is about to learn,
+the concept explained before any command is typed, and tools used to confirm
+understanding rather than to supply it. All of these now live in `STYLE.md`
+and most of them are enforced by `scripts/check.py`.
 
-Then update `STYLE.md` in this repository so it matches what `beyond_rag`
-actually does. Where `STYLE.md` and `beyond_rag` disagree, `beyond_rag` wins.
-`STYLE.md` was written without access to it and is a best guess.
+Its layout was not taken. `beyond_rag` builds a static HTML site from source
+content, and `BRIEF.md` requires this tutorial to be readable on GitHub with
+no build step. So the chapters stay as markdown under `chapters/` with their
+code under `code/`. On voice `beyond_rag` wins, on layout this repository
+wins.
 
-Also mirror the repository layout of `beyond_rag` where it makes sense. If it
-puts chapters somewhere else, or names things differently, follow it rather
-than the layout here.
+One rule here is deliberately stricter. `beyond_rag` allows the rare em dash.
+This repository allows none, because the checker can enforce that and cannot
+enforce a judgement call.
 
 ## How to write a chapter
 

@@ -205,10 +205,11 @@ Limit: every fix here still assumes one machine.
 
 Question: what changes when the system spans many computers.
 
-Idea: the moment there is more than one machine, some things become impossible
-and others become merely difficult. Why the network is not reliable, why clocks
-disagree, what consistency costs, and how the common patterns are all trades
-against the same small set of constraints.
+Idea: the moment there is more than one machine, some things become
+impossible and others become difficult in a way one machine never was. Why
+the network is not reliable, why clocks disagree, what consistency costs, and
+how the common patterns are all trades against the same small set of
+constraints.
 
 Limit: this is where most tutorials stop, and it leaves the newest and loudest
 part of the industry unexplained.
