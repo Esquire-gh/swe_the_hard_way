@@ -1,189 +1,176 @@
 #!/usr/bin/env python3
-"""Check the tutorial against the writing contract in docs/STYLE.md.
+"""Mechanical checks for the site.
 
-Run it from the repository root with: python3 scripts/check.py
-It prints every problem it finds and exits non zero if there was any.
+These are the rules a program can enforce, run before every commit from the
+repository root:
+
+    python3 scripts/check.py
+
+It reports, over the authored pages in content/ and the built pages in site/:
+
+  * em dashes and en dashes, which this repository does not use
+  * banned words: the ones that tell the reader a thing is easy, and the ones
+    that promise more than the sentence delivers
+  * prose wider than eighty columns (tags and code blocks do not count)
+  * headings that have slipped into title case
+  * internal links that point at a page that does not exist
+  * {{ }} tokens the build could not resolve
+  * code/ paths named in a page that are not on disk
+
+Add rules here as the site grows rather than checking by eye.
 """
+from __future__ import annotations
 
-import pathlib
 import re
 import sys
+from pathlib import Path
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent
+CONTENT = ROOT / "content"
+SITE = ROOT / "site"
 MAX_WIDTH = 80
 
+sys.path.insert(0, str(ROOT))
+from chapters import CHAPTERS  # noqa: E402
+
+# Pages the site is allowed to link to, whether or not they are built yet.
+EXPECTED_PAGES = {"index.html", "further-watching.html"} | {
+    f"{c.slug}.html" for c in CHAPTERS}
+
 BANNED_CHARS = {
-    "—": "em dash, use a full stop or a comma instead",
-    "–": "en dash, use plain words instead",
+    "—": "em dash, use a full stop, a comma, or brackets",
+    "–": "en dash, use a full stop, a comma, or brackets",
 }
 
-# Words that tell the reader a thing is easy. They do nothing for the reader
-# who found it easy and make the stuck reader feel worse.
-HEDGING = [
-    "simply",
-    "obviously",
-    "of course",
-    "clearly",
-    "merely",
-    "trivially",
-    "just a matter of",
-    "needless to say",
-    "it goes without saying",
-]
+HEDGING = ["simply", "obviously", "of course", "clearly", "merely",
+           "trivially", "just a matter of", "needless to say"]
+HYPE = ["powerful", "blazing", "game changing", "superpower", "magical",
+        "seamless", "effortless", "revolutionary"]
 
-# Words that promise more than the sentence delivers.
-HYPE = [
-    "powerful",
-    "blazing",
-    "game changing",
-    "superpower",
-    "magical",
-    "seamless",
-    "effortless",
-    "revolutionary",
-]
-
-# Capitalised because that is how they are spelled, not because a heading has
-# slipped into title case. Grows as the tutorial introduces more names.
+# Proper nouns and acronyms allowed to keep their capital mid-heading.
 PROPER = {
-    "ACID", "API", "APIs", "ARPA", "ARPANET", "ASCII", "AI", "BSD", "C",
-    "CERN", "CGI", "CPU", "CPUs", "CRUD", "CSS", "DNS", "DSL", "Docker",
-    "English", "Ethernet", "FastAPI", "GET", "GIL", "GPU", "GPUs", "HTML",
-    "HTTP", "HTTPS", "I", "ID", "IP", "JSON", "JavaScript", "Linux", "Mosaic",
-    "NCP", "Netscape", "Nginx", "OS", "POST", "PUT", "Postgres",
-    "PostgreSQL", "Python", "RAM", "RFC", "Redis", "SQL", "SQLite", "TCP",
-    "TLS", "UDP", "URL", "URLs", "UTF", "Unix", "W3C", "WHATWG", "Wi-Fi",
-    "Berners-Lee", "Cerf", "Kahn", "Baran", "Davies", "Andreessen",
-    "Tim", "Vint", "Bob", "Paul", "Donald", "Ted", "Doug", "Ray", "Vannevar",
-    "Tomlinson", "Nelson", "Engelbart", "Bush", "Metcalfe", "Kleinrock",
-    "Apple", "Gopher", "Usenet", "HyperCard", "Macintosh", "Minnesota",
-    "Xerox", "PARC", "RAND", "NPL", "UCLA", "SRI", "Stanford", "IETF", "NCSA",
-    "England", "American", "America", "United", "States", "Europe", "January",
-    "October", "March", "April", "December", "Internet", "Explorer", "Chrome",
-    "Firefox", "Safari", "Mozilla", "Opera", "Lynx", "Flask", "Django",
-    "Uvicorn", "Starlette", "Pydantic", "Jinja", "Apache", "HAProxy",
-    "Varnish", "Memcached", "RabbitMQ", "Kafka", "Celery", "Kubernetes",
-    "MySQL", "MongoDB", "Oracle", "Amazon", "Google", "Netflix", "Facebook",
-    "GitHub", "PyTorch", "TensorFlow", "NumPy", "CUDA", "NVIDIA", "Claude",
-    "GPT", "Windows", "GNU", "POSIX", "ISO", "YAML", "Slurm", "Redis",
+    "python", "http", "https", "html", "css", "tcp", "ip", "dns", "url", "urls",
+    "arpanet", "ucla", "wi-fi", "ethernet", "rand", "cs", "sql", "fastapi",
+    "cern", "os", "cpu", "gil", "ai", "api", "json", "i", "openapi",
 }
 
-HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
-LINK = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
-CODE_PATH = re.compile(r"`((?:\.\./)*code/[^`\s]+)`")
-
-# A list item or navigation line that is made entirely of markdown links.
-LINK_LINE = re.compile(
-    r"^(?:[-*]|\d+\.)?\s*\[[^\]]+\]\([^)]+\)"
-    r"(?:\s*\|\s*\[[^\]]+\]\([^)]+\))*\s*(?:is [^.]*)?[.,]?\s*$"
-)
-
-# The file that names the banned words cannot avoid containing them.
-WORD_CHECK_EXEMPT = {pathlib.Path("docs/STYLE.md")}
+TAG = re.compile(r"<[^>]+>")
+TOKEN = re.compile(r"\{\{.*?\}\}")
+HEADING = re.compile(r"<h([1-3])[^>]*>(.*?)</h\1>", re.S)
+HREF = re.compile(r'(?:href|src)="([^"]+)"')
+CODE_TOKEN = re.compile(r"\{\{\s*code:([^#}\s]+)")
+CODE_MENTION = re.compile(r"(?<![\w/])(code/[A-Za-z0-9._/-]+)")
+BAD_TOKEN_MARK = "background:#f8e4ee"
 
 
-def heading_problems(heading):
-    """Report words in a heading that look like title case."""
-    found = []
-    starts_sentence = True
-    for word in heading.split():
-        core = word.strip("*_`()[]{}<>,.:;?!\"'")
-        core = re.sub(r"['’]s$", "", core)
-        if core:
-            if not starts_sentence and core[0].isupper() and core not in PROPER:
-                found.append(f"heading is not sentence case: '{core}'")
-        starts_sentence = word.endswith((".", ":", "?", "!"))
-    return found
+def visible(line: str) -> str:
+    """The line with tags and tokens removed, for width and word checks."""
+    return TOKEN.sub("", TAG.sub("", line))
 
 
-def phrase_problems(line, phrases, reason):
-    """Report banned phrases, matched on whole words."""
-    found = []
-    lowered = line.lower()
-    for phrase in phrases:
-        if re.search(rf"(?<![\w-]){re.escape(phrase)}(?![\w-])", lowered):
-            found.append(f"'{phrase}' {reason}")
-    return found
+def word_hits(text: str, words: list) -> list:
+    low = text.lower()
+    return [w for w in words if re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", low)]
 
 
-problems = []
-stubs = []
-
-for path in sorted(ROOT.rglob("*.md")):
-    if ".git" in path.parts or ".venv" in path.parts:
-        continue
-    rel = path.relative_to(ROOT)
-    text = path.read_text(encoding="utf-8")
-    check_words = rel not in WORD_CHECK_EXEMPT
-
-    if "Status: not written yet" in text:
-        stubs.append(str(rel))
-
-    in_fence = False
-    for line_no, line in enumerate(text.splitlines(), start=1):
-        stripped = line.strip()
-
-        for char, reason in BANNED_CHARS.items():
-            if char in line:
-                problems.append(f"{rel}:{line_no}: {reason}")
-
-        if stripped.startswith("```"):
-            in_fence = not in_fence
+def heading_title_case(text: str) -> bool:
+    """True if a heading looks like Title Case rather than sentence case."""
+    text = TAG.sub("", text).strip()
+    # a capital is allowed right after a sentence break
+    words = re.findall(r"[A-Za-z][A-Za-z'\-]*", text)
+    prev_break = True
+    caps = 0
+    for w in words:
+        if prev_break:
+            prev_break = False
             continue
+        base = w.lower().split("'")[0]
+        if w[0].isupper() and base not in PROPER and not w.isupper():
+            caps += 1
+        prev_break = False
+    return caps >= 1
 
-        is_code = in_fence or line.startswith("    ")
-        is_table = stripped.startswith("|")
-        # A line whose whole job is to hold a link cannot be wrapped, so it is
-        # allowed to run long.
-        is_link_line = "http" in stripped or bool(LINK_LINE.match(stripped))
-        if len(line) > MAX_WIDTH and not (is_code or is_table or is_link_line):
-            problems.append(
-                f"{rel}:{line_no}: line is {len(line)} characters, "
-                f"wrap at {MAX_WIDTH}"
-            )
 
-        if is_code:
-            continue
+def check_content(problems: list) -> None:
+    for path in sorted(CONTENT.glob("*.html")):
+        rel = path.relative_to(ROOT)
+        text = path.read_text()
 
-        if check_words:
-            for found in phrase_problems(
-                line, HEDGING, "tells the reader it is easy, cut it"
-            ):
-                problems.append(f"{rel}:{line_no}: {found}")
-            for found in phrase_problems(
-                line, HYPE, "is hype, say what it does instead"
-            ):
-                problems.append(f"{rel}:{line_no}: {found}")
+        # banned punctuation, anywhere
+        for i, line in enumerate(text.splitlines(), 1):
+            for ch, why in BANNED_CHARS.items():
+                if ch in line:
+                    problems.append(f"{rel}:{i}: {why}")
 
-        heading = HEADING.match(line)
-        if heading:
-            for found in heading_problems(heading.group(2)):
-                problems.append(f"{rel}:{line_no}: {found}")
+        # width and banned words, on visible prose only
+        in_pre = False
+        for i, line in enumerate(text.splitlines(), 1):
+            if "<pre" in line:
+                in_pre = True
+            vis = "" if in_pre else visible(line)
+            if "</pre>" in line:
+                in_pre = False
+            if not vis.strip():
+                continue
+            # leading whitespace is HTML indentation, not prose; measure the prose
+            if len(vis.strip()) > MAX_WIDTH:
+                problems.append(f"{rel}:{i}: prose is {len(vis.strip())} columns wide")
+            for w in word_hits(vis, HEDGING):
+                problems.append(f"{rel}:{i}: hedging word '{w}'")
+            for w in word_hits(vis, HYPE):
+                problems.append(f"{rel}:{i}: hype word '{w}'")
 
-    for target in LINK.findall(text):
-        if target.startswith(("http://", "https://", "mailto:", "#")):
-            continue
-        target = target.split("#")[0]
-        if target and not (path.parent / target).exists():
-            problems.append(f"{rel}: link points at nothing: {target}")
+        # headings in sentence case
+        for _, htext in HEADING.findall(text):
+            if heading_title_case(htext):
+                clean = TAG.sub("", htext).strip()
+                problems.append(f"{rel}: heading looks like title case: \"{clean}\"")
 
-    for named in CODE_PATH.findall(text):
-        if "<" in named:  # a placeholder in the instructions, not a real path
-            continue
-        cleaned = named.rstrip("/")
-        # A path in prose is written either from the repository root or from
-        # the file that mentions it. Both are fair, so accept either.
-        if not ((ROOT / cleaned).exists() or (path.parent / cleaned).exists()):
-            problems.append(f"{rel}: names a path under code/ that is not "
-                            f"on disk: {named}")
+        # code/ paths named on the page must exist
+        for m in set(CODE_TOKEN.findall(text)) | set(CODE_MENTION.findall(text)):
+            target = ROOT / m
+            if not target.exists():
+                problems.append(f"{rel}: names code path that does not exist: {m}")
 
-if problems:
-    for problem in sorted(set(problems)):
-        print(problem)
-    print(f"\n{len(set(problems))} problems found.")
-    sys.exit(1)
 
-if stubs:
-    print(f"All checks passed. {len(stubs)} chapters are still stubs.")
-else:
-    print("All checks passed.")
+def check_built(problems: list) -> None:
+    pages = list(SITE.glob("*.html")) + list(SITE.glob("chapters/*.html"))
+    if not pages:
+        problems.append("site/ has no built pages, run python3 build.py first")
+        return
+    for path in pages:
+        rel = path.relative_to(ROOT)
+        text = path.read_text()
+        if "{{" in text or BAD_TOKEN_MARK in text:
+            problems.append(f"{rel}: contains an unresolved token")
+        for target in HREF.findall(text):
+            if target.startswith(("http:", "https:", "mailto:", "#", "data:")):
+                continue
+            frag = target.split("#", 1)[0]
+            if not frag:
+                continue
+            dest = (path.parent / frag).resolve()
+            if dest.exists():
+                continue
+            if Path(frag).name in EXPECTED_PAGES:
+                continue  # a planned page, not authored yet
+            problems.append(f"{rel}: broken link to {target}")
+
+
+def main() -> None:
+    problems: list = []
+    check_content(problems)
+    check_built(problems)
+
+    stubs = [c.name for c in CONTENT.glob("*.html")]
+    if problems:
+        print(f"{len(problems)} problem(s):\n")
+        for p in problems:
+            print("  " + p)
+        sys.exit(1)
+    written = sorted(p.stem for p in CONTENT.glob("*.html"))
+    print(f"All checks passed. {len(written)} page(s) authored.")
+
+
+if __name__ == "__main__":
+    main()

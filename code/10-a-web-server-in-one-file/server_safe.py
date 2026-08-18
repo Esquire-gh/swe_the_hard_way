@@ -25,6 +25,7 @@ def response(status, kind, body):
     return head.encode() + body
 
 
+# BEGIN answer
 def answer(path):
     wanted = (ROOT / path.lstrip("/")).resolve()
     if ROOT.resolve() not in wanted.parents and wanted != ROOT.resolve():
@@ -35,6 +36,7 @@ def answer(path):
         return response("404 Not Found", "text/html", b"<h1>404 not found</h1>")
     kind = TYPES.get(wanted.suffix, "application/octet-stream")
     return response("200 OK", kind, wanted.read_bytes())
+# END answer
 
 
 listening = socket.socket()
