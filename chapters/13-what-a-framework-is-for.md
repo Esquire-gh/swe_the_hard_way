@@ -42,5 +42,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./12-from-reading-files-to-running-code.md) | [Next
-chapter](./14-two-people-at-once.md)
+[Previous chapter](./12-from-reading-files-to-running-code.md) | [Next chapter](./14-two-people-at-once.md)

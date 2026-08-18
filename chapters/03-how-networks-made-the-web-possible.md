@@ -40,5 +40,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./02-how-networks-came-about.md) | [Next
-chapter](./04-a-website-is-a-file-on-someone-elses-computer.md)
+[Previous chapter](./02-how-networks-came-about.md) | [Next chapter](./04-a-website-is-a-file-on-someone-elses-computer.md)

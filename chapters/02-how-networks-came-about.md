@@ -41,5 +41,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./01-what-it-means-to-tell-a-computer-what-to-do.md) | [Next
-chapter](./03-how-networks-made-the-web-possible.md)
+[Previous chapter](./01-what-it-means-to-tell-a-computer-what-to-do.md) | [Next chapter](./03-how-networks-made-the-web-possible.md)

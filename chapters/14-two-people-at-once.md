@@ -42,5 +42,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./13-what-a-framework-is-for.md) | [Next
-chapter](./15-where-the-data-lives.md)
+[Previous chapter](./13-what-a-framework-is-for.md) | [Next chapter](./15-where-the-data-lives.md)

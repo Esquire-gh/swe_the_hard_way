@@ -42,5 +42,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./14-two-people-at-once.md) | [Next
-chapter](./16-what-makes-real-systems-hard.md)
+[Previous chapter](./14-two-people-at-once.md) | [Next chapter](./16-what-makes-real-systems-hard.md)

@@ -42,5 +42,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./03-how-networks-made-the-web-possible.md) | [Next
-chapter](./05-the-client-server-model.md)
+[Previous chapter](./03-how-networks-made-the-web-possible.md) | [Next chapter](./05-the-client-server-model.md)

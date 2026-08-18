@@ -41,5 +41,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./11-server-as-hardware-server-as-software.md) | [Next
-chapter](./13-what-a-framework-is-for.md)
+[Previous chapter](./11-server-as-hardware-server-as-software.md) | [Next chapter](./13-what-a-framework-is-for.md)

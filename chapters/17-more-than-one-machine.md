@@ -42,5 +42,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./16-what-makes-real-systems-hard.md) | [Next
-chapter](./18-ai-systems-are-the-same-systems.md)
+[Previous chapter](./16-what-makes-real-systems-hard.md) | [Next chapter](./18-ai-systems-are-the-same-systems.md)

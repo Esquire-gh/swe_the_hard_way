@@ -43,5 +43,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./17-more-than-one-machine.md) | [Back to the front
-page](../README.md)
+[Previous chapter](./17-more-than-one-machine.md) | [Back to the front page](../README.md)

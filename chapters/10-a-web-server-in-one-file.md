@@ -42,5 +42,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./09-what-a-socket-is.md) | [Next
-chapter](./11-server-as-hardware-server-as-software.md)
+[Previous chapter](./09-what-a-socket-is.md) | [Next chapter](./11-server-as-hardware-server-as-software.md)

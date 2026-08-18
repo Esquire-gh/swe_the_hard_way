@@ -40,5 +40,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./05-the-client-server-model.md) | [Next
-chapter](./07-why-we-need-browsers.md)
+[Previous chapter](./05-the-client-server-model.md) | [Next chapter](./07-why-we-need-browsers.md)

@@ -29,9 +29,9 @@ that are not one of those five unless the chapter genuinely needs them.
 
 **Code for this chapter**
 
-Any listing goes in `../code/09-what-a-socket-is/` as a real runnable file, and
-is
-referenced from here by path. Do not paste code that does not exist on disk.
+Any listing goes in `../code/09-what-a-socket-is/` as a real runnable file,
+and is referenced from here by path. Do not paste code that does not exist
+on disk.
 
 **Before you write**
 
@@ -41,5 +41,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./08-how-a-server-receives-a-request.md) | [Next
-chapter](./10-a-web-server-in-one-file.md)
+[Previous chapter](./08-how-a-server-receives-a-request.md) | [Next chapter](./10-a-web-server-in-one-file.md)

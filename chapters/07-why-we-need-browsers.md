@@ -42,5 +42,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./06-requests-and-responses-are-just-text.md) | [Next
-chapter](./08-how-a-server-receives-a-request.md)
+[Previous chapter](./06-requests-and-responses-are-just-text.md) | [Next chapter](./08-how-a-server-receives-a-request.md)

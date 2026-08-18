@@ -41,5 +41,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Back to the front page](../README.md) | [Next
-chapter](./02-how-networks-came-about.md)
+[Back to the front page](../README.md) | [Next chapter](./02-how-networks-came-about.md)

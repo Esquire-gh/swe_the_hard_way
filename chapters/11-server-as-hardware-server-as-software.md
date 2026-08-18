@@ -39,5 +39,4 @@ chapter must be the opening question of this one, in the reader's own words.
 
 ---
 
-[Previous chapter](./10-a-web-server-in-one-file.md) | [Next
-chapter](./12-from-reading-files-to-running-code.md)
+[Previous chapter](./10-a-web-server-in-one-file.md) | [Next chapter](./12-from-reading-files-to-running-code.md)
