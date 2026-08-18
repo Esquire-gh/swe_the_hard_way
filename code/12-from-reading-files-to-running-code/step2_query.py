@@ -1,6 +1,10 @@
 """Reading what the visitor typed into the address, and what happens to a page
 when you put it back without care.
 
+The /hello page here puts the visitor's text into the page unchanged, which is
+the bug chapter 12 is about. /hello-escaped is the same page done properly. Do
+not copy the first one anywhere.
+
 Run it with:  python3 step2_query.py
 Then visit:   http://127.0.0.1:8000/hello?name=Ada
 Stop it with control C.
