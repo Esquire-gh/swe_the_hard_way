@@ -54,7 +54,7 @@ CHAPTERS = [
 
     # ---- Part two -------------------------------------------------------
     Chapter(2, "02-how-networks-came-about",
-            "How networks came about", 2,
+            "Then came networks", 2,
             "Why moving bytes between machines needed packet switching and "
             "layered protocols, and why that design was inevitable.",
             builds="bytes moving between two machines",
