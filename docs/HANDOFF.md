@@ -3,6 +3,19 @@
 This file is written for a coding agent picking up this repository with a fresh
 context. Read it fully before touching anything.
 
+## Where the work stands
+
+All eighteen chapters are written, and every listing named in a chapter exists
+under `code/` and was run to produce the output that is printed. So this file
+is now a record of the rules the tutorial was written against rather than a
+plan for writing it.
+
+Two things follow from that. Anything added later has to hold to the same
+rules, because a chapter written to a different standard is worse than no
+chapter. And anything edited has to keep the handoffs intact, since every
+chapter opens on the limit the previous one closed with, and changing one
+ending silently breaks the next opening.
+
 ## What is already decided
 
 The structure is fixed. Eighteen chapters, five parts, mapped one to one

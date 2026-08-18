@@ -60,8 +60,12 @@ there.
 
 ## What you need
 
-A laptop, a terminal, and Python. Nothing else, and nothing is installed until
-a chapter has explained why the thing being installed needs to exist.
+A laptop, a terminal, and Python 3. Nothing else, and nothing is installed
+until a chapter has explained why the thing being installed needs to exist.
+Chapters 1 to 12 and 14 to 18 use only the standard library. Chapter 13 is the
+first one that installs anything, and it argues for every package first.
+
+The commands are written for macOS and Linux. On Windows, use WSL.
 
 ## Who this is for
 
@@ -69,15 +73,49 @@ Anyone who can already write a small program in some language and wants to know
 what is underneath everything they use. You do not need a computer science
 degree. You do need patience, because this takes the long road on purpose.
 
+## Running the code
+
+Every listing printed in a chapter is a real file under
+[`code/`](./code/), named after the chapter it belongs to, and every
+output shown was produced by running it. Run them from their own directory:
+
+```sh
+cd code/01-what-it-means-to-tell-a-computer-what-to-do
+python3 machine.py
+```
+
+Some of them are servers. Those print the address they are listening on and
+keep running until you stop them with control C, and the chapter tells you what
+to do from a second terminal window.
+
+Chapter 13 is the only one that needs anything installed:
+
+```sh
+cd code/13-what-a-framework-is-for
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/uvicorn app:app --port 8000
+```
+
+Your numbers will not match the ones printed in the chapters, and they are not
+meant to. Where a measurement depends on your machine, the chapter says so and
+says which part of the result is the claim.
+
 ## The state of this repository
 
-The chapters are currently stubs. The plan is written and the structure is
-fixed. See `docs/` for the reasoning behind it.
+All eighteen chapters are written. See `docs/` for the reasoning behind the
+structure and the rules the writing is held to.
 
 - [`docs/BRIEF.md`](./docs/BRIEF.md) is why this exists and what already exists online.
 - [`docs/OUTLINE.md`](./docs/OUTLINE.md) is the chapter by chapter plan.
 - [`docs/STYLE.md`](./docs/STYLE.md) is the writing contract.
-- [`docs/HANDOFF.md`](./docs/HANDOFF.md) is the instruction set for writing it.
+- [`docs/HANDOFF.md`](./docs/HANDOFF.md) is the instruction set it was written against.
+
+Prose and links are checked by a program rather than by eye:
+
+```sh
+python3 scripts/check.py
+```
 
 ## Licence
 

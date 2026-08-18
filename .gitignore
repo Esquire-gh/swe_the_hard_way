@@ -13,3 +13,4 @@ venv/
 knock.txt
 *.pipe
 *.jsonl
+guestbook.json
