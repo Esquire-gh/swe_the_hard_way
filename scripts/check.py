@@ -63,7 +63,7 @@ CODE_PATH = re.compile(r"`((?:\.\./)*code/[^`\s]+)`")
 # A list item or navigation line that is made entirely of markdown links.
 LINK_LINE = re.compile(
     r"^(?:[-*]|\d+\.)?\s*\[[^\]]+\]\([^)]+\)"
-    r"(?:\s*\|\s*\[[^\]]+\]\([^)]+\))*\s*(?:is [^.]*\.)?$"
+    r"(?:\s*\|\s*\[[^\]]+\]\([^)]+\))*\s*(?:is [^.]*)?\.?\s*$"
 )
 
 # The file that names the banned words cannot avoid containing them.
@@ -158,7 +158,10 @@ for path in sorted(ROOT.rglob("*.md")):
     for named in CODE_PATH.findall(text):
         if "<" in named:  # a placeholder in the instructions, not a real path
             continue
-        if not (path.parent / named.rstrip("/")).exists():
+        cleaned = named.rstrip("/")
+        # A path in prose is written either from the repository root or from
+        # the file that mentions it. Both are fair, so accept either.
+        if not ((ROOT / cleaned).exists() or (path.parent / cleaned).exists()):
             problems.append(f"{rel}: names a path under code/ that is not "
                             f"on disk: {named}")
 
