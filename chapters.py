@@ -46,8 +46,9 @@ FRONT = Chapter(0, "index", "Introduction", 0,
 CHAPTERS = [
     # ---- Part one -------------------------------------------------------
     Chapter(1, "01-what-it-means-to-tell-a-computer-what-to-do",
-            "What it means to tell a computer what to do", 1,
-            "What a program is on disk, what changes when it runs, and who is "
+            "What programming really is", 1,
+            "The usual definition of programming taken apart on one computer: "
+            "what a program is on disk, what changes when it runs, and who is "
             "in charge of the difference.",
             builds="a process on one machine",
             breaks="one machine cannot reach another"),
