@@ -2,136 +2,173 @@
 <h1><span class="num">04 ·</span> What is a website?</h1>
 <p class="hook">The word website sounds like a place. It is not a place. Somewhere there is a
 computer, probably in a rented rack in a building with good air conditioning,
-running an operating system and processes exactly like the ones in chapter one,
+running an operating system and processes exactly like the ones on your laptop,
 and on its disk there is a file. When you visit a page, a program on that
 machine reads that file and sends the bytes back to you. That is the whole of
 it. The two hard parts of that sentence, finding the machine and naming the
 file, are this chapter.</p>
 
-<h2 id="two-questions">A web address is two questions in one</h2>
+<h2 id="folder">A website is a folder on a computer somebody else runs</h2>
 
-<p>The library in chapter three turned <code>-&gt; packets</code> into a filename in a folder,
-and that worked because there was one machine and one folder. The web has
-neither. A link written years ago by a stranger has to find one particular
-machine among all the machines on earth, and then get one particular file off
-it. So take an address apart and see what it carries.</p>
+<p>Start with the one you are looking at. This site is a folder of files in a
+repository, and the page in front of you is one of them.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ ls site/chapters/ | head -4</span>
+<span class="out">01-computers-programs-and-programming.html
+02-computer-networks.html
+03-the-web.html
+04-what-is-a-website.html</span></pre></div>
+</figure>
+
+<p>Those files are on the author's laptop. They are also on a computer belonging to
+GitHub, which is what makes them a website rather than a folder, and you can ask
+that computer about itself. <code>curl -I</code> asks for a page and prints only the notes
+that come back with it rather than the page.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ curl -sI https://esquire-gh.github.io/swe_the_hard_way/chapters/03-the-web.html</span>
+<span class="out">HTTP/2 200
+server: GitHub.com
+content-type: text/html; charset=utf-8
+last-modified: Sat, 22 Aug 2026 19:06:15 GMT
+etag: "6a89f327-63d5"</span></pre></div>
+</figure>
+
+<p>A machine answered, said which program answered, said what kind of thing it is
+sending, and said when the file was last written. That last line is the moment
+the author ran the build, so the file on GitHub's disk and the file on the
+laptop really are the same file, copied. There is no website object anywhere.
+There is a directory, a program that hands out what is in it, and a machine that
+is switched on.</p>
+
+<p>So the rest of the chapter is the two hard parts. A link written years ago by a
+stranger has to find one machine among all the machines on earth, and then get
+one file off it.</p>
+
+<h2 id="two-questions">A web address is two questions in one</h2>
 
 <figure>
   <div class="dgm">{{ diagram:url-anatomy }}</div>
-  <figcaption>scheme, host and path: which rules, which machine, and what to ask it for</figcaption>
+  <figcaption>scheme, host and path: which rules, which machine, and what to ask
+it for</figcaption>
 </figure>
 
-<p>The <span class="term">scheme</span> says which set of rules to use for the conversation. <code>https</code> means the
-rules described in chapter six, with the conversation encrypted. The <span class="term">host</span> says
-which machine to have the conversation with, and it is the part that has to be
-turned into something the network can route to. The <span class="term">path</span> says what to ask that
-machine for once you are connected. It looks like a filename in a folder because
-in 1991 that is exactly what it was: the program on the far machine took the
-path, added it to the end of a directory name, and read that file off the disk.
-Much of the web stopped working that way long ago, and chapter eleven is about
-when and why, but the shape of the name never changed. The whole thing, scheme
-and host and path together, is a <span class="term">URL</span>, a uniform resource locator, which is a
-formal way of saying an address that works from anywhere.</p>
+<p>The <span class="term">scheme</span> says which set of rules to use for the conversation, and <code>https</code> means
+the rules in chapter six with the conversation encrypted. The <span class="term">host</span> says which
+machine to have the conversation with, and it is the part that has to be turned
+into something the network can route to. The <span class="term">path</span> says what to ask that machine
+for once you are connected.</p>
 
-<p>Two questions, then, and the second one is somebody else's problem until the
-first is solved. Which machine?</p>
+<p>The path looks like a filename in a folder because in 1991 that is exactly what
+it was: the program on the far machine took the path, stuck it on the end of a
+directory name, and read that file off the disk. The site you are reading still
+works that way. Much of the web stopped long ago, and chapter eleven is about
+when and why, but the shape of the name never changed. The whole thing together
+is a <span class="term">URL</span>, a uniform resource locator, which is a formal way of saying an address
+that works from anywhere.</p>
+
+<p>The second question is somebody else's problem until the first is solved. Which
+machine?</p>
 
 <h2 id="numbers">Every machine on the network needs a number</h2>
 
-<p>Routers forward packets by looking at the destination written on them, which
-means every machine reachable on the internet needs a number that is not shared
-with any other. That number is its <span class="term">IP address</span>. The old and still common form is
-four numbers between 0 and 255 with dots between them, like <code>208.80.154.224</code>. That
-is thirty two bits in total, which allows about 4.3 billion machines. When these
-were being handed out in the 1980s that seemed generous, because nobody had put
-one for every telephone on the list. They ran out. The newer form is a hundred
-and twenty eight bits, written as groups of hexadecimal digits separated by
-colons, like <code>2620:0:861:ed1a::1</code>, and most machines now have both.</p>
+<p>Routers forward packets by reading the destination written on them, so every
+machine reachable on the internet needs a number no other machine is using. That
+number is its <span class="term">IP address</span>. The old and still common form, <span class="term">IPv4</span>, is four numbers
+between 0 and 255 with dots between them, like <code>208.80.154.224</code>. Thirty two bits,
+about 4.3 billion machines, and in the 1980s nobody expected to need one per
+telephone. They ran out. The replacement, <span class="term">IPv6</span>, is a hundred and twenty eight
+bits written as groups of hexadecimal digits separated by colons, like
+<code>2620:0:861:ed1a::1</code>, and most machines now have both.</p>
 
-<p>The part worth understanding is not the format but how anything can route to
-them, because there are billions of machines and no router could hold a list of
-them all. Addresses are not handed out one at a time. They are handed out in
-contiguous blocks, and a router keeps a table of blocks rather than machines.
-Its table says something closer to "anything starting 208.80.152 goes out of
-link three", and it holds around a million such ranges instead of billions of
-addresses. A packet arrives, the router finds the most specific range that
-contains the destination, and sends it that way. That is how the machine at hop
-three of the traceroute in chapter two could forward a packet toward a machine
-it had never heard of.</p>
+<p>No router could hold a list of billions of machines, and none has to, because
+addresses are handed out in contiguous blocks. A router's table says something
+closer to "anything starting <code>208.80.152</code> goes out of link three", so it holds
+around a million ranges instead of billions of addresses. That is how a machine
+three hops away can forward a packet toward a destination it has never heard of.</p>
 
-<h2 id="private">The address on your own machine is probably not public</h2>
-
-<p>Look again at the first hop of that traceroute. It was <code>192.168.1.1</code>. Some ranges
-are set aside as private, including everything starting <code>192.168</code>, everything
-starting <code>10.</code>, and a block in the middle of <code>172</code>. They are not unique, they mean
-nothing on the public internet, and routers on the internet will not forward
-packets addressed to them. Your laptop almost certainly has one right now, and
-so does mine, and they may well be the same number.</p>
-
-<p>What makes this work is that the box your internet arrives through has one real
-public address, and everything in the building shares it. When your laptop sends
-a packet out, that box rewrites the sender's address to be its own public one,
-writes down the swap, and undoes it when a reply comes back. This is called
-<span class="term">network address translation</span>, and it is the reason 4.3 billion addresses have
-lasted this long.</p>
+<p>Your own machine is probably not in that scheme at all. Ranges starting <code>192.168</code>
+and <code>10.</code> are set aside as private: they are not unique, and no router on the
+internet will forward to them. The box your internet arrives through has one
+real public address that everything in the building shares, rewriting the
+sender's address on the way out and undoing it when the reply comes back. This
+is <span class="term">network address translation</span>, and it is why 4.3 billion addresses have lasted
+this long.</p>
 
 <div class="callout">
-  <p>There is a consequence worth carrying forward, because it will save confusion
-later. This arrangement works in one direction. Your machine can start a
-conversation with anything on the internet, and nothing on the internet can
-start one with your machine, because there is no address that reaches it. When
-you write a working web server in chapter ten and none of your friends can visit
-it, this is why. Writing a server and putting it somewhere the world can reach
-are two separate jobs, and only the first one is about programming.</p>
+  <span class="callout-label">carry this forward</span>
+  <p>That arrangement works in one direction. Your machine can start a conversation
+with anything on the internet, and nothing on the internet can start one with
+your machine, because no address reaches it. When you write a working web server
+in chapter ten and none of your friends can visit it, this is why. Writing a
+server and putting it somewhere the world can reach are two separate jobs, and
+only the first is about programming.</p>
 </div>
 
 <h2 id="names">Nobody can remember numbers, and numbers move</h2>
 
 <p>Numbers are correct and unusable. People cannot remember them, and worse, they
-change. A site moves to a different machine, or to twelve machines in different
-countries, and every link ever written to it should keep working. So there has
-to be a layer that turns a name into a number, and the first version was exactly
-what you would guess. There was one file listing every name on the network and
-the address it belonged to. It was maintained at Stanford Research Institute,
-and every machine on the ARPANET downloaded a fresh copy from time to time.</p>
+change: a site moves to a different machine, or to twelve machines in different
+countries, and every link ever written to it has to keep working. So something
+has to turn a name into a number, and the first version was exactly what you
+would guess. One file listed every name on the network and its address,
+maintained at one research institute, and every machine downloaded a fresh copy
+from time to time.</p>
 
-<p>It failed for the reason chapter three has already made familiar. One central
-thing that everybody has to coordinate with does not survive growth. The file
-got large, it was out of date the moment it was copied, and adding a machine
-meant writing to someone and waiting. The replacement, designed in 1983, splits
-the names up and hands out authority over the pieces. It is called the <span class="term">Domain
-Name System</span>, DNS, and it is worth reading a name backwards to see the shape.</p>
+<p>It failed for the reason the last chapter made familiar. One central thing
+everybody has to coordinate with does not survive growth: the file got large, it
+was out of date the moment it was copied, and adding a machine meant writing to
+someone and waiting. The replacement, designed in 1983, splits the names up and
+hands out authority over the pieces. It is called the <span class="term">Domain Name System</span>, DNS,
+and you read a name backwards to see the shape.</p>
 
 <figure>
   <div class="dgm">{{ diagram:dns-delegation }}</div>
-  <figcaption>nobody holds the whole list; each level knows one thing, who to ask next</figcaption>
+  <figcaption>nobody holds the whole list; each level knows one thing, who to ask
+next</figcaption>
 </figure>
 
 <p>In <code>en.wikipedia.org</code>, the last part is <code>org</code>. A small set of machines called the
-root servers know nothing about wikipedia, but they do know which machines are
+root servers know nothing about wikipedia, but they know which machines are
 responsible for <code>org</code>. Those machines know nothing about the <code>en</code> part, but they
 know which machines are responsible for <code>wikipedia.org</code>. Those machines, run by
-the people who run wikipedia, know the address of <code>en.wikipedia.org</code>. Nobody holds
-the whole list. Adding a name inside <code>wikipedia.org</code> requires telling nobody
-outside wikipedia, in the same way that adding a document to the library in
-chapter three required telling nobody at all.</p>
+the people who run wikipedia, know the address. Nobody holds the whole list, and
+adding a name inside <code>wikipedia.org</code> means telling nobody outside wikipedia.</p>
 
 <p>Your own machine does not walk that chain. It asks one machine, called a
-<span class="term">resolver</span>, usually run by your internet provider, and the resolver does the
-walking and then remembers the answer for a stated number of seconds. That
-period is called the <span class="term">time to live</span>, and it is why the first lookup of a name is
-slow and the next thousand are instant.</p>
+<span class="term">resolver</span>, which walks it and then remembers the answer for a stated number of
+seconds. That period is the <span class="term">time to live</span>, and it is why the first lookup of a
+name is slow and the next thousand are instant. All of this is programs on
+machines sending each other messages over the network from chapter two. There is
+no separate magic layer.</p>
 
-<p>One last thing about this, and it is the point of putting the chapter here. All
-of that is programs on machines sending each other messages over the network
-from chapter two. The root servers are computers running processes as described
-in chapter one. There is no separate magic layer. It is the same story again,
-one level up.</p>
+<h2 id="hosts">The file DNS replaced is still on your machine</h2>
+
+<p>That single global list did not disappear. Every machine still carries a private
+copy, it is consulted before any question goes near the network, and whatever it
+says wins.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ grep -v "^#" /etc/hosts | head -3</span>
+<span class="out">127.0.0.1        localhost
+255.255.255.255  broadcasthost
+::1              localhost</span></pre></div>
+</figure>
+
+<p>This is why <code>localhost</code> resolves instantly and works with no network at all. It is
+also a tool: add a line here and that name means whatever you say on this
+machine and nowhere else, which is how people point a real site's name at a copy
+running on their own laptop. On Windows the same file lives under
+<code>System32\drivers\etc</code>.</p>
 
 <h2 id="lookup">Looking a name up</h2>
 
-<p>Python can ask the operating system to do a lookup, and the operating system
-asks the resolver.</p>
+<p>Python can ask the operating system for a lookup, and the operating system
+checks that file, then asks the resolver.</p>
 
 <figure>
 {{ code:code/04-what-is-a-website/lookup.py }}
@@ -141,35 +178,44 @@ asks the resolver.</p>
 <figure>
   <div class="term-block"><div class="term-head">terminal</div>
 <pre><span class="prompt">$ python3 lookup.py</span>
-<span class="out">example.com            104.20.23.154, 172.66.147.243, 2606:4700:10::6814:179a, 2606:4700:10::ac42:93f3
-wikipedia.org          208.80.154.224, 2620:0:861:ed1a::1
-localhost              127.0.0.1, ::1
-no-such-name.example   no answer: nodename nor servname provided, or not known</span></pre></div>
+<span class="out">example.com
+    104.20.23.154
+    172.66.147.243
+    2606:4700:10::6814:179a
+    2606:4700:10::ac42:93f3
+wikipedia.org
+    208.80.154.224
+    2620:0:861:ed1a::1
+localhost
+    127.0.0.1
+    ::1
+no-such-name.example
+    no answer: nodename nor servname provided, or not known</span></pre></div>
 </figure>
 
 <p>Your addresses for the first two will differ from these, and may differ from
 each other on consecutive runs, and that is the first lesson in the output. One
-name is not one machine. <code>example.com</code> came back with four addresses here, two of
-the old kind and two of the new. A busy site answers with several, and often
-with different ones depending on where you are asking from, so that you are sent
-to a machine near you. The name is a name for a service, and the service can be
-as many machines as it likes.</p>
+name is not one machine. <code>example.com</code> came back with four addresses, two of the
+old kind and two of the new, from a single question. A busy site answers with
+several, and often with
+different ones depending on where the question came from, so you are sent to a
+machine near you. The name names a service, and the service can be as many
+machines as it likes.</p>
 
-<p><code>localhost</code> is a special name that every machine has, and it points at itself.
-Packets sent to <code>127.0.0.1</code> never reach a network card at all; the operating
-system loops them straight back into itself. Everything from chapter eight
-onward is tested against that address, because it means you can run both sides
-of a conversation on one laptop.</p>
+<p><code>localhost</code> points at the machine it is typed on. Packets sent to <code>127.0.0.1</code> never
+reach a network card at all, because the operating system loops them straight
+back into itself, which is why everything from chapter eight onward can be
+tested with both sides of a conversation on one laptop.</p>
 
-<p>The last line fails, and it fails the way a broken link failed in chapter three.
+<p>The last line fails, and it fails the way a broken link did in the last chapter.
 A name that resolves to nothing is an ordinary answer, handled and reported,
 rather than a fault in the system.</p>
 
-<h2 id="check">Check it yourself: watch the question get handed down</h2>
+<h2 id="check">Check it yourself: watch the chain, then watch the memory</h2>
 
 <div class="check">
-  <p>The claim that no single machine knows the whole list is the one worth checking.
-<code>dig</code> will show you the chain being walked one step at a time.</p>
+  <p>Two claims to test. First, that no single machine knows the whole list. <code>dig
++trace</code> walks the chain one step at a time and shows every answer.</p>
   <div class="term-block"><div class="term-head">terminal</div>
 <pre><span class="prompt">$ dig +trace +nodnssec wikipedia.org A</span>
 <span class="out">.                   56789   IN  NS  a.root-servers.net.
@@ -180,31 +226,91 @@ org.                172800  IN  NS  b2.org.afilias-nst.org.
                     ... four more ...
 wikipedia.org.      3600    IN  NS  ns0.wikimedia.org.
 wikipedia.org.      3600    IN  NS  ns1.wikimedia.org.
-wikipedia.org.      3600    IN  NS  ns2.wikimedia.org.
 wikipedia.org.      180     IN  A   208.80.154.224</span></pre></div>
-  <p>Read it as three questions and an answer. The first block is the root servers,
-and every one of them declined to answer the question. There are thirteen names,
-<code>a</code> through <code>m</code>, and each name is really many machines in many countries answering
-to the same address. What they returned is not an address for wikipedia. It is a
-list of who to ask about <code>org</code>. The second block is the same move again: the <code>org</code>
-servers do not know wikipedia's address either, but they know who is responsible
-for <code>wikipedia.org</code>. The third block is wikimedia's own machines, and only there
-does an address appear.</p>
-  <p>The numbers in the second column are the times to live, in seconds. The
-delegation for <code>org</code> is good for 172,800 seconds, which is two days, because who
-runs <code>org</code> almost never changes. The address itself is good for 180 seconds,
-because they may want to move it at short notice. That single number is how a
-site changes machines without anybody editing a link. Ask for the plain answer
-twice with <code>dig wikipedia.org</code> and watch the reported query time collapse on the
-second attempt. That is the resolver's memory doing its job.</p>
+  <p>Read it as three questions and an answer. The root servers all declined to
+answer: what they returned is a list of who to ask about <code>org</code>. The <code>org</code> servers
+declined too, and named who is responsible for <code>wikipedia.org</code>. Only wikimedia's
+own machines produced an address.</p>
+  <p>The numbers in the second column are the times to live, in seconds. Who runs <code>org</code>
+is good for 172,800 seconds, which is two days, because it almost never changes.
+The address is good for 180 seconds, because they may want to move it at short
+notice.</p>
+  <p>Second claim: your resolver remembers. Ask for a name nobody nearby has asked
+for recently, then ask again.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ dig nlnetlabs.nl +noall +answer +stats | grep -E "IN|Query time"</span>
+<span class="out">nlnetlabs.nl.       240     IN  A   128.140.76.106
+;; Query time: 137 msec</span>
+<span class="prompt">$ dig nlnetlabs.nl +noall +answer +stats | grep -E "IN|Query time"</span>
+<span class="out">nlnetlabs.nl.       234     IN  A   128.140.76.106
+;; Query time: 3 msec</span></pre></div>
+  <p>A hundred and thirty seven milliseconds became three, which is the difference
+between walking the chain and answering from memory. The proof is the number in
+front of the address: it was 240 and is now 234. That is not a fresh answer, it
+is the same answer with six seconds knocked off its life, counting down toward
+the moment the resolver has to go and ask again.</p>
+  <p>One more, because it is worth knowing you have a choice. <code>dig @1.1.1.1
+example.com +short</code> asks Cloudflare's public resolver instead of the one your
+provider handed you, and <code>@8.8.8.8</code> asks Google's. Which resolver you use decides
+who sees every name you look up.</p>
   <div class="trouble">
     <b>if dig is not on your machine</b>
-    <p><code>host wikipedia.org</code> or <code>nslookup wikipedia.org</code> will give you the answer without
-the journey.</p>
+    <p><code>host wikipedia.org</code> or <code>nslookup wikipedia.org</code> will give you the answer
+without the journey.</p>
   </div>
 </div>
 
-<h2 id="limit">Who asks, and who answers</h2>
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>You ask your resolver for a name it has never been asked for, three labels long,
+like <code>docs.example.org</code>. Before running anything, write down in order which
+machines get asked, and how many separate questions the resolver has to send
+before it can answer you.</p>
+<p class="ex-look">Three, one per label from the right: the root servers for <code>org</code>, the <code>org</code> servers
+for <code>example.org</code>, and example's own servers for the full name. Each question is a
+round trip over the network, which is what the 137 milliseconds above was made
+of, and it is why the answer is worth remembering afterwards.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Build the system out of three dictionaries: a root that knows only who handles
+<code>org</code>, an <code>org</code> server that knows only who handles <code>wikipedia.org</code>, and wikipedia's
+server that knows the addresses. Write <code>resolve(name)</code> to walk from the root one
+label at a time from the right, returning the address and how many servers it
+asked. Then add a cache with a time to live, and count the servers asked over a
+thousand lookups of one name with and without it.</p>
+<p class="ex-look">Three servers asked per lookup, and a name nobody handles costs two, because the
+<code>org</code> server can say no on its own authority. Over a thousand lookups the count
+goes from 3,000 to 3. Notice that no server in your three dictionaries knows
+more than one thing, and that the whole design works precisely because none of
+them has to.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Now move the site. Change the address held by the authoritative server sixty
+seconds into a run and keep looking the name up once a second for five minutes.
+Count how long the wrong address is served, then set the time to live to one
+second and run it again.</p>
+<p class="ex-look">With a three hundred second life the move takes effect two hundred and thirty
+nine seconds late, and every lookup in between returns an address that is no
+longer right. With a one second life the wrong answer lasts one second and costs
+900 questions instead of 3. No setting is correct, only a trade between how fast
+you can move and how much work everybody does, which is why the 180 in
+wikipedia's answer above is a decision somebody made on purpose.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>The many addresses in the <code>example.com</code> lookup are a content delivery network: the
+name resolves to whichever copy is nearest to whoever asked. Web hosting is the
+"somebody else" in the title of the first section, and GitHub Pages, which
+serves this site, is the plainest form of it, a folder in a repository handed
+out by a machine that is already switched on. And the short time to live in the
+last exercise is what every deployment guide means when it tells you to lower it
+the day before you move.</p>
+</div>
+
+<h2 id="limit">Where this runs out</h2>
 
 <p>We can now find the machine, and we have a path naming what we want from it. A
 name became an address, an address is something routers can move packets toward,
@@ -215,10 +321,10 @@ they are connected.</p>
   <span class="limit-label">where this runs out</span>
   <p>What we still have no account of is the conversation itself. Two programs, one
 of which has the file and one of which wants it. Something has to happen between
-them, and every part of it is undecided. Which one speaks first. Whether one of
-them was already running before the other appeared, or whether they started
-together. Whether the machine with the file is doing anything at all when nobody
-is asking.</p>
+them and every part of it is undecided. Which one speaks first. Whether one was
+already running before the other appeared, or whether they started together.
+Whether the machine with the file is doing anything at all when nobody is
+asking.</p>
   <p class="to">Those questions have names, and the names come with a model so established it is
 rarely explained. Before looking at what the two programs say to each other,
 chapter five is exact about who they are.</p>

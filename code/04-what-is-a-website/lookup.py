@@ -17,9 +17,11 @@ def addresses_for(name):
 
 
 for name in sys.argv[1:] or NAMES:
+    print(name)
     try:
         found = addresses_for(name)
     except socket.gaierror as problem:
-        print(f"{name:<22} no answer: {problem.strerror}")
+        print(f"    no answer: {problem.strerror}")
         continue
-    print(f"{name:<22} {', '.join(found)}")
+    for address in found:
+        print(f"    {address}")
