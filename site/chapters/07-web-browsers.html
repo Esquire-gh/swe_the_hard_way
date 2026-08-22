@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Web browsers — swe the hard way</title>
+<meta name="description" content="Sending the text by hand, and what a browser adds: writing it, drawing it, and agreeing with every other browser.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part three · the conversation</span><span class="here"><span class="hn">07</span><span class="ht">Web browsers</span></span></span><span class="progress-label">07 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-computers-programs-and-programming.html" data-module="01-computers-programs-and-programming"><span class="n">01</span><span class="t">Computers, programs, and programming</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-computer-networks.html" data-module="02-computer-networks"><span class="n">02</span><span class="t">Computer networks</span></a></li><li><a class="nav-item" href="03-the-web.html" data-module="03-the-web"><span class="n">03</span><span class="t">The web</span></a></li><li><a class="nav-item" href="04-what-is-a-website.html" data-module="04-what-is-a-website"><span class="n">04</span><span class="t">What is a website?</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses.html" data-module="06-requests-and-responses"><span class="n">06</span><span class="t">Requests and responses</span></a></li><li><a class="nav-item current" href="07-web-browsers.html" data-module="07-web-browsers" aria-current="page"><span class="n">07</span><span class="t">Web browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-web-servers.html" data-module="08-web-servers"><span class="n">08</span><span class="t">Web servers</span></a></li><li><a class="nav-item" href="09-socket-programming.html" data-module="09-socket-programming"><span class="n">09</span><span class="t">Socket programming and the Linux socket API</span></a></li><li><a class="nav-item" href="10-building-a-static-web-server.html" data-module="10-building-a-static-web-server"><span class="n">10</span><span class="t">Building a static web server</span></a></li><li><a class="nav-item" href="11-building-a-dynamic-web-server.html" data-module="11-building-a-dynamic-web-server"><span class="n">11</span><span class="t">Building a dynamic web server</span></a></li><li><a class="nav-item" href="12-servers-as-hardware-and-software.html" data-module="12-servers-as-hardware-and-software"><span class="n">12</span><span class="t">Servers as hardware and software</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-handling-multiple-users-at-once.html" data-module="13-handling-multiple-users-at-once"><span class="n">13</span><span class="t">Handling multiple users at once</span></a></li><li><a class="nav-item" href="14-introducing-databases.html" data-module="14-introducing-databases"><span class="n">14</span><span class="t">Introducing databases</span></a></li><li><a class="nav-item" href="15-scaling-web-applications.html" data-module="15-scaling-web-applications"><span class="n">15</span><span class="t">Scaling web applications</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-introduction-to-distributed-systems.html" data-module="17-introduction-to-distributed-systems"><span class="n">17</span><span class="t">Introduction to distributed systems</span></a></li><li><a class="nav-item" href="18-ai-systems-are-still-software.html" data-module="18-ai-systems-are-still-software"><span class="n">18</span><span class="t">AI systems are still software</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part three · the conversation</p>
+<h1><span class="num">07 ·</span> Web browsers</h1>
+<p class="hook">The browser is the program you use most and think about least. Chapter six
+finished with three jobs and nothing doing any of them: the request has to be
+sent, the response has to be turned into something a person can look at, and
+somebody, somewhere, has to have decided what <code>&lt;h1&gt;</code> means, or the whole
+arrangement is two programs exchanging punctuation. One kind of program does all
+three, and it is larger than most operating systems were when the web was
+invented. The best way to find out what all of it is for is to do the jobs
+yourself and see which ones you can finish. The first one takes a single line.</p>
+
+<h2 id="nc">A program that joins two points and stays out of the way</h2>
+
+<p>To send the text from chapter six you need something that will open a connection
+to another machine and then get out of the way. <code>nc</code>, short for netcat, is that.
+It connects, copies whatever you give it into the connection, and prints
+whatever comes back. It knows nothing about HTTP and has no opinion about what
+you send. It is a pipe with a network on one end.</p>
+
+<p>It needs two things: which machine, and which of the waiting programs on that
+machine you want. That second one has been in the background since chapter five
+and is worth naming now. A machine runs many waiting programs at once, which you
+saw in the <code>LISTEN</code> listing, so an address on its own is not enough to say who you
+mean. Every waiting program claims a number, and every packet carries the number
+it is for. The number is called a <span class="term">port</span>, and it is what the operating system uses
+to decide which waiting program a new connection belongs to. Chapter nine is
+about the mechanism. For now, the web agreed long ago that plain HTTP lives on
+port 80 and encrypted HTTP on port 443, which is why you have never had to type
+either.</p>
+
+<h2 id="by-hand">Sending a request by hand</h2>
+
+<p>The target here is <code>info.cern.ch</code>, which is the machine CERN keeps at the address
+of the first website. It still answers unencrypted HTTP on port 80, which most
+large sites no longer do, so it is a good place to watch the plain protocol
+work.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ printf 'GET / HTTP/1.1\r\nHost: info.cern.ch\r\nConnection: close\r\n\r\n' \
+    | nc info.cern.ch 80</span>
+<span class="out">HTTP/1.1 200 OK
+Date: Tue, 18 Aug 2026 04:48:30 GMT
+Server: Apache
+Last-Modified: Wed, 05 Feb 2014 16:00:31 GMT
+ETag: "286-4f1aadb3105c0"
+Accept-Ranges: bytes
+Content-Length: 646
+Connection: close
+Content-Type: text/html
+
+&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;&lt;header&gt;
+&lt;title&gt;http://info.cern.ch&lt;/title&gt;
+&lt;/header&gt;
+
+&lt;h1&gt;http://info.cern.ch - home of the first website&lt;/h1&gt;
+&lt;p&gt;From here you can:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://info.cern.ch/hypertext/WWW/TheProject.html"&gt;Browse the first website&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://line-mode.cern.ch/www/hypertext/WWW/TheProject.html"&gt;Browse the first website using the line-mode browser simulator&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://home.web.cern.ch/topics/birth-web"&gt;Learn about the birth of the web&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://home.web.cern.ch/about"&gt;Learn about CERN, the physics laboratory where the web was born&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/body&gt;&lt;/html&gt;</span></pre></div>
+</figure>
+
+<p>Three details in that command matter. <code>printf</code> is used rather than <code>echo</code> because
+every line of HTTP ends with a carriage return and a line feed, and <code>printf</code>
+writes those two bytes exactly where they are asked for. <code>Connection: close</code> asks
+the server to hang up once it has answered, since HTTP/1.1 otherwise keeps the
+connection open for a further request and <code>nc</code> would sit there waiting. And the
+request ends with two line endings in a row, which is the blank line that ends
+the headers.</p>
+
+<p>Everything chapter six described is there and nothing else is. A status line.
+Eight headers. A blank line. Then exactly 646 bytes of HTML, the number the
+<code>Content-Length</code> header promised. <code>Last-Modified</code> says the file on that disk was
+written in February 2014 and has not been touched since, which is the clearest
+possible statement of what a web page is. That is the first job done, in one
+line, with no browser anywhere. Sending an HTTP request is not what browsers are
+for.</p>
+
+<h2 id="missing">What you did not get</h2>
+
+<p>Two things are missing, and one of them is worse than it looks. The obvious one
+is that you have angle brackets rather than a page. Turning those into something
+readable means building a tree out of the nested tags, deciding what every
+element should look like, working out the position and size of every box on a
+screen whose width was not known when the document was written, drawing all of
+it, and doing the whole calculation again when anything changes. That is a real
+engineering problem and it is most of what a browser's code is.</p>
+
+<p>The less obvious one is that a page is rarely one file. The CERN page above is
+unusual because it is genuinely self contained. Fetching the front page of
+Wikipedia gives 120,361 bytes of HTML that refer to three files with <code>src</code>, which
+the browser must fetch to display the page at all, and five more named by
+<code>&lt;link&gt;</code> tags, which are its stylesheet and its icons. It also contains 376
+links you could follow, which the browser must not fetch, because those are
+places you might choose to go rather than parts of this page. So a browser reads
+the document, works out which of those references are parts of the page and
+which are destinations, opens several connections at once, often to different
+machines, fetches the parts, and assembles the result while it is still
+arriving. Doing that by hand with <code>nc</code> is possible. It is eight more commands for
+that one page, and you have to read the HTML yourself to know what the eight
+are.</p>
+
+<h2 id="tags">Who decided what the tags mean</h2>
+
+<p>The third job is not engineering, and it is the one that made browsers into what
+they are. In 1991 HTML was about twenty tags and there was no committee. Then in
+1993 the NCSA at the University of Illinois released Mosaic, the first browser
+most people ever saw, and Marc Andreessen proposed a tag for putting a picture
+in a page. <code>&lt;img&gt;</code> was not standardised, agreed, or approved. It was
+implemented, it was useful, and it stayed.</p>
+
+<p>That set the pattern. Netscape Navigator arrived in 1994 and Microsoft's
+Internet Explorer in 1995, and for the next six years the two competed by
+inventing tags. Pages began carrying badges saying which browser they required,
+and the idea from chapter three, that a document should be readable on any
+machine because it describes itself rather than the screen, was quietly dying.
+Berners-Lee founded the World Wide Web Consortium in 1994 to write down what
+HTML actually meant. It published HTML 2.0 in 1995, 3.2 in 1997, and 4.01 in
+1999, and then went after a stricter successor, XHTML, which required documents
+to be well formed and would refuse to display them otherwise. The web that
+existed was not well formed and never would be, so the browsers did not follow.
+In 2004 people from Mozilla, Opera and Apple formed a separate group, the
+WHATWG, to carry on developing HTML in a way that stayed compatible with what
+was already published. That work became HTML5, and in 2019 the two bodies agreed
+there would be one version and it would be the WHATWG's.</p>
+
+<p>Out of all of that, one detail explains why browsers are the size they are. The
+modern HTML specification does not only define what correct HTML means. It
+defines, step by step, what a browser must do with incorrect HTML: tags that are
+never closed, tags closed in the wrong order, text in places no text is allowed.
+For each case the specification says exactly which elements to create and where
+to put them, so that every browser given the same broken document builds
+precisely the same tree. That exists because a large part of the web is
+malformed and cannot be repaired. Nobody can edit the pages, and many of their
+authors are dead. So the standard gave up on requiring correctness and required
+identical handling of incorrectness instead.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 248" role="img" style="min-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">what a browser does, drawn to scale</text><rect x="40" y="176" width="200" height="28" rx="3" class="box learn"/><text x="140" y="224" class="lbl b mid">speak the protocol</text><text x="140" y="239" class="lbl sm mut mid">one line with nc</text><rect x="260" y="108" width="200" height="96" rx="3" class="box"/><text x="360" y="224" class="lbl b mid">draw the page</text><text x="360" y="239" class="lbl sm mut mid">serious engineering</text><rect x="480" y="40" width="200" height="164" rx="3" class="box brk"/><text x="580" y="224" class="lbl b mid">agree about broken pages</text><text x="580" y="239" class="lbl sm mut mid">the largest of the three</text><path d="M30,204 L690,204" class="flow mut"/></svg></div>
+  <figcaption>speaking the protocol is one line; drawing a page is serious engineering;
+agreeing with every other browser about broken pages is the largest job of the
+three</figcaption>
+</figure>
+
+<p>This is the third job, and it is why writing a browser is hard. Speaking the
+protocol is thirty lines, as chapter six showed. Drawing a page is a serious
+piece of engineering. Agreeing with every other browser about what a broken
+document means is neither, and it is the largest of the three.</p>
+
+<h2 id="check">Check it yourself: leave one header out</h2>
+
+<div class="check">
+  <p>Send the same request with the <code>Host</code> line removed.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ printf 'GET / HTTP/1.1\r\nConnection: close\r\n\r\n' | nc info.cern.ch 80</span>
+<span class="out">HTTP/1.1 400 Bad Request
+Date: Tue, 18 Aug 2026 04:48:39 GMT
+Server: Apache
+Content-Length: 226
+Connection: close
+Content-Type: text/html; charset=iso-8859-1</span></pre></div>
+  <p>HTTP/1.1 requires that header, for the reason chapter six gave, and the server
+refused the request rather than guessing. Then ask for something that is not
+there.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ printf 'GET /nothing-here HTTP/1.1\r\nHost: info.cern.ch\r\nConnection: close\r\n\r\n' \
+    | nc info.cern.ch 80</span>
+<span class="out">HTTP/1.1 404 Not Found
+Date: Tue, 18 Aug 2026 04:48:31 GMT
+Server: Apache
+Content-Length: 196
+Connection: close
+Content-Type: text/html; charset=iso-8859-1</span></pre></div>
+  <p>There is chapter three's decision, arriving as a number, from a real server, in
+response to a request you typed yourself. The thing to take from both is what
+did not happen. You have used a browser thousands of times and it has never once
+let you send a request without a <code>Host</code> header, or with the line endings wrong, or
+with the blank line missing. Getting the request exactly right, every time,
+against servers written across thirty years, is a job you have been handing to
+someone else without noticing. All three requests are in
+<code>code/07-web-browsers/by_hand.sh</code> if you would rather run them together.</p>
+</div>
+
+<h2 id="limit">Now look at the side that answers</h2>
+
+<p>Everything from chapter four to here has been about the side that asks: how it
+turns a name into an address, what it sends, what comes back, and what it has to
+do afterwards.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>In every one of those experiments there was a program on the other end that was
+already running. It had been started long before, it was waiting on port 80, it
+accepted the connection, read the text, found a file, and wrote text back. We
+have treated it as scenery. It is not scenery. It is the thing this course is
+about, and it is smaller than the browser by a very long way. The rest of part
+four builds it, and by chapter ten you will have written one that a browser will
+talk to.</p>
+  <p class="to">The first question is the one chapter five raised and left alone. A server
+spends almost all of its life waiting for somebody to arrive. So what is it
+actually doing? That is chapter eight.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>Two accounts of the second job, the one this chapter only describes: how a
+browser turns the bytes into a page.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=DuSURHrZG6I" target="_blank" rel="noopener">How a web browser builds and displays a page</a><span class="res-by">Al Zimmerman</span></div><p class="res-note">The second job in this chapter, drawing the page, shown step by step from bytes to pixels.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=0IsQqJ7pwhw" target="_blank" rel="noopener">How browsers work</a><span class="res-by">Kruno, JSUnconf</span></div><p class="res-note">A longer talk on the same pipeline, for the parts this chapter only names: parsing, layout and painting.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="07-web-browsers"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="06-requests-and-responses.html"><span class="dir">previous</span><span class="name">06 · Requests and responses</span></a><a class="next" href="08-web-servers.html"><span class="dir">next</span><span class="name">08 · Web servers</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

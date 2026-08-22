@@ -5,9 +5,9 @@ the question it opens with, the idea it delivers, and the limit it hits at the
 end. That limit is the next chapter's question. If a chapter cannot state its
 closing limit, the chapter is not ready to be written.
 
-Titles are story beats or the reader's own question, in plain words. The
-technical term for each idea is named on the page, after the idea, never in
-the title.
+A title names the topic plainly, so that the list of titles on its own says
+what the course covers. The story lives in the content, where each idea is
+explained in plain words and then named with its technical term.
 
 ## Introduction
 
@@ -18,7 +18,7 @@ AI system is software engineering at its core.
 
 ## Part one: one computer
 
-### Chapter 1. What programming really is
+### Chapter 1. Computers, programs, and programming
 
 Question: what is actually happening when you run a program.
 
@@ -31,7 +31,7 @@ Limit: this only ever describes one machine, alone.
 
 ## Part two: the machines get connected
 
-### Chapter 2. Then came networks
+### Chapter 2. Computer networks
 
 Question: how do two computers reach each other at all.
 
@@ -41,7 +41,7 @@ packet switching and layered protocols solved it.
 Limit: a network gets bytes from one machine to another, and does not say what
 those bytes mean.
 
-### Chapter 3. And then the web
+### Chapter 3. The web
 
 Question: given a network, what did people build on top of it, and why did the
 web win.
@@ -52,7 +52,7 @@ permission needed.
 
 Limit: readable by anyone skips over how you find them.
 
-### Chapter 4. A website is a file on someone else's computer
+### Chapter 4. What is a website?
 
 Question: where does a web page physically live.
 
@@ -75,7 +75,7 @@ machine, and any machine can be either at any moment.
 
 Limit: the roles do not say what the two sides actually say to each other.
 
-### Chapter 6. Requests and responses are just text
+### Chapter 6. Requests and responses
 
 Question: what does a request literally look like on the wire.
 
@@ -86,7 +86,7 @@ there is no mystery left.
 Limit: if it is only text, something has to write it, send it, and draw the
 result.
 
-### Chapter 7. Why we need browsers
+### Chapter 7. Web browsers
 
 Question: why not send the text yourself.
 
@@ -99,7 +99,7 @@ answers.
 
 ## Part four: building the server
 
-### Chapter 8. What is a server really doing?
+### Chapter 8. Web servers
 
 Question: what is a web server, actually.
 
@@ -109,7 +109,7 @@ cycle, and the difference between polling and blocking.
 Limit: waiting for the network is something the program has to ask the
 operating system for.
 
-### Chapter 9. What a socket is
+### Chapter 9. Socket programming and the Linux socket API
 
 Question: how does a program talk to the network.
 
@@ -119,7 +119,7 @@ read and write work on it, identified by a four tuple.
 
 Limit: this is an idea until you use it.
 
-### Chapter 10. A static web server in one file
+### Chapter 10. Building a static web server
 
 Question: can I really build this myself.
 
@@ -129,7 +129,7 @@ server, and the path traversal bug is the first thing a stranger will try.
 
 Limit: it sends the same bytes to everybody, one visitor at a time.
 
-### Chapter 11. When the page is different for every visitor
+### Chapter 11. Building a dynamic web server
 
 Question: what happens when the page depends on who is asking.
 
@@ -141,7 +141,7 @@ deliberately uncomfortable.
 Limit: one malformed line takes the server down, and the tedious code is the
 same in every application ever written.
 
-### Chapter 12. Two things called a server
+### Chapter 12. Servers as hardware and software
 
 Question: when people say server, which one do they mean.
 
@@ -153,7 +153,7 @@ Limit: the program still answers one visitor at a time.
 
 ## Part five: more users, more machines
 
-### Chapter 13. Can you handle two users at once?
+### Chapter 13. Handling multiple users at once
 
 Question: what happens when a second visitor arrives.
 
@@ -163,7 +163,7 @@ the lock, the deadlock, Python's interpreter lock, and the event loop by name.
 
 Limit: the data lives in one process's memory, touched by many threads.
 
-### Chapter 14. Where the data lives
+### Chapter 14. Introducing databases
 
 Question: how do you keep things after the process exits, and keep them
 correct while several people write.
@@ -175,7 +175,7 @@ indexes, and the third appearance of the injection bug.
 Limit: a working system, and everything after this is what happens when it
 becomes popular.
 
-### Chapter 15. Can you handle 10,000 users?
+### Chapter 15. Scaling web applications
 
 Question: what breaks when a lot of people arrive.
 
@@ -196,7 +196,7 @@ eleven, plus what the framework quietly handles and what it does not.
 
 Limit: one machine has a ceiling.
 
-### Chapter 17. More than one machine
+### Chapter 17. Introduction to distributed systems
 
 Question: what changes when the system spans many computers.
 
@@ -208,7 +208,7 @@ agreement costs a majority, and slow is worse than dead.
 Limit: this is where most treatments stop, and the loudest part of the
 industry sits on the other side.
 
-### Chapter 18. AI systems are the same systems
+### Chapter 18. AI systems are still software
 
 Question: is any of this different for AI.
 

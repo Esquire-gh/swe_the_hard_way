@@ -52,8 +52,9 @@ because the reader has to be able to map what they learned here onto what
 everybody else calls it. A chapter about who asks and who answers must say
 "client server model" on the page.
 
-Titles are story beats or the reader's own question, in plain words. The term
-goes on the page, not in the title.
+A chapter title names its topic plainly, the way a table of contents would,
+so that reading the titles alone gives a fair idea of what each chapter
+covers. The story is told in the content, not in the title.
 
 ## Punctuation and formatting
 

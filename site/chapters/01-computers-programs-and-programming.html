@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Computers, programs, and programming — swe the hard way</title>
+<meta name="description" content="The usual definition of programming taken apart on one computer: what a program is on disk, what changes when it runs, and who is in charge of the difference.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part one · one computer</span><span class="here"><span class="hn">01</span><span class="ht">Computers, programs, and programming</span></span></span><span class="progress-label">01 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item current" href="01-computers-programs-and-programming.html" data-module="01-computers-programs-and-programming" aria-current="page"><span class="n">01</span><span class="t">Computers, programs, and programming</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-computer-networks.html" data-module="02-computer-networks"><span class="n">02</span><span class="t">Computer networks</span></a></li><li><a class="nav-item" href="03-the-web.html" data-module="03-the-web"><span class="n">03</span><span class="t">The web</span></a></li><li><a class="nav-item" href="04-what-is-a-website.html" data-module="04-what-is-a-website"><span class="n">04</span><span class="t">What is a website?</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses.html" data-module="06-requests-and-responses"><span class="n">06</span><span class="t">Requests and responses</span></a></li><li><a class="nav-item" href="07-web-browsers.html" data-module="07-web-browsers"><span class="n">07</span><span class="t">Web browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-web-servers.html" data-module="08-web-servers"><span class="n">08</span><span class="t">Web servers</span></a></li><li><a class="nav-item" href="09-socket-programming.html" data-module="09-socket-programming"><span class="n">09</span><span class="t">Socket programming and the Linux socket API</span></a></li><li><a class="nav-item" href="10-building-a-static-web-server.html" data-module="10-building-a-static-web-server"><span class="n">10</span><span class="t">Building a static web server</span></a></li><li><a class="nav-item" href="11-building-a-dynamic-web-server.html" data-module="11-building-a-dynamic-web-server"><span class="n">11</span><span class="t">Building a dynamic web server</span></a></li><li><a class="nav-item" href="12-servers-as-hardware-and-software.html" data-module="12-servers-as-hardware-and-software"><span class="n">12</span><span class="t">Servers as hardware and software</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-handling-multiple-users-at-once.html" data-module="13-handling-multiple-users-at-once"><span class="n">13</span><span class="t">Handling multiple users at once</span></a></li><li><a class="nav-item" href="14-introducing-databases.html" data-module="14-introducing-databases"><span class="n">14</span><span class="t">Introducing databases</span></a></li><li><a class="nav-item" href="15-scaling-web-applications.html" data-module="15-scaling-web-applications"><span class="n">15</span><span class="t">Scaling web applications</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-introduction-to-distributed-systems.html" data-module="17-introduction-to-distributed-systems"><span class="n">17</span><span class="t">Introduction to distributed systems</span></a></li><li><a class="nav-item" href="18-ai-systems-are-still-software.html" data-module="18-ai-systems-are-still-software"><span class="n">18</span><span class="t">AI systems are still software</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part one · one computer</p>
+<h1><span class="num">01 ·</span> Computers, programs, and programming</h1>
+<p class="hook">Programming is usually defined as writing instructions that tell
+a computer what to do. The definition is correct, and it hides everything: what
+a computer is, what an instruction is, and what happens when one is told. This
+chapter takes it apart on a single computer, which for a long time was the only
+place a program could be.</p>
+
+<h2 id="the-definition">Instructions that tell a computer what to do</h2>
+
+<p>Here is the smallest case of the definition there is. One instruction, in a
+file, and a command that tells the computer to carry it out.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 hello.py</span>
+<span class="out">hello</span></pre></div>
+</figure>
+
+<p>Most people learn to program without ever asking what happened between the
+command and the word. Something found a file on a disk. Something copied its
+contents somewhere else. Something created a record that did not exist a second
+earlier, decided when your work would happen, paused it partway through, started
+it again, and threw the record away when it was done. Then the word appeared.
+The word we use for all of that is "run", and it explains nothing.</p>
+
+<p>By the end of this chapter you will be able to say what a computer actually
+does, what a program is when it is not running, what is different about it when
+it is, and who is in charge of the difference. That is the definition, filled
+in. It is the ground everything that follows stands on, and it is smaller than
+it sounds.</p>
+
+<h2 id="one-instruction">A computer follows one instruction at a time</h2>
+
+<p>Underneath every piece of software you have ever used there is a part that
+does arithmetic and very little else. It is called the processor, and in most
+writing it is called the CPU. It can add two numbers. It can compare two
+numbers. It can copy a number from one place to another. It can decide which
+instruction to look at next. That list is close to complete. Everything else a
+computer does is built out of those few moves, repeated.</p>
+
+<p>The numbers it works on live in memory. Memory is a very long row of numbered
+boxes, each holding a small value. The number of a box is called its
+<span class="term">address</span>, and an address is how everything inside a
+computer refers to everything else. When a program says "the total", what is
+really there is a box number.</p>
+
+<p>The processor also keeps one piece of private bookkeeping, and it is the
+important one. It holds the address of the next instruction to carry out. That
+single number is what turns a pile of instructions into a sequence. Fetch the
+instruction at that address, do what it says, move the number on by one, repeat
+forever. When a program needs to go back and do something again, one instruction
+writes a different value into that number, and the machine carries on from the
+new place without noticing that anything unusual happened.</p>
+
+<p>That loop is the whole of computation. There is no cleverness in it and no
+plan. The machine has no idea what your program is for. It is at one
+instruction, it does that instruction, it moves to the next. A processor in a
+laptop does this a few billion times a second, and that speed is the only reason
+the result looks like thought rather than like counting.</p>
+
+<h2 id="file-until-run">A program is a file until something runs it</h2>
+
+<p>Before you run it, your program is a file. A file is a named stretch of bytes
+sitting on a disk, and there is nothing about those bytes that makes them a
+program. Nothing is happening inside <code>hello.py</code> while you are not
+looking at it. It is as inert as a photograph.</p>
+
+<p>So something has to pick the file up and make it into activity, and that
+something is another program. The operating system is the program whose job is
+running other programs. It was already running before you typed anything, and it
+will still be running after your program has finished.</p>
+
+<p>When you press enter, the operating system does several separate jobs that we
+smear into the one word "run". It finds the file. It reserves a region of memory
+and copies the instructions into it. It reserves more memory for the values the
+program will make up as it goes. It writes down which files the program has
+open, what it is allowed to touch, and the address of the instruction it should
+start at. Then it lets the processor loose on it.</p>
+
+<p>That bundle of memory and bookkeeping is a <span class="term">process</span>.
+A process is a running program plus everything the operating system has to
+remember about it. The file and the process are different things, and keeping
+them apart is worth the effort. The file does not change while the program runs.
+The process is destroyed when the program ends, and the file is exactly as it
+was. You can start the same file twice and get two processes that share nothing
+and cannot see each other.</p>
+
+<p>There is one more job the operating system does, and it is the one nobody
+mentions. Your machine has a handful of processors and a few hundred programs
+that all want to be running. So the operating system lets one process use a
+processor for a few thousandths of a second, interrupts it, writes down exactly
+where it had got to and what numbers it was holding, and hands the processor to
+a different process. Later it puts the first one back exactly as it was, and
+that process continues with no way of telling it was ever stopped.</p>
+
+<p>Deciding who runs next is called <span class="term">scheduling</span>. Saving
+one process and restoring another is called a <span class="term">context
+switch</span>. It happens thousands of times a second.</p>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>Right now your laptop is running well over a hundred programs. A browser, a
+music player, a clock, a dozen things you did not start yourself. It has maybe
+eight processors, and often fewer that are any good. Eight cannot run a hundred
+at once.</p>
+  <p><strong>So how does a machine with eight processors run a hundred programs
+and look like it is doing all of them at the same time?</strong></p>
+</div>
+
+<h2 id="machine-to-watch">A machine small enough to watch</h2>
+
+<p>None of that loop is visible on a real computer, because it happens too fast
+and too far underneath. So here is a machine with the same parts and none of the
+speed. It has eight boxes of memory, one number saying where it has got to, and
+five instructions. It is written in Python because the point is the shape of the
+loop, not the syntax.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 250" role="img" style="min-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><rect x="70" y="60" width="150" height="60" rx="3" class="box learn"/><text x="145.0" y="85" class="lbl b mid learn">fetch</text><text x="145.0" y="102" class="lbl sm mut mid">read the instruction</text><text x="145.0" y="114" class="lbl sm mut mid">the counter points at</text><rect x="300" y="60" width="150" height="60" rx="3" class="box learn"/><text x="375.0" y="85" class="lbl b mid learn">do</text><text x="375.0" y="102" class="lbl sm mut mid">carry it out</text><rect x="530" y="60" width="150" height="60" rx="3" class="box learn"/><text x="605.0" y="85" class="lbl b mid learn">advance</text><text x="605.0" y="102" class="lbl sm mut mid">counter = counter + 1</text><path d="M220,90 L300,90" class="flow" marker-end="url(#arw)"/><path d="M450,90 L530,90" class="flow" marker-end="url(#arw)"/><path d="M655,120 L655,175 L145,175 L145,120" class="flow" marker-end="url(#arw)"/><text x="400" y="170" class="lbl sm mut mid">next instruction</text><rect x="250" y="200" width="220" height="34" rx="3" class="box brk"/><text x="360" y="221" class="lbl b mid brk">jump: write a new counter</text><path d="M360,200 C360,150 300,150 300,120" class="flow brk" marker-end="url(#arw)"/><text x="700" y="150" class="lbl sm mut end">a loop is only</text><text x="700" y="164" class="lbl sm brk end">this arrow</text></svg></div>
+  <figcaption>fetch, do, advance, forever. A loop is not an instruction; it is one
+write to the counter that sends the same loop back over earlier
+work.</figcaption>
+</figure>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;A machine that does one thing at a time, and nothing else.
+
+Run it with: python3 machine.py
+&quot;&quot;&quot;</span>
+
+<span class="c-cm"># Eight numbered boxes. This is the whole memory of this machine.</span>
+memory = [0] * 8
+
+<span class="c-cm"># The program. Every line is one instruction, and there are five of them.</span>
+program = [
+    (<span class="c-st">&quot;set&quot;</span>, 0, 3),       <span class="c-cm"># box 0 holds the number we are counting down</span>
+    (<span class="c-st">&quot;set&quot;</span>, 1, -1),      <span class="c-cm"># box 1 holds the amount we add each time</span>
+    (<span class="c-st">&quot;show&quot;</span>, 0),
+    (<span class="c-st">&quot;add&quot;</span>, 0, 1),
+    (<span class="c-st">&quot;jump_if&quot;</span>, 0, 2),   <span class="c-cm"># if box 0 is not zero, go back to instruction 2</span>
+    (<span class="c-st">&quot;stop&quot;</span>,),
+]
+
+counter = 0   <span class="c-cm"># the number of the instruction that comes next</span>
+step = 0
+
+<span class="c-kw">while</span> <span class="c-kw">True</span>:
+    instruction = program[counter]
+    name = instruction[0]
+    step += 1
+    print(f<span class="c-st">&quot;step {step:&gt;2}   counter={counter}   {name:&lt;8} memory={memory[:2]}&quot;</span>)
+
+    <span class="c-kw">if</span> name == <span class="c-st">&quot;set&quot;</span>:
+        memory[instruction[1]] = instruction[2]
+        counter += 1
+    <span class="c-kw">elif</span> name == <span class="c-st">&quot;add&quot;</span>:
+        memory[instruction[1]] += memory[instruction[2]]
+        counter += 1
+    <span class="c-kw">elif</span> name == <span class="c-st">&quot;show&quot;</span>:
+        print(f<span class="c-st">&quot;                        output: {memory[instruction[1]]}&quot;</span>)
+        counter += 1
+    <span class="c-kw">elif</span> name == <span class="c-st">&quot;jump_if&quot;</span>:
+        counter = instruction[2] <span class="c-kw">if</span> memory[instruction[1]] != 0 <span class="c-kw">else</span> counter + 1
+    <span class="c-kw">elif</span> name == <span class="c-st">&quot;stop&quot;</span>:
+        <span class="c-kw">break</span>
+</pre></div>
+<figcaption>machine.py, the whole machine in forty lines</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">a run of machine.py</div>
+<pre class="out">step  1   counter=0   set      memory=[0, 0]
+step  2   counter=1   set      memory=[3, 0]
+step  3   counter=2   show     memory=[3, -1]
+                        output: 3
+step  4   counter=3   add      memory=[3, -1]
+step  5   counter=4   jump_if  memory=[2, -1]
+step  6   counter=2   show     memory=[2, -1]
+                        output: 2
+step  7   counter=3   add      memory=[2, -1]
+step  8   counter=4   jump_if  memory=[1, -1]
+step  9   counter=2   show     memory=[1, -1]
+                        output: 1
+step 10   counter=3   add      memory=[1, -1]
+step 11   counter=4   jump_if  memory=[0, -1]
+step 12   counter=5   stop     memory=[0, -1]</pre></div>
+</figure>
+
+<p>Look at the counter column and nothing else. It reads 0, 1, 2, 3, 4, then 2
+again. That jump backwards is the entire mechanism of a loop. There is no
+looping instruction and no notion of repetition anywhere in the machine. One
+instruction wrote a smaller number into the counter, and the same fetch and
+carry out loop that had been running all along walked over the same three
+instructions a second time.</p>
+
+<p>Every loop you have ever written comes down to that. So does every
+<code>if</code>, every function call, and every method on every object. The
+processor in your laptop has a few hundred instructions rather than five, and it
+runs them billions of times a second instead of twelve times in total, but the
+fetch, do, advance loop is the same one.</p>
+
+<h2 id="on-your-computer">The same story on your own computer</h2>
+
+<p>Now watch a real process rather than a pretend one. This program counts once
+a second and does nothing else, which gives you time to look at it from
+outside.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Count once a second so the running program can be watched from outside.
+
+Run it with: python3 slow_count.py
+Stop it with control C.
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> os
+<span class="c-kw">import</span> time
+
+print(f<span class="c-st">&quot;my process id is {os.getpid()}&quot;</span>)
+
+count = 0
+<span class="c-kw">while</span> <span class="c-kw">True</span>:
+    count += 1
+    print(count)
+    time.sleep(1)
+</pre></div>
+<figcaption>slow_count.py</figcaption>
+</figure>
+
+<p>Start it in one terminal window. The operating system gave this process a
+number when it created it, and <code>os.getpid</code> asks for that number back.
+It is called the <span class="term">process id</span>, and it is how everything
+outside the process refers to it.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre><span class="prompt">$ python3 slow_count.py</span>
+<span class="out">my process id is 47638
+1
+2
+3</span></pre></div>
+</figure>
+
+<p>Leave it running and open a second window. The <code>ps</code> command prints
+the operating system's own record of a process, which is the bookkeeping
+described earlier. Ask it about that number.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ ps -o pid,stat,%cpu,rss,command -p 47638</span>
+<span class="out">  PID STAT  %CPU    RSS COMMAND
+47638 SN     0.0   8992 python3 slow_count.py</span></pre></div>
+</figure>
+
+<p>Three things there are worth reading slowly. <code>STAT</code> starts with
+<code>S</code>, which means sleeping. The program is not using a processor at
+all. It asked to be woken in a second and the operating system took it off the
+schedule until then. <code>%CPU</code> agrees: this process is getting almost
+none of the processor, and it still counts perfectly on time. <code>RSS</code>
+is how much memory the process holds in RAM right now, in kilobytes, roughly
+nine megabytes for a program that adds one to a number. Almost none of that is
+your code. It is Python itself, loaded into the memory the operating system
+reserved when the process was created.</p>
+
+<p>Start a second copy in a third window and you will get a different process id
+and a second <code>RSS</code> of its own. One file, two processes, and neither
+one can see the other's boxes. Stop them with control C when you have
+looked.</p>
+
+<h2 id="check">Check it yourself: more programs than processors</h2>
+
+<p>The claim you cannot check by reading is the puzzle above, that the operating
+system takes turns. So measure it. This program runs the same fixed piece of
+arithmetic in one process, then in two at the same time, then four, and so on,
+timing each round from start to finish.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 210" role="img" style="min-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">one processor, four jobs, sliced into turns</text><rect x="130.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="147.5" y="92" class="lbl sm mid">A</text><rect x="165.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="182.5" y="92" class="lbl sm mid">B</text><rect x="200.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="217.5" y="92" class="lbl sm mid">C</text><rect x="235.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="252.5" y="92" class="lbl sm mid">D</text><rect x="270.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="287.5" y="92" class="lbl sm mid">A</text><rect x="305.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="322.5" y="92" class="lbl sm mid">B</text><rect x="340.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="357.5" y="92" class="lbl sm mid">C</text><rect x="375.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="392.5" y="92" class="lbl sm mid">D</text><rect x="410.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="427.5" y="92" class="lbl sm mid">A</text><rect x="445.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="462.5" y="92" class="lbl sm mid">B</text><rect x="480.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="497.5" y="92" class="lbl sm mid">C</text><rect x="515.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="532.5" y="92" class="lbl sm mid">D</text><rect x="550.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="567.5" y="92" class="lbl sm mid">A</text><rect x="585.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="602.5" y="92" class="lbl sm mid">B</text><rect x="620.0" y="70" width="34.0" height="34" rx="0" class="box learn"/><text x="637.5" y="92" class="lbl sm mid">C</text><rect x="655.0" y="70" width="34.0" height="34" rx="0" class="box sunk"/><text x="672.5" y="92" class="lbl sm mid">D</text><text x="118" y="92" class="lbl sm mut end">CPU</text><path d="M130,120 L690,120" class="tick"/><text x="130" y="138" class="lbl sm mut">time</text><text x="690" y="138" class="lbl sm mut end">a few thousandths of a second each</text><text x="20" y="168" class="lbl sm mut">Each job is stopped, its place saved, and resumed later. Fast enough that all four look like they run at once.</text><text x="20" y="188" class="lbl sm mut">That saving and restoring is the context switch.</text></svg></div>
+  <figcaption>more jobs than processors: each one runs in slices, stopped and
+resumed so fast that all of them look like they run at once</figcaption>
+</figure>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Run the same fixed amount of work in one process, then in many at once.
+
+Run it with: python3 turns.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> os
+<span class="c-kw">import</span> subprocess
+<span class="c-kw">import</span> sys
+<span class="c-kw">import</span> time
+
+<span class="c-cm"># Enough adding up to take a noticeable moment and nothing else.</span>
+WORK = <span class="c-st">&quot;sum(range(100_000_000))&quot;</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">time_copies</span>(copies):
+    <span class="c-st">&quot;&quot;&quot;Start this many copies at once and wait for all of them to finish.&quot;&quot;&quot;</span>
+    started = time.perf_counter()
+    running = [subprocess.Popen([sys.executable, <span class="c-st">&quot;-c&quot;</span>, WORK]) <span class="c-kw">for</span> _ <span class="c-kw">in</span> range(copies)]
+    <span class="c-kw">for</span> process <span class="c-kw">in</span> running:
+        process.wait()
+    <span class="c-kw">return</span> time.perf_counter() - started
+
+
+print(f<span class="c-st">&quot;this machine reports {os.cpu_count()} processors&quot;</span>)
+<span class="c-kw">for</span> copies <span class="c-kw">in</span> (1, 2, 4, 8, 16, 32):
+    print(f<span class="c-st">&quot;{copies:&gt;2} copies took {time_copies(copies):5.2f} seconds&quot;</span>)
+</pre></div>
+<figcaption>turns.py</figcaption>
+</figure>
+
+<div class="check">
+  <p>Run it. On the machine this was written on:</p>
+  <div class="term-block"><div class="term-head">a run of turns.py</div>
+<pre class="out">this machine reports 18 processors
+ 1 copies took  0.75 seconds
+ 2 copies took  0.75 seconds
+ 4 copies took  0.75 seconds
+ 8 copies took  0.74 seconds
+16 copies took  1.37 seconds
+32 copies took  3.30 seconds</pre></div>
+  <p>Your numbers will be different, and the digits are not the point. The shape
+is the point, and it has two ends. At the start, adding more copies is free:
+eight processes finished in the time one took, because idle processors were
+sitting there and the operating system had somewhere to put the extra work. Then
+it climbs in proportion: doubling from sixteen to thirty two roughly doubled the
+time, because there was no longer a free processor for each copy. They were
+taking turns, and each one spent part of the round stopped, holding its place,
+waiting to be put back.</p>
+  <p>That is the answer to the puzzle, measured. Both ends would be impossible if
+the chapter were wrong. If each program owned a processor from start to finish,
+two copies would take twice as long as one and the flat part could not exist. If
+processors were unlimited, thirty two copies would cost the same as one and the
+climb could not exist. What you measured is turn taking, seen from outside.</p>
+  <div class="trouble">
+    <b>if the knee comes early</b>
+    <p>Many laptops now have two kinds of processor, some fast and some built to use
+less power, and the reported count adds both. So the flat part can end well
+before the number suggests. The shape still holds.</p>
+  </div>
+</div>
+
+<h2 id="limit">What one computer cannot do</h2>
+
+<p>Here is everything we have. Instructions in memory, a number saying where we
+have got to, an operating system handing out turns, and a disk holding files
+that do nothing until a process reads them. All of it is inside one box. The
+process can read the disk in that machine, use the memory in that machine, and
+print to a screen attached to that machine. Nothing here gives it any way to
+reach something that is not in the box with it.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>Almost no software anyone actually uses is like that. The programs we care
+about are the ones other people can reach, and other people are not sitting at
+your laptop. A process here cannot pass a memory address to another machine,
+because box number 4,096 on your computer has nothing to do with box number
+4,096 on anyone else's. It cannot write to the other machine's disk, because it
+cannot see it.</p>
+  <p class="to">Two machines, no shared memory, no shared disk, and a need to move
+bytes between them anyway. That is the whole of chapter two.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>If a picture from a different angle helps, these cover the same ground: what
+a processor really does, and how the operating system takes turns.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=WkuKhLYtUHw" target="_blank" rel="noopener">Introduction to processes in Linux</a><span class="res-by">Chris Kanich · CS 361</span></div><p class="res-note">Kanich builds the exact picture this chapter does, a process as the operating system&#x27;s bookkeeping around a running program, from the systems side.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=zltgXvg6r3k" target="_blank" rel="noopener">Instructions and programs (Crash Course #8)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">The fetch, decode, execute loop this chapter&#x27;s little machine acts out, drawn on real hardware.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=QXjU9qTsYCc" target="_blank" rel="noopener">How do computers read code?</a><span class="res-by">Frame of Essence</span></div><p class="res-note">A calm animation of the same gap: how the text you wrote turns into instructions a processor runs.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=26QPDBe-NB8" target="_blank" rel="noopener">Operating systems (Crash Course #18)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">The turn-taking that let one machine feel like it runs everything at once, which the timing check measures.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="01-computers-programs-and-programming"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="../index.html"><span class="dir">previous</span><span class="name">Introduction</span></a><a class="next" href="02-computer-networks.html"><span class="dir">next</span><span class="name">02 · Computer networks</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

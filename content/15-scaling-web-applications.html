@@ -1,0 +1,263 @@
+<p class="kicker brk">Part five · more users, more machines</p>
+<h1><span class="num">15 ·</span> Scaling web applications</h1>
+<p class="hook">You have seen what it takes to handle two users at once. Now make it ten
+thousand, and make the application do more than sign a guestbook: send emails,
+resize photos, stay up while you deploy a new version, tell you what went wrong
+yesterday afternoon. Each of those puts a different pressure on the program you
+have, and each pressure forces a new component into the design. Caches, queues,
+workers, supervisors, reverse proxies, load balancers, containers, logs and
+metrics: you have heard every one of those words. Here each one arrives attached
+to the symptom that produced it, so that you remember why it exists and not only
+what it is called.</p>
+
+<h2 id="pressures">Six pressures, six components</h2>
+
+<p>What exists at the end of chapter fourteen is a complete piece of software. It
+answers many people at once, it runs your code for each of them, and what it
+knows survives being switched off. Everything up to here has been about making
+it work. This chapter is about a different problem, which is that it works and
+then becomes popular. The way to read it is as a sequence of pressures. Each one
+is a real thing that happens, each has a symptom you could measure, and each has
+an answer with a name. The names are worth very little on their own. Attached to
+the symptom that produced them, they are worth a great deal, so the symptom
+comes first every time.</p>
+
+<h2 id="cache">Pressure one: the same answer, over and over</h2>
+
+<p>The guestbook page reads rows out of a database and turns them into HTML. Say
+that takes five milliseconds, which is a modest number. One visitor a second is
+nothing. A thousand visitors a second needs five seconds of work per second of
+clock time, and chapter one measured what a machine does when asked for more
+work than it has processors. It does not refuse. It gets slower for everybody at
+once. Now notice something about those thousand requests. Almost all of them
+produce identical bytes. The guestbook has not changed between them.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 cache.py</span>
+<span class="out">100 requests, no cache      0.70 seconds, page built 100 times
+100 requests, with cache    0.01 seconds, page built 1 times</span></pre></div>
+</figure>
+
+<p>Keeping an answer so that it does not have to be produced again is called
+<span class="term">caching</span>, and the place it is kept is a <span class="term">cache</span>. You have already seen one without
+being told. The response in chapter six carried <code>Age: 14284</code> and <code>cf-cache-status:
+HIT</code>, which said that answer had been sitting in a store for four hours and that
+no machine belonging to the site had been involved in handing it over. The cost
+arrives in the last three lines of that program.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre class="out">the messages now start: 'Ada was here, and edited it'
+the cached page says:   '&lt;li&gt;Ada was here&lt;/li&gt;&lt;li&gt;Grace too'
+pages built in total:   1</pre></div>
+</figure>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>The data changed and the cached page did not. Nothing crashed, no error was
+logged, and every visitor from now on is shown a guestbook that is wrong.</p>
+  <p><strong>When does a cached answer stop being true, and who is responsible for noticing?</strong></p>
+</div>
+
+<p>A cache is only correct if you have decided in advance when its contents stop
+being true, and there are two ways to decide. Throw it away after a fixed
+period, which is exactly the time to live from chapter four's DNS. Or throw it
+away when the underlying thing changes, which requires knowing every way it can
+change, including the ones somebody adds next year. Where the cache sits is a
+separate decision with the same shape as everything else in this course. Inside
+your process it is fastest and it belongs to that process alone, so two
+processes have two caches that disagree. In a separate program on the same
+machine or a nearby one, it is shared, and that program is a server in chapter
+five's sense with its own port and its own protocol, which is what Redis and
+memcached are. In front of everything, near the visitor, it is the
+<code>cf-cache-status</code> line, and your machines never hear about the request at all.</p>
+
+<h2 id="queue">Pressure two: work nobody should have to wait for</h2>
+
+<p>A visitor signs the guestbook. You would also like to email the people who
+subscribed, and produce a small version of any photo they attached, and update a
+report. That is half a second on a good day and thirty seconds on a bad one, and
+for all of it the visitor is looking at a blank tab. It is worse than one
+unhappy visitor, because chapter thirteen explained that their thread is held
+for the whole time, and there is a fixed number of those.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 later.py</span>
+<span class="out">answering after doing the work:     510.03 ms
+answering after writing it down:      0.01 ms
+
+emails sent so far: ['ada@example.com']
+emails sent once the worker caught up: ['ada@example.com', 'grace@example.com']</span></pre></div>
+</figure>
+
+<p>The move is to not do the work. Write down that it needs doing, answer the
+visitor, and let something else pick it up. The written down list of things to
+do is a <span class="term">queue</span>, and the program that takes items off it and does them is a
+<span class="term">worker</span>. Three costs come with that, and none of them is optional.</p>
+
+<p>The answer changed meaning. It used to say the work is done. It now says the
+work has been accepted. If the visitor needs to know when it is really finished,
+telling them is a feature you now have to build, and it is usually larger than
+the original work. The worker can fail after taking a job. So the queue cannot
+hand a job over and forget it. It has to keep the job until the worker reports
+success, and give it to somebody else if that never comes, which means a job can
+be done twice. Anything on a queue therefore has to be safe to do twice, and the
+word for an operation that can be repeated without changing the result is
+<span class="term">idempotent</span>. Sending an email is not naturally idempotent, which is why you have
+received the same notification twice from real companies. And the queue in that
+listing is an object inside one process, so it dies when the process dies,
+taking the outstanding jobs with it. That is chapter fourteen's problem again,
+and it has chapter fourteen's answer. A real queue is a separate program that
+writes to a disk.</p>
+
+<h2 id="supervisor">Pressure three: the process is not immortal</h2>
+
+<p>Chapter eleven showed a stranger stopping a server with one malformed line.
+Correct programs die too. The machine reboots for an update, the process is
+killed for using too much memory, a disk fills up. Whatever the cause, the site
+is down and stays down until somebody notices. The answer is a program whose
+entire job is to watch yours and start it again when it stops, which is a
+<span class="term">process supervisor</span>. On most Linux machines this is <code>systemd</code>, and on a container
+platform the platform does it.</p>
+
+<p>That introduces a problem that is easy to miss. A program that crashes on
+startup and is restarted forever looks, from far away, like a program that is
+running. So the supervisor has to be told how to check whether your program can
+actually do its job, which means your program needs an address that answers only
+when it genuinely works. That is a <span class="term">health check</span>, and it is the first piece of
+code in this course written for a machine to read rather than a person. There is
+also a consequence that connects back. Restarting empties the memory, so
+anything kept in a dictionary is gone. That is why sessions like chapter
+eleven's belong in a database or a cache rather than in a variable, and why
+signing out everybody on every deploy is a mistake people only make once.</p>
+
+<h2 id="proxy">Pressure four: a new version means going down</h2>
+
+<p>To install a new version you stop the old process and start the new one. Between
+those two moments there is no server. For a small site that is ten seconds at
+three in the morning, and it is tolerable. The real damage is indirect. Because
+deploying hurts, you deploy less often, so each deploy carries more changes, so
+each one is more likely to break something and harder to work out afterwards.</p>
+
+<p>The obvious fix is to start the new version before stopping the old one, and it
+runs straight into chapter twelve. Two programs cannot hold port 8000. The
+operating system refused, and it refused for a reason that has not gone away. So
+something else holds the port. A program sits in front, accepts every connection
+from the outside, and passes each request on to whichever of your processes is
+currently able to serve it. Start the new version on a different port, tell the
+front program about it, let the old one finish the requests it is already
+handling, and then stop it. Nobody outside saw anything. That program is a
+<span class="term">reverse proxy</span>, and when there are several of your processes behind it, choosing
+between them is <span class="term">load balancing</span>. Nginx is the usual one, and this is the second
+job chapter twelve said it had.</p>
+
+<figure>
+  <div class="dgm">{{ diagram:deployment-topology }}</div>
+  <figcaption>the six components on one machine: every one of them is a process, and the proxy
+is the only one with a public address</figcaption>
+</figure>
+
+<p>This is also where a loose end from chapter four gets tied. Your application
+still binds <code>127.0.0.1</code> and is still unreachable from the internet. The proxy is
+the part with the public address, the certificate for <code>https</code>, and the exposure to
+strangers. Making something public turns out to be a different program's job,
+which is why chapters ten and fourteen could ignore it entirely.</p>
+
+<h2 id="container">Pressure five: it works on my machine</h2>
+
+<p>Your laptop has a particular version of Python and a particular set of
+libraries. The machine you are deploying to has a different version of Python
+and none of them. A colleague's machine has a third combination. Writing the
+versions down helps and does not finish the job, because those libraries sit on
+top of system libraries which are also different, and some of them are compiled
+against a particular one.</p>
+
+<p>So ship everything underneath the program along with it. A <span class="term">container image</span> is
+your code plus the libraries plus the system pieces they need, packaged as one
+file that runs the same everywhere. Starting one produces a <span class="term">container</span>, which
+chapter twelve already defined and which is worth repeating because the picture
+people carry is usually wrong. A container is not a virtual machine and there is
+no second operating system inside it. It is ordinary processes as described in
+chapter one, scheduled by the same kernel as everything else on the machine,
+given a restricted view of the filesystem and the network so that they behave as
+though nothing else is there. That is why a container starts in a fraction of a
+second and a virtual machine takes half a minute. The costs are that images get
+large, that building them is another step that can fail, and that the isolation
+between containers is real but thinner than the isolation between virtual
+machines, which matters when the neighbours are strangers.</p>
+
+<h2 id="observe">Pressure six: you cannot see what is happening</h2>
+
+<p>Somebody says the site was slow yesterday afternoon. You have no way to find out
+whether that is true, which part was slow, or whether it is still happening.
+Chapter eleven listed the absence of logging among the things that were still
+wrong, and nothing since has fixed it. The first answer is to write down what
+happened: one line per request, with the path, the status code, and how long it
+took. That is a <span class="term">log</span>, and for one machine and a few thousand requests a day it is
+enough. At a thousand requests a second nobody reads lines. So the second answer
+is numbers summarised over time, such as requests per second, error rate, and
+how long requests took. Those are <span class="term">metrics</span>.</p>
+
+<p>One detail there is worth more than the vocabulary. The average is close to
+useless. If ninety nine requests take ten milliseconds and one takes five
+seconds, the average is sixty milliseconds and looks healthy, while one visitor
+in a hundred waited five seconds. What you want is the value that ninety five or
+ninety nine per cent of requests came in under, which is why people talk about
+<span class="term">p95</span> and <span class="term">p99</span> rather than the mean. The cost of all this is that logs are data at
+volume. They cost money to keep, they are the easiest place in a system to
+accidentally record a password or somebody's personal details, and a log nobody
+looks at is a cost with no benefit.</p>
+
+<h2 id="check">Check it yourself: make the cache lie, then stop it lying</h2>
+
+<div class="check">
+  <p>Run <code>cache.py</code> again and look at the last three lines, where the page disagreed
+with the data. The reason is one expression. The cache is keyed on
+<code>len(messages)</code>, so editing a message without adding one leaves the key unchanged
+and the stored page is handed out again. Change the key to describe the contents
+rather than count them, and run it again.</p>
+  <div class="code"><pre>    key = tuple(messages)</pre></div>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre class="out">the messages now start: 'Ada was here, and edited it'
+the cached page says:   '&lt;li&gt;Ada was here, and edited it&lt;/l'
+pages built in total:   2</pre></div>
+  <p>The staleness is gone, and the last line is what it cost. The first version
+built one page for everything that happened. This one built two, because an edit
+now produces a key it has never seen. Make a hundred edits and it builds a
+hundred pages. That is the whole subject in one expression. A cache key that can
+never be stale is a cache key that misses more often, and every real caching
+decision sits somewhere between those two runs.</p>
+</div>
+
+<h2 id="limit">Count what you wrote by hand</h2>
+
+<p>Read back over the six fixes and notice what they have in common. The cache is
+in your process or on your machine. The worker is another process on your
+machine. The supervisor watches processes on your machine. The proxy sits in
+front of processes on your machine. The container holds processes on your
+machine. Every answer in this chapter is an arrangement of processes, as
+described in chapter one, on one computer, and chapter seventeen is about the
+day that stops being enough.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>Before that, count. Since chapter ten you have written, by hand: an accept loop,
+a request reader that counts bytes, a router made of <code>if</code> statements, a query
+string parser, a form parser, a header parser, a cookie parser, a response
+builder, a redirect builder, an escaper, a thread per visitor, a lock, a
+database schema, a cache with a key, and a queue with a worker. Every one of
+those was tedious, every one is easy to get subtly wrong, and every one is
+identical in every web application anybody has ever written.</p>
+  <p class="to">That combination is exactly what a library is for, and a library large enough
+that your code sits inside it has a name. Chapter sixteen is the first thing
+this course installs.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>Why the event loop suits web servers, the three ways a server can serve many
+people at once, and a developer's tour of the components this chapter names.</p>
+
+{{ resources }}

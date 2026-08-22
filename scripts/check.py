@@ -53,6 +53,7 @@ PROPER = {
     "arpanet", "ucla", "wi-fi", "ethernet", "rand", "cs", "sql", "fastapi",
     "cern", "os", "cpu", "gil", "ai", "api", "json", "i", "openapi",
     "tim", "berners-lee", "gopher", "unix", "berkeley", "sqlite", "nginx",
+    "linux",
 }
 
 # Proper titles of works, allowed to keep their title-case capitals.

@@ -28,36 +28,36 @@ there.
 
 **Part one: one computer**
 
-1. [What programming really is](https://esquire-gh.github.io/swe_the_hard_way/chapters/01-what-programming-really-is.html)
+1. [Computers, programs, and programming](https://esquire-gh.github.io/swe_the_hard_way/chapters/01-computers-programs-and-programming.html)
 
 **Part two: the machines get connected**
 
-2. [Then came networks](https://esquire-gh.github.io/swe_the_hard_way/chapters/02-then-came-networks.html)
-3. [And then the web](https://esquire-gh.github.io/swe_the_hard_way/chapters/03-and-then-the-web.html)
-4. [A website is a file on someone else's computer](https://esquire-gh.github.io/swe_the_hard_way/chapters/04-a-website-is-a-file-on-someone-elses-computer.html)
+2. [Computer networks](https://esquire-gh.github.io/swe_the_hard_way/chapters/02-computer-networks.html)
+3. [The web](https://esquire-gh.github.io/swe_the_hard_way/chapters/03-the-web.html)
+4. [What is a website?](https://esquire-gh.github.io/swe_the_hard_way/chapters/04-what-is-a-website.html)
 
 **Part three: the conversation**
 
 5. [Clients and servers](https://esquire-gh.github.io/swe_the_hard_way/chapters/05-clients-and-servers.html)
-6. [Requests and responses are just text](https://esquire-gh.github.io/swe_the_hard_way/chapters/06-requests-and-responses-are-just-text.html)
-7. [Why we need browsers](https://esquire-gh.github.io/swe_the_hard_way/chapters/07-why-we-need-browsers.html)
+6. [Requests and responses](https://esquire-gh.github.io/swe_the_hard_way/chapters/06-requests-and-responses.html)
+7. [Web browsers](https://esquire-gh.github.io/swe_the_hard_way/chapters/07-web-browsers.html)
 
 **Part four: building the server**
 
-8. [What is a server really doing?](https://esquire-gh.github.io/swe_the_hard_way/chapters/08-what-is-a-server-really-doing.html)
-9. [What a socket is](https://esquire-gh.github.io/swe_the_hard_way/chapters/09-what-a-socket-is.html)
-10. [A static web server in one file](https://esquire-gh.github.io/swe_the_hard_way/chapters/10-a-static-web-server-in-one-file.html)
-11. [When the page is different for every visitor](https://esquire-gh.github.io/swe_the_hard_way/chapters/11-when-the-page-is-different-for-every-visitor.html)
-12. [Two things called a server](https://esquire-gh.github.io/swe_the_hard_way/chapters/12-two-things-called-a-server.html)
+8. [Web servers](https://esquire-gh.github.io/swe_the_hard_way/chapters/08-web-servers.html)
+9. [Socket programming and the Linux socket API](https://esquire-gh.github.io/swe_the_hard_way/chapters/09-socket-programming.html)
+10. [Building a static web server](https://esquire-gh.github.io/swe_the_hard_way/chapters/10-building-a-static-web-server.html)
+11. [Building a dynamic web server](https://esquire-gh.github.io/swe_the_hard_way/chapters/11-building-a-dynamic-web-server.html)
+12. [Servers as hardware and software](https://esquire-gh.github.io/swe_the_hard_way/chapters/12-servers-as-hardware-and-software.html)
 
 **Part five: more users, more machines**
 
-13. [Can you handle two users at once?](https://esquire-gh.github.io/swe_the_hard_way/chapters/13-can-you-handle-two-users-at-once.html)
-14. [Where the data lives](https://esquire-gh.github.io/swe_the_hard_way/chapters/14-where-the-data-lives.html)
-15. [Can you handle 10,000 users?](https://esquire-gh.github.io/swe_the_hard_way/chapters/15-can-you-handle-10000-users.html)
+13. [Handling multiple users at once](https://esquire-gh.github.io/swe_the_hard_way/chapters/13-handling-multiple-users-at-once.html)
+14. [Introducing databases](https://esquire-gh.github.io/swe_the_hard_way/chapters/14-introducing-databases.html)
+15. [Scaling web applications](https://esquire-gh.github.io/swe_the_hard_way/chapters/15-scaling-web-applications.html)
 16. [Introducing web frameworks](https://esquire-gh.github.io/swe_the_hard_way/chapters/16-introducing-web-frameworks.html)
-17. [More than one machine](https://esquire-gh.github.io/swe_the_hard_way/chapters/17-more-than-one-machine.html)
-18. [AI systems are the same systems](https://esquire-gh.github.io/swe_the_hard_way/chapters/18-ai-systems-are-the-same-systems.html)
+17. [Introduction to distributed systems](https://esquire-gh.github.io/swe_the_hard_way/chapters/17-introduction-to-distributed-systems.html)
+18. [AI systems are still software](https://esquire-gh.github.io/swe_the_hard_way/chapters/18-ai-systems-are-still-software.html)
 
 ## What you need
 
@@ -75,7 +75,7 @@ named after the chapter it belongs to, and every output shown was produced by
 running it. Run them from their own directory:
 
 ```sh
-cd code/01-what-programming-really-is
+cd code/01-computers-programs-and-programming
 python3 machine.py
 ```
 

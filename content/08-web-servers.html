@@ -1,0 +1,234 @@
+<p class="kicker learn">Part four · building the server</p>
+<h1><span class="num">08 ·</span> Web servers</h1>
+<p class="hook">Chapter five said that a server's ordinary condition is doing nothing, and in
+chapter seven you talked to one that had been running for years. So what is it
+doing all day? Written out in ordinary words, a web server is six lines, and
+five of them you could write today. The sixth says wait, and it has no obvious
+implementation at all, because the processor in chapter one has no instruction
+that means pause here until a stranger somewhere in the world decides to
+connect. This chapter is about that line.</p>
+
+<h2 id="shape">The shape of every server ever written</h2>
+
+<p>Start with the whole thing, because it is short. A web server is a program that
+is started once and left running, and what it does for the rest of its life is
+this.</p>
+
+<div class="code"><pre>tell the operating system you want to be reachable
+forever:
+    wait until somebody connects
+    read the text they sent
+    work out what they are asking for
+    write the answer back
+    close the connection</pre></div>
+
+<p>That is not a simplification of a web server. That is a web server. The one you
+write in chapter ten has this shape, and so do the large ones that run most of
+the internet. What separates them is how much happens inside the line about
+working out what they are asking for, and how many of these loops are running at
+the same time, which is the question part five opens with. The words for the
+parts are worth having. A program that is started once and stays up is a <span class="term">long
+running process</span>. A server that has told the operating system it wants to be
+reachable, and is now waiting, is said to be <span class="term">listening</span>. The loop itself, one
+visitor in and one answer out and around again, is the <span class="term">accept loop</span>, and a single
+trip through it is what people mean by the <span class="term">request response cycle</span>.</p>
+
+<figure>
+  <div class="dgm">{{ diagram:server-loop }}</div>
+  <figcaption>six lines, five of which you could write today; the server spends nearly all of
+its life on the second one</figcaption>
+</figure>
+
+<p>Look at the six lines and ask which of them you could write now. Reading text
+and writing text you have done since your first program. Working out what the
+request means is chapter six, and it came to thirty lines. Closing something
+when you have finished with it is ordinary. Telling the operating system that
+you want to be reachable is a request you do not yet know how to make, but you
+can at least see that it is a request. That leaves one line with no obvious
+implementation at all, and it is the second one.</p>
+
+<h2 id="waiting">What waiting means for a program</h2>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>Chapter one said a process is a sequence of instructions being carried out one
+at a time by a processor, and a processor knows only a few dozen kinds of
+instruction: move this, add that, jump there. Chapter five said a server spends
+nearly all of its life waiting, and chapter seven showed one that answered
+within a few hundredths of a second of your request arriving.</p>
+  <p><strong>So which instruction is "wait"? And if the server is running no instructions
+while it waits, what noticed that you had arrived?</strong></p>
+</div>
+
+<p>There is no operation on any machine that means pause here until a stranger
+decides to connect. A processor has no idea what a stranger is. Something has to
+be happening during those hours of apparent idleness, and what it is turns out
+to be the subject of this chapter and the next.</p>
+
+<h2 id="two-ways">Two ways to wait, and only one of them is free</h2>
+
+<p>There are exactly two ways for a program to wait for something, and the
+difference between them matters more than it sounds.</p>
+
+<p>The first way is to keep asking. Look for the thing, and if it is not there,
+wait a moment and look again. The waiting program in chapter five did this: it
+listed a directory, found nothing, slept for fifty milliseconds, and listed it
+again, twenty times a second, all day. This is called <span class="term">polling</span>. It works, and it
+has two costs that pull against each other. The processor does work every time
+it looks, including on all the occasions when there is nothing there. And there
+is a delay between the moment something arrives and the moment the program
+notices, of up to one full gap. Shorten the gap to reduce the delay and you
+increase the waste. Lengthen it to reduce the waste and you increase the delay.
+There is no setting that is good, only settings that are wrong in different
+proportions.</p>
+
+<p>The second way is to hand the problem to the operating system. The program says
+what it is waiting for and then stops. The operating system takes the process
+off the schedule entirely, in the sense of chapter one, so it is no longer
+offered turns on a processor. When the thing arrives, the operating system puts
+the process back on the schedule and it carries on from the instruction after
+the one that stopped. Between those two moments the process runs no instructions
+at all. This is called <span class="term">blocking</span>, and a process waiting this way is described as
+blocked. That is what the <code>S</code> meant in chapter one's <code>ps</code> output, when the counting
+program was using no processor and still counting on time.</p>
+
+<figure>
+  <div class="dgm">{{ diagram:polling-vs-blocking }}</div>
+  <figcaption>polling pays a little, constantly, and notices late; blocking pays nothing and
+is woken the moment something arrives</figcaption>
+</figure>
+
+<p>The difference is not a small optimisation. Blocking costs nothing while waiting
+and notices instantly. Polling costs something continuously and always notices
+late. Why every program does not block, then, is the thing this chapter ends on.</p>
+
+<h2 id="measuring">Measuring the difference</h2>
+
+<p>We cannot wait on a network connection yet, because that is chapter nine. So
+wait on something we already understand. A <span class="term">named pipe</span> is a thing that looks like
+a file and has no disk behind it. One program writes into it, another reads out
+of it, and the bytes go straight from one to the other through memory. It
+appears in a directory listing with a <code>p</code> at the front, where an ordinary file has
+a dash.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ ls -l demo.pipe</span>
+<span class="out">prw-r--r--  1 you  staff  0 Aug 18 00:52 demo.pipe</span></pre></div>
+</figure>
+
+<p>The part that matters here is that opening one for reading does not return until
+somebody opens the other end for writing. It is a thing you can block on. Here
+are the two ways of waiting, doing the same job. First the one that keeps
+looking.</p>
+
+<figure>
+{{ code:code/08-web-servers/polling.py }}
+<figcaption>polling.py</figcaption>
+</figure>
+
+<p>Then the one that stops.</p>
+
+<figure>
+{{ code:code/08-web-servers/blocking.py }}
+<figcaption>blocking.py</figcaption>
+</figure>
+
+<p><code>time.perf_counter</code> measures time passing in the world. <code>time.process_time</code> measures
+processor time given to this process, which is the number that matters here.
+Start one of them, count to ten, then knock from a second window with <code>knock.py</code>.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre><span class="prompt">$ python3 polling.py</span>
+<span class="out">watching for knock.txt
+message: 'hello from the other window'
+waited 10.0 seconds of wall clock
+looked 1632 times, and found nothing 1631 of them
+spent 0.046 seconds of processor time doing it</span></pre></div>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre><span class="prompt">$ python3 blocking.py</span>
+<span class="out">waiting on knock.pipe
+message: 'hello from the other window'
+waited 10.0 seconds of wall clock
+looked 1 time, and found something
+spent 0.000 seconds of processor time doing it</span></pre></div>
+</figure>
+
+<p>Both waited the same ten seconds and both got the message. One of them asked
+1,632 times and was wrong 1,631 times. The other asked once.</p>
+
+<p>The processor figures are the ones to sit with. Forty six thousandths of a
+second sounds like nothing, and for one program it is. Scale it the way a real
+machine would. Two hundred programs waiting like that would spend around nine
+seconds of processor time in every ten seconds of clock time, which is roughly
+one entire processor running flat out to discover that nothing has happened. The
+blocking version scales the other way. Two hundred of those cost two hundred
+times nothing. Then halve the sleep in the polling version and run it again. The
+count doubles, the cost doubles, and the program is no more useful than it was.</p>
+
+<h2 id="check">Check it yourself: look at the process while it waits</h2>
+
+<div class="check">
+  <p>Start <code>blocking.py</code> and leave it. In another window, ask the operating system what
+it thinks of that process, the way chapter one did.</p>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ ps -o pid,stat,%cpu,command -p 71243</span>
+<span class="out">  PID STAT  %CPU COMMAND
+71243 SN     0.0 python3 blocking.py</span></pre></div>
+  <p><code>S</code> and <code>0.0</code>. This is the same reading chapter one got from a program that was
+counting once a second, and it means the same thing. The operating system's own
+record says this process is not runnable. It is not being offered turns, it is
+not looking at anything, and it is not, in any sense the machine recognises,
+doing something. That would be surprising if blocking were a clever kind of fast
+polling. It is not. The process really has stopped, and the reason it wakes at
+the right moment has nothing to do with the process.</p>
+  <div class="trouble">
+    <b>if ps says no such process</b>
+    <p>The number is the process id <code>blocking.py</code> got on the author's machine. Yours is
+different; find it with <code>pgrep -f blocking.py</code>.</p>
+  </div>
+</div>
+
+<h2 id="limit">Why the program cannot do this on its own</h2>
+
+<p>We now know what the missing line in the server loop has to mean: stop this
+process, and start it again when somebody connects. There are two reasons a
+program cannot carry that out itself, and both come from chapter one.</p>
+
+<p>The first is that a stopped process is stopped. Somebody has to be running at
+the moment the connection arrives, in order to notice it and put the process
+back on the schedule. That somebody cannot be the process, because the whole
+point is that it is not running. Whoever does the waking is never the one
+asleep. The second is that the thing being waited for is a piece of hardware.
+The bytes arrive at a network card. The operating system owns the machine and
+hands out turns on the processor, and it owns the devices in the same way and
+for the same reason. A process cannot read the network card directly, any more
+than it can read another process's memory. If it could, every program on your
+laptop could read every other program's traffic.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>So the line has to become a request to the operating system, along the lines of:
+I want to be reachable on this port, wake me when somebody arrives, and take me
+off the schedule until then. A request like that has to give something back. The
+program needs to hold on to whatever arrives, read the visitor's text out of it,
+and write an answer into it, possibly for a long time and possibly while other
+things are going on. The bookkeeping the operating system keeps for a process
+already includes the list of files it has open, and the people who designed this
+noticed that a program which can read from and write to an open file would need
+to learn almost nothing to read from and write to a connection, if the
+connection were handed over in the same shape.</p>
+  <p class="to">That handle has a name, and chapter nine is about what it is and what the
+operating system is doing behind it.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>The operating system's side of waiting: how a process is taken off the schedule
+and put back, from the people who teach it.</p>
+
+{{ resources }}

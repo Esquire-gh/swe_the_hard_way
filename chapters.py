@@ -45,8 +45,8 @@ FRONT = Chapter(0, "index", "Introduction", 0,
 
 CHAPTERS = [
     # ---- Part one -------------------------------------------------------
-    Chapter(1, "01-what-programming-really-is",
-            "What programming really is", 1,
+    Chapter(1, "01-computers-programs-and-programming",
+            "Computers, programs, and programming", 1,
             "The usual definition of programming taken apart on one computer: "
             "what a program is on disk, what changes when it runs, and who is "
             "in charge of the difference.",
@@ -54,20 +54,20 @@ CHAPTERS = [
             breaks="one machine cannot reach another"),
 
     # ---- Part two -------------------------------------------------------
-    Chapter(2, "02-then-came-networks",
-            "Then came networks", 2,
+    Chapter(2, "02-computer-networks",
+            "Computer networks", 2,
             "Why moving bytes between machines needed packet switching and "
             "layered protocols, and why that design was inevitable.",
             builds="bytes moving between two machines",
             breaks="bytes arrive with no meaning attached"),
-    Chapter(3, "03-and-then-the-web",
-            "And then the web", 2,
+    Chapter(3, "03-the-web",
+            "The web", 2,
             "The internet moves bytes; the web is one agreement about what "
             "they mean. Why it arrived late and won anyway.",
             builds="documents anyone can link to and read",
             breaks="you still cannot say where a document lives"),
-    Chapter(4, "04-a-website-is-a-file-on-someone-elses-computer",
-            "A website is a file on someone else's computer", 2,
+    Chapter(4, "04-what-is-a-website",
+            "What is a website?", 2,
             "Where a page physically lives, how machines are found by address, "
             "and how a name people remember becomes one.",
             builds="a way to find the machine that holds the file",
@@ -80,66 +80,66 @@ CHAPTERS = [
             "machine, and why your laptop is both.",
             builds="the two roles in every exchange",
             breaks="the roles do not say what they send each other"),
-    Chapter(6, "06-requests-and-responses-are-just-text",
-            "Requests and responses are just text", 3,
+    Chapter(6, "06-requests-and-responses",
+            "Requests and responses", 3,
             "A real HTTP request and response read line by line, until the "
             "format holds no mystery.",
             builds="the exact bytes of a request and a response",
             breaks="something has to write, send, and draw that text"),
-    Chapter(7, "07-why-we-need-browsers",
-            "Why we need browsers", 3,
+    Chapter(7, "07-web-browsers",
+            "Web browsers", 3,
             "Sending the text by hand, and what a browser adds: writing it, "
             "drawing it, and agreeing with every other browser.",
             builds="the side that asks, understood fully",
             breaks="now look at the side that answers"),
 
     # ---- Part four ------------------------------------------------------
-    Chapter(8, "08-what-is-a-server-really-doing",
-            "What is a server really doing?", 4,
+    Chapter(8, "08-web-servers",
+            "Web servers", 4,
             "A server is a program that never stops: wait, read, answer, "
             "close, wait again. What the waiting actually is.",
             builds="the loop every server runs",
             breaks="waiting needs something only the OS can give"),
-    Chapter(9, "09-what-a-socket-is",
-            "What a socket is", 4,
+    Chapter(9, "09-socket-programming",
+            "Socket programming and the Linux socket API", 4,
             "The operating system owns the network card, so it hands programs a "
             "handle that behaves like a file.",
             builds="the handle a program holds the network by",
             breaks="a handle is an idea until you use it"),
-    Chapter(10, "10-a-static-web-server-in-one-file",
-             "A static web server in one file", 4,
+    Chapter(10, "10-building-a-static-web-server",
+             "Building a static web server", 4,
              "Twenty lines a browser will talk to, then a folder of files: the "
              "request path maps to a file path, and 404 when it does not.",
              builds="a working static web server, by hand",
              breaks="every visitor gets the same bytes"),
-    Chapter(11, "11-when-the-page-is-different-for-every-visitor",
-             "When the page is different for every visitor", 4,
+    Chapter(11, "11-building-a-dynamic-web-server",
+             "Building a dynamic web server", 4,
              "Static becomes dynamic: run code per request. Routing, forms, "
              "query strings, sessions, escaping, all by hand.",
              builds="pages generated per visitor, by hand",
              breaks="two programs, and one word for both"),
-    Chapter(12, "12-two-things-called-a-server",
-             "Two things called a server", 4,
+    Chapter(12, "12-servers-as-hardware-and-software",
+             "Servers as hardware and software", 4,
              "A machine and a program share the word, and so do the file "
              "server and the application server you just wrote.",
              builds="a name for each thing called a server",
              breaks="it still answers one visitor at a time"),
 
     # ---- Part five ------------------------------------------------------
-    Chapter(13, "13-can-you-handle-two-users-at-once",
-             "Can you handle two users at once?", 5,
+    Chapter(13, "13-handling-multiple-users-at-once",
+             "Handling multiple users at once", 5,
              "The hand written server does one thing at a time. Threads, and "
              "everything that goes wrong when two touch the same data.",
              builds="a server that serves many at once",
              breaks="it forgets everything the moment it stops"),
-    Chapter(14, "14-where-the-data-lives",
-             "Where the data lives", 5,
+    Chapter(14, "14-introducing-databases",
+             "Introducing databases", 5,
              "Files on disk, why that stops working, and what a database "
              "actually is, down to the language it speaks.",
              builds="memory that survives the process",
              breaks="a working system is where the hard part begins"),
-    Chapter(15, "15-can-you-handle-10000-users",
-             "Can you handle 10,000 users?", 5,
+    Chapter(15, "15-scaling-web-applications",
+             "Scaling web applications", 5,
              "Ten thousand users and a bigger application. Each pressure "
              "forces a component: cache, queue, supervisor, proxy, logs.",
              builds="a system that stays up under load",
@@ -150,14 +150,14 @@ CHAPTERS = [
              "command. Line by line against what it replaces.",
              builds="the same system, without the tedium",
              breaks="it all still runs on one machine"),
-    Chapter(17, "17-more-than-one-machine",
-             "More than one machine", 5,
+    Chapter(17, "17-introduction-to-distributed-systems",
+             "Introduction to distributed systems", 5,
              "Spreading the system across machines for load, for data, and "
              "by capability, and what stops being true when you do.",
              builds="a system spread across machines",
              breaks="the newest, loudest part is still unexplained"),
-    Chapter(18, "18-ai-systems-are-the-same-systems",
-             "AI systems are the same systems", 5,
+    Chapter(18, "18-ai-systems-are-still-software",
+             "AI systems are still software", 5,
              "Training is a process, inference is a server. Walk the whole "
              "stack again with the AI names attached.",
              builds="the AI stack, recognised",
