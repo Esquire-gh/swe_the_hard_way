@@ -11,7 +11,7 @@ def claim(port):
     server_socket = socket.socket()
     server_socket.bind(("127.0.0.1", port))
     server_socket.listen(5)
-    return listening
+    return server_socket
 
 
 first = claim(8200)
