@@ -1,4 +1,8 @@
-"""Take the raw bytes of an HTTP request and pull them apart.
+"""Take the raw bytes of an HTTP message and pull them apart.
+
+Both halves of the conversation have the same shape, so one function reads
+both: a first line of three fields, headers, a blank line, and a body whose
+length the headers state.
 
 Run it with: python3 parse.py
 """
@@ -15,28 +19,51 @@ RAW = (
 
 
 def parse(raw):
-    """Split one request into its parts, and whatever came after it."""
+    """Split one message into its parts, and whatever came after it."""
     head, _, rest = raw.partition(b"\r\n\r\n")
     lines = head.split(b"\r\n")
 
-    method, path, version = lines[0].split(b" ")
+    first = lines[0].split(b" ", 2)
     headers = {}
     for line in lines[1:]:
         name, _, value = line.partition(b": ")
         headers[name.decode().lower()] = value.decode()
 
     length = int(headers.get("content-length", 0))
-    return method, path, version, headers, rest[:length], rest[length:]
+    return first, headers, rest[:length], rest[length:]
 
 
-method, path, version, headers, body, leftover = parse(RAW)
+def response(status, body, kind="text/html"):
+    """One HTTP response, headers and all, as bytes."""
+    head = (
+        f"HTTP/1.1 {status}\r\n"
+        f"Content-Type: {kind}\r\n"
+        f"Content-Length: {len(body)}\r\n"
+        "Connection: close\r\n\r\n"
+    )
+    return head.encode() + body
 
-print(f"method   {method.decode()}")
-print(f"path     {path.decode()}")
-print(f"version  {version.decode()}")
-print("headers")
-for name, value in headers.items():
-    print(f"    {name:<16} {value}")
-print(f"body     {body!r}")
-print(f"\nthe body is {len(body)} bytes, and the header said {headers['content-length']}")
-print(f"bytes left over after this message: {len(leftover)}")
+
+def show(label, raw):
+    first, headers, body, leftover = parse(raw)
+    print(label)
+    print(f"    {'first line':<16} {' | '.join(part.decode() for part in first)}")
+    for name, value in headers.items():
+        print(f"    {name:<16} {value}")
+    print(f"    {'body':<16} {body!r}")
+    print(f"    {'left over':<16} {len(leftover)} bytes")
+
+
+if __name__ == "__main__":
+    show("the request, parsed:", RAW)
+
+    answer = response("404 Not Found", b"no document with that name\n", "text/plain")
+    print("\nthe response we built, one line at a time:")
+    head, _, sent = answer.partition(b"\r\n\r\n")
+    for line in head.split(b"\r\n"):
+        print("    " + repr(line + b"\r\n"))
+    print("    " + repr(b"\r\n") + "        <- ends the headers")
+    print("    " + repr(sent))
+
+    print()
+    show("the same function reading it back:", answer)

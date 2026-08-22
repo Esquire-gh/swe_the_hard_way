@@ -11,92 +11,123 @@
 <header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part three · the conversation</span><span class="here"><span class="hn">06</span><span class="ht">Requests and responses</span></span></span><span class="progress-label">06 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-computers-programs-and-programming.html" data-module="01-computers-programs-and-programming"><span class="n">01</span><span class="t">Computers, programs, and programming</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-computer-networks.html" data-module="02-computer-networks"><span class="n">02</span><span class="t">Computer networks</span></a></li><li><a class="nav-item" href="03-the-web.html" data-module="03-the-web"><span class="n">03</span><span class="t">The web</span></a></li><li><a class="nav-item" href="04-what-is-a-website.html" data-module="04-what-is-a-website"><span class="n">04</span><span class="t">What is a website?</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item current" href="06-requests-and-responses.html" data-module="06-requests-and-responses" aria-current="page"><span class="n">06</span><span class="t">Requests and responses</span></a></li><li><a class="nav-item" href="07-web-browsers.html" data-module="07-web-browsers"><span class="n">07</span><span class="t">Web browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-web-servers.html" data-module="08-web-servers"><span class="n">08</span><span class="t">Web servers</span></a></li><li><a class="nav-item" href="09-socket-programming.html" data-module="09-socket-programming"><span class="n">09</span><span class="t">Socket programming and the Linux socket API</span></a></li><li><a class="nav-item" href="10-building-a-static-web-server.html" data-module="10-building-a-static-web-server"><span class="n">10</span><span class="t">Building a static web server</span></a></li><li><a class="nav-item" href="11-building-a-dynamic-web-server.html" data-module="11-building-a-dynamic-web-server"><span class="n">11</span><span class="t">Building a dynamic web server</span></a></li><li><a class="nav-item" href="12-servers-as-hardware-and-software.html" data-module="12-servers-as-hardware-and-software"><span class="n">12</span><span class="t">Servers as hardware and software</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-handling-multiple-users-at-once.html" data-module="13-handling-multiple-users-at-once"><span class="n">13</span><span class="t">Handling multiple users at once</span></a></li><li><a class="nav-item" href="14-introducing-databases.html" data-module="14-introducing-databases"><span class="n">14</span><span class="t">Introducing databases</span></a></li><li><a class="nav-item" href="15-scaling-web-applications.html" data-module="15-scaling-web-applications"><span class="n">15</span><span class="t">Scaling web applications</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-introduction-to-distributed-systems.html" data-module="17-introduction-to-distributed-systems"><span class="n">17</span><span class="t">Introduction to distributed systems</span></a></li><li><a class="nav-item" href="18-ai-systems-are-still-software.html" data-module="18-ai-systems-are-still-software"><span class="n">18</span><span class="t">AI systems are still software</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part three · the conversation</p>
 <h1><span class="num">06 ·</span> Requests and responses</h1>
 <p class="hook">There is a word at the front of every address you have ever typed, <code>http</code> or
-<code>https</code>, and almost nobody has read what it stands for. Chapter five left a client
-and a server facing each other, written by strangers years apart, with nothing
-agreed between them. This chapter is the agreement, and the surprise is how
-little of it there is. What travels between a browser and a server is text, in
-lines, and you can read all of it.</p>
+<code>https</code>, and almost nobody has read what it stands for. The last chapter left a
+client and a server facing each other, written by strangers years apart, with
+nothing agreed between them. This chapter is the agreement, and the surprise is
+how little of it there is. What travels between a browser and a server is text,
+in lines, and you can read all of it.</p>
 
 <h2 id="http">An agreement designed to be read by people</h2>
 
 <p>The rules are called the <span class="term">Hypertext Transfer Protocol</span>, and the letters are HTTP.
-The first version, in 1991, was one line long. The client sent <code>GET</code> and a path,
-the server sent the document back and closed the connection, and that was the
-entire protocol. There were no headers, no status codes, and no way to send
-anything other than a document. Every piece that came later was added because
+The first version was one line long: the client sent <code>GET</code> and a path, the server
+sent the document and closed the connection. No headers, no status codes, no way
+to send anything but a document. Every piece added since then was added because
 something specific did not work, which is the only reason to keep the history in
-mind.</p>
-
-<p>A request today looks like this, and a response has the same shape with a
-different first line.</p>
+mind at all.</p>
 
 <figure>
   <div class="dgm"><svg viewBox="0 0 720 228" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">a request and a response, line by line</text><text x="20" y="52" class="lbl b">request</text><rect x="20" y="60" width="330" height="132" rx="3" class="box"/><text x="32" y="84" class="lbl b">GET /about.html HTTP/1.1</text><text x="338" y="84" class="lbl sm mut end">request line</text><text x="32" y="108" class="lbl">Host: example.com</text><text x="338" y="108" class="lbl sm mut end">header</text><text x="32" y="132" class="lbl">Accept: text/html</text><text x="338" y="132" class="lbl sm mut end">header</text><path d="M32,152 L140,152" class="flow brk"/><text x="338" y="156" class="lbl sm mut end">blank line: headers end</text><text x="32" y="180" class="lbl sm mut">(no body: a GET has nothing to send)</text><text x="370" y="52" class="lbl b">response</text><rect x="370" y="60" width="330" height="132" rx="3" class="box"/><text x="382" y="84" class="lbl b">HTTP/1.1 200 OK</text><text x="688" y="84" class="lbl sm mut end">status line</text><text x="382" y="108" class="lbl">Content-Type: text/html</text><text x="688" y="108" class="lbl sm mut end">header</text><text x="382" y="132" class="lbl">Content-Length: 559</text><text x="688" y="132" class="lbl sm mut end">how long the body is</text><path d="M382,152 L490,152" class="flow brk"/><text x="688" y="156" class="lbl sm mut end">blank line: headers end</text><text x="382" y="180" class="lbl">&lt;!doctype html&gt;&lt;html&gt;...</text><text x="688" y="180" class="lbl sm mut end">body, 559 bytes</text><text x="20" y="216" class="lbl sm mut">the same shape both ways: a first line, headers, a blank line, and sometimes a body</text></svg></div>
-  <figcaption>a request and a response have the same shape: a first line, headers, a blank
-line, and sometimes a body</figcaption>
+  <figcaption>a request and a response have the same shape: a first line, headers,
+a blank line, and sometimes a body</figcaption>
 </figure>
 
-<p>The first line of a request is the <span class="term">request line</span>, and it has three parts
-separated by single spaces. The <span class="term">method</span> says what you want done: <code>GET</code> means send
-me this, and <code>POST</code> means here is some data, do something with it. The <span class="term">path</span> is the
-last part of the URL from chapter four. The <span class="term">version</span> tells the server which set
-of rules the client is speaking. Everything after that until the blank line is a
-<span class="term">header</span>, one per line, written as a name, a colon, and a value. Headers are notes
-about the message rather than the message itself.</p>
+<p>The first line of a request is the <span class="term">request line</span>, three fields separated by
+single spaces. The <span class="term">method</span> says what you want done: <code>GET</code> means send me this, <code>POST</code>
+means here is some data, do something with it. The <span class="term">path</span> is the last part of the
+URL. The <span class="term">version</span> tells the server which rules the client is speaking. Everything
+after that until the blank line is a <span class="term">header</span>, one per line, written as a name, a
+colon, and a value. Headers are notes about the message rather than the message
+itself.</p>
 
-<p>One header deserves attention now, because it explains something chapter four
-left hanging. The path in the request line does not say which site you want,
-only which file. <code>Host: example.com</code> is what says which site. That header exists
-because one machine at one address serves many different sites, and the machine
-has no way of knowing which name you typed unless you tell it. In 1991 there was
-one site per machine and no such header. It became mandatory in 1997, and it is
-what makes shared hosting possible. Then a blank line, and then optionally a
-body. A <code>GET</code> has no body, because there is nothing to send. A <code>POST</code> does.</p>
+<p>The first line of a response is the <span class="term">status line</span>, and it fills the same three
+slots differently: the version, a three digit code, and a short phrase. The code
+is for the program and the phrase is for the person reading over its shoulder,
+and the first digit is the whole classification. Two hundreds mean it worked.
+Three hundreds mean the thing is somewhere else and here is where. Four hundreds
+mean the client asked for something wrong. Five hundreds mean the server broke
+while trying. <code>404</code> is the number the web gave to chapter three's decision that
+links are allowed to break: the server is not malfunctioning when it sends one,
+it is reporting in the ordinary course of business that the thing you named is
+not here.</p>
 
-<p>The first line of a response is the <span class="term">status line</span>, and it carries the version, a
-three digit code, and a short phrase. The code is for the program and the phrase
-is for the person reading over its shoulder, and the first digit is the whole
-classification. Two hundreds mean it worked. Three hundreds mean the thing is
-somewhere else and here is where. Four hundreds mean the client asked for
-something wrong. Five hundreds mean the server broke while trying. <code>404</code> is a four
-hundred, and it is worth pausing on, because it is the number the web gave to
-chapter three's decision that links are allowed to break. The server is not
-malfunctioning when it sends one. It is reporting, in the ordinary course of
-business, that the thing you named is not here, and both programs carry on
-afterwards.</p>
+<h2 id="host">One machine, many sites, one header deciding</h2>
+
+<p>One header is worth meeting on its own, because it answers something the last
+chapter left hanging. The path says which file, not which site. <code>Host:</code> says which
+site, and it exists because one machine at one address serves many of them and
+has no way of knowing which name you typed. You can prove that in two commands.
+Both of these go to the same address, ask for the same path, and differ in one
+line.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ curl -sI -H "Host: esquire-gh.github.io" http://185.199.108.153/swe_the_hard_way/</span>
+<span class="out">HTTP/1.1 301 Moved Permanently
+Server: GitHub.com
+Content-Length: 162
+Location: https://esquire-gh.github.io/swe_the_hard_way/</span>
+<span class="prompt">$ curl -sI -H "Host: docs.github.com" http://185.199.108.153/swe_the_hard_way/</span>
+<span class="out">HTTP/1.1 404 Not Found
+Server: GitHub.com
+Content-Length: 9578
+Content-Type: text/html; charset=utf-8</span></pre></div>
+</figure>
+
+<p>One machine, two answers, and the only difference is a name written in a header.
+The first is a three hundred: this site exists but not at that address, go here
+instead, and the <code>Location</code> header says where. The second is a four hundred: under
+that name, there is nothing at this path. The machine did not change. What
+changed was which of the millions of sites it holds you claimed to be asking
+for.</p>
 
 <h2 id="boundaries">Where a message ends, and why that is the hard part</h2>
 
 <p>There is one structural problem underneath all of this, and it comes straight
 from chapter two. TCP delivers an ordered stream of bytes. It does not deliver
 messages. Nothing in it marks where one thing stops and the next begins, because
-it has no idea that the bytes mean anything at all. When a program reads from a
-connection it gets whatever has arrived so far, which might be half a request,
-or one request and the first forty bytes of the next. So every protocol built on
-top of TCP has to mark its own boundaries, and HTTP does it in two places.</p>
+it has no idea the bytes mean anything. When a program reads from a connection
+it gets whatever has arrived, which might be half a request, or one request and
+the first forty bytes of the next. So every protocol built on TCP has to mark
+its own boundaries, and HTTP does it in two places.</p>
 
 <figure>
   <div class="dgm"><svg viewBox="0 0 720 176" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">two requests arrive back to back on one connection</text><rect x="20" y="64" width="200" height="36" rx="0" class="box learn"/><text x="120.0" y="86" class="lbl sm b mid">request A: headers</text><rect x="220" y="64" width="30" height="36" rx="0" class="box sunk"/><rect x="250" y="64" width="110" height="36" rx="0" class="box learn"/><text x="305.0" y="86" class="lbl sm b mid">body A</text><rect x="360" y="64" width="200" height="36" rx="0" class="box"/><text x="460.0" y="86" class="lbl sm b mid">request B: headers</text><rect x="560" y="64" width="30" height="36" rx="0" class="box sunk"/><rect x="590" y="64" width="110" height="36" rx="0" class="box"/><text x="645.0" y="86" class="lbl sm b mid">body B</text><text x="35" y="56" class="lbl sm mut">bytes, in order, with no edges of their own</text><path d="M235,100 L235,118" class="flow"/><text x="235" y="132" class="lbl sm mid">a blank line ends the headers</text><path d="M360,100 L360,150" class="flow learn"/><text x="360" y="164" class="lbl sm mid learn">Content-Length: 11 says where the body ends</text><path d="M360,44 L360,64" class="flow brk"/><text x="372" y="48" class="lbl sm brk">nothing in the stream marks this edge</text></svg></div>
-  <figcaption>the stream has no edges of its own: the blank line ends the headers, and a
-header says how long the body is</figcaption>
+  <figcaption>the stream has no edges of its own: the blank line ends the headers,
+and a header says how long the body is</figcaption>
 </figure>
 
-<p>The blank line ends the headers. That is the entire job of the blank line, and
-it is why it is not optional and not decoration. A reader consumes lines until
-it meets an empty one, and then it knows the headers are complete. The length of
-the body is stated in the headers. Usually that is <code>Content-Length</code>, giving the
-exact number of bytes to read. Sometimes the server does not know the total when
-it starts sending, so it uses <code>Transfer-Encoding: chunked</code> instead and sends the
-body in pieces, each piece preceded by its own length, ending with a piece of
-length zero. Forgetting this is the most common way a hand written server
-breaks, and the server in chapter ten gets it wrong before chapter eleven gets
-it right.</p>
+<p>The blank line ends the headers. That is its entire job, which is why it is
+neither optional nor decoration: a reader consumes lines until it meets an empty
+one, and then it knows. The length of the body is stated in the headers, usually
+by <code>Content-Length</code>, giving the exact number of bytes to read.</p>
+
+<p>Sometimes the server does not know the total when it starts sending. Then it
+uses <code>Transfer-Encoding: chunked</code> and sends the body in pieces, each preceded by
+its own length in hexadecimal, ending with a piece of length zero. <code>curl --raw</code>
+declines to tidy that up for you.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ curl -s --raw --http1.1 http://example.com/ | head -c 78</span>
+<span class="out">22f
+&lt;!doctype html&gt;&lt;html lang="en"&gt;&lt;head&gt;&lt;title&gt;Example Domain&lt;/title&gt;&lt;link r</span>
+<span class="prompt">$ curl -s --raw --http1.1 http://example.com/ | tail -c 14</span>
+<span class="out">/html&gt;
+0
+</span></pre></div>
+</figure>
+
+<p><code>22f</code> in hexadecimal is 559, which is the size of that page, and the <code>0</code> at the end
+is the piece that means there are no more pieces. Getting this wrong is the most
+common way a hand written server breaks, and the server in chapter ten gets it
+wrong before chapter eleven gets it right.</p>
 
 <h2 id="real">A real exchange, read line by line</h2>
 
-<p><code>curl</code> is a program that speaks HTTP from a command line, and asking it to be
-verbose makes it print both sides of the conversation. Lines beginning <code>&gt;</code> are
-what it sent. Lines beginning <code>&lt;</code> are what came back.</p>
+<p><code>curl</code> speaks HTTP from a command line, and asking it to be verbose makes it print
+both sides. Lines beginning <code>&gt;</code> are what it sent. Lines beginning <code>&lt;</code> are what
+came back.</p>
 
 <figure>
   <div class="term-block"><div class="term-head">terminal</div>
@@ -113,66 +144,45 @@ what it sent. Lines beginning <code>&lt;</code> are what came back.</p>
 &lt; Connection: keep-alive
 &lt; Server: cloudflare
 &lt; Last-Modified: Wed, 12 Aug 2026 20:17:18 GMT
-&lt; Allow: GET, HEAD
-&lt; Accept-Ranges: bytes
 &lt; Age: 14284
 &lt; cf-cache-status: HIT
-&lt; CF-RAY: a2ce3e22697b3788-EWR
 &lt;</span></pre></div>
 </figure>
 
-<p>Four things in there are worth reading properly. The request is four lines and a
-blank one. That is the whole of what a client must send to fetch a page, and you
-could type it yourself, which is what chapter seven does. This response uses
-<code>Transfer-Encoding: chunked</code> rather than <code>Content-Length</code>, which is the same
-boundary problem solved for a different situation. <code>Server: cloudflare</code> means the
-machine that answered is not the machine that owns the site; something in the
-middle handled this without the site's own computers being involved at all,
-which is chapter fifteen and chapter seventeen arriving early. And <code>Age: 14284</code>
-says this answer had been sitting in a store for about four hours before it was
-handed over, while <code>cf-cache-status: HIT</code> says the same thing in different words.
-Nobody read a file off a disk to answer this request. Chapter fifteen is about
-why that became necessary.</p>
+<p>The request is four lines and a blank one. That is the whole of what a client
+must send to fetch a page, and you could type it yourself, which is what the
+next chapter does. Two of the response headers are worth stopping on. <code>Server:
+cloudflare</code> means the machine that answered is not the machine that owns the
+site. And <code>Age: 14284</code> says this answer had been sitting in a store for about four
+hours before it was handed over, while <code>cf-cache-status: HIT</code> says the same thing
+in different words. Nobody read a file off a disk to answer this request, and
+chapter fifteen is about why that became necessary.</p>
 
-<h2 id="document">The document that came back</h2>
+<h2 id="document">What came back inside the envelope</h2>
 
-<p>Ask for the body rather than throwing it away and you get 559 bytes.</p>
+<p>Ask for the body rather than throwing it away and you get those 559 bytes: a
+document in <span class="term">HTML</span>, which is a different agreement from HTTP. HTTP is the envelope
+and does not care what is inside. HTML is one of the things you can put in it,
+and <code>Content-Type: text/html</code> is the label on the outside saying which; images,
+video and machine readable data travel in identical envelopes with different
+labels. What HTML does is mark up structure rather than appearance, so
+<code>&lt;h1&gt;</code> says this text is a top level heading and says nothing about what a
+heading looks like, which is chapter three's fourth decision written down as a
+format. A third agreement, <span class="term">CSS</span>, covers appearance. The document itself is the
+next chapter's subject.</p>
 
-<figure>
-  <div class="term-block"><div class="term-head">terminal</div>
-<pre><span class="prompt">$ curl -s --http1.1 http://example.com/</span>
-<span class="out">&lt;!doctype html&gt;&lt;html lang="en"&gt;&lt;head&gt;&lt;title&gt;Example Domain&lt;/title&gt;&lt;link rel="icon" href="data:,"&gt;&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;&lt;style&gt;body{background:#eee;width:60vw;margin:15vh auto;font-family:system-ui,sans-serif}h1{font-size:1.5em}div{opacity:0.8}a:link,a:visited{color:#348}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div&gt;&lt;h1&gt;Example Domain&lt;/h1&gt;&lt;p&gt;This domain is for use in documentation examples without needing permission. Avoid use in operations.&lt;/p&gt;&lt;p&gt;&lt;a href="https://iana.org/domains/example"&gt;Learn more&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</span></pre></div>
-</figure>
+<h2 id="parser">One function that reads both halves</h2>
 
-<p>This is <span class="term">HTML</span>, and the first thing to be exact about is that it is a different
-agreement from HTTP. HTTP is the envelope, and it does not care what is inside.
-HTML is one of the things you can put in the envelope, and the <code>Content-Type:
-text/html</code> header is the label on the outside saying which. Images, video, and
-machine readable data travel in identical envelopes with different labels. The
-whole page is one line because the spaces between tags carry no meaning and
-somebody removed them to save bytes.</p>
-
-<p>What HTML does is mark up structure. <code>&lt;h1&gt;Example Domain&lt;/h1&gt;</code> says
-that the text between those marks is a top level heading. It does not say what a
-heading looks like. That is chapter three's fourth decision, the one about
-describing the document rather than the screen, written down as a format. A
-phone, a laptop and a program that reads pages aloud to somebody who cannot see
-them all receive the same bytes and each decides what a heading should be. The
-tags nest, and the nesting is the structure. The <code>&lt;a&gt;</code> with its <code>href</code> is a
-link,
-and it is the thing from chapter three made real: it points one way, nobody
-checked that it works, and the page is perfectly valid if it is broken. The part
-in <code>&lt;style&gt;</code> is <span class="term">CSS</span>, a third agreement, which is about appearance. This
-course does not cover it, but it is worth knowing what it is so you can tell
-which of the three you are looking at.</p>
-
-<h2 id="parser">Thirty lines that understand a request</h2>
-
-<p>Since a request is text in a fixed shape, a program that understands one is
-short.</p>
+<p>Since both messages are text in the same fixed shape, one short function reads
+either. This one also builds a response, and the builder is the exact function
+the server in chapter ten uses, so it is worth reading now rather than twice.</p>
 
 <figure>
-<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Take the raw bytes of an HTTP request and pull them apart.
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Take the raw bytes of an HTTP message and pull them apart.
+
+Both halves of the conversation have the same shape, so one function reads
+both: a first line of three fields, headers, a blank line, and a body whose
+length the headers state.
 
 Run it with: python3 parse.py
 &quot;&quot;&quot;</span>
@@ -189,31 +199,54 @@ RAW = (
 
 
 <span class="c-kw">def</span> <span class="c-fn">parse</span>(raw):
-    <span class="c-st">&quot;&quot;&quot;Split one request into its parts, and whatever came after it.&quot;&quot;&quot;</span>
+    <span class="c-st">&quot;&quot;&quot;Split one message into its parts, and whatever came after it.&quot;&quot;&quot;</span>
     head, _, rest = raw.partition(b<span class="c-st">&quot;\r\n\r\n&quot;</span>)
     lines = head.split(b<span class="c-st">&quot;\r\n&quot;</span>)
 
-    method, path, version = lines[0].split(b<span class="c-st">&quot; &quot;</span>)
+    first = lines[0].split(b<span class="c-st">&quot; &quot;</span>, 2)
     headers = {}
     <span class="c-kw">for</span> line <span class="c-kw">in</span> lines[1:]:
         name, _, value = line.partition(b<span class="c-st">&quot;: &quot;</span>)
         headers[name.decode().lower()] = value.decode()
 
     length = int(headers.get(<span class="c-st">&quot;content-length&quot;</span>, 0))
-    <span class="c-kw">return</span> method, path, version, headers, rest[:length], rest[length:]
+    <span class="c-kw">return</span> first, headers, rest[:length], rest[length:]
 
 
-method, path, version, headers, body, leftover = parse(RAW)
+<span class="c-kw">def</span> <span class="c-fn">response</span>(status, body, kind=<span class="c-st">&quot;text/html&quot;</span>):
+    <span class="c-st">&quot;&quot;&quot;One HTTP response, headers and all, as bytes.&quot;&quot;&quot;</span>
+    head = (
+        f<span class="c-st">&quot;HTTP/1.1 {status}\r\n&quot;</span>
+        f<span class="c-st">&quot;Content-Type: {kind}\r\n&quot;</span>
+        f<span class="c-st">&quot;Content-Length: {len(body)}\r\n&quot;</span>
+        <span class="c-st">&quot;Connection: close\r\n\r\n&quot;</span>
+    )
+    <span class="c-kw">return</span> head.encode() + body
 
-print(f<span class="c-st">&quot;method   {method.decode()}&quot;</span>)
-print(f<span class="c-st">&quot;path     {path.decode()}&quot;</span>)
-print(f<span class="c-st">&quot;version  {version.decode()}&quot;</span>)
-print(<span class="c-st">&quot;headers&quot;</span>)
-<span class="c-kw">for</span> name, value <span class="c-kw">in</span> headers.items():
-    print(f<span class="c-st">&quot;    {name:&lt;16} {value}&quot;</span>)
-print(f<span class="c-st">&quot;body     {body!r}&quot;</span>)
-print(f<span class="c-st">&quot;\nthe body is {len(body)} bytes, and the header said {headers[&#x27;content-length&#x27;]}&quot;</span>)
-print(f<span class="c-st">&quot;bytes left over after this message: {len(leftover)}&quot;</span>)
+
+<span class="c-kw">def</span> <span class="c-fn">show</span>(label, raw):
+    first, headers, body, leftover = parse(raw)
+    print(label)
+    print(f<span class="c-st">&quot;    {&#x27;first line&#x27;:&lt;16} {&#x27; | &#x27;.join(part.decode() for part in first)}&quot;</span>)
+    <span class="c-kw">for</span> name, value <span class="c-kw">in</span> headers.items():
+        print(f<span class="c-st">&quot;    {name:&lt;16} {value}&quot;</span>)
+    print(f<span class="c-st">&quot;    {&#x27;body&#x27;:&lt;16} {body!r}&quot;</span>)
+    print(f<span class="c-st">&quot;    {&#x27;left over&#x27;:&lt;16} {len(leftover)} bytes&quot;</span>)
+
+
+<span class="c-kw">if</span> __name__ == <span class="c-st">&quot;__main__&quot;</span>:
+    show(<span class="c-st">&quot;the request, parsed:&quot;</span>, RAW)
+
+    answer = response(<span class="c-st">&quot;404 Not Found&quot;</span>, b<span class="c-st">&quot;no document with that name\n&quot;</span>, <span class="c-st">&quot;text/plain&quot;</span>)
+    print(<span class="c-st">&quot;\nthe response we built, one line at a time:&quot;</span>)
+    head, _, sent = answer.partition(b<span class="c-st">&quot;\r\n\r\n&quot;</span>)
+    <span class="c-kw">for</span> line <span class="c-kw">in</span> head.split(b<span class="c-st">&quot;\r\n&quot;</span>):
+        print(<span class="c-st">&quot;    &quot;</span> + repr(line + b<span class="c-st">&quot;\r\n&quot;</span>))
+    print(<span class="c-st">&quot;    &quot;</span> + repr(b<span class="c-st">&quot;\r\n&quot;</span>) + <span class="c-st">&quot;        &lt;- ends the headers&quot;</span>)
+    print(<span class="c-st">&quot;    &quot;</span> + repr(sent))
+
+    print()
+    show(<span class="c-st">&quot;the same function reading it back:&quot;</span>, answer)
 </pre></div>
 <figcaption>parse.py</figcaption>
 </figure>
@@ -221,56 +254,128 @@ print(f<span class="c-st">&quot;bytes left over after this message: {len(leftove
 <figure>
   <div class="term-block"><div class="term-head">terminal</div>
 <pre><span class="prompt">$ python3 parse.py</span>
-<span class="out">method   POST
-path     /search
-version  HTTP/1.1
-headers
+<span class="out">the request, parsed:
+    first line       POST | /search | HTTP/1.1
     host             example.com
     user-agent       curl/8.7.1
     content-type     application/x-www-form-urlencoded
     content-length   11
-body     b'q=packets\r\n'
+    body             b'q=packets\r\n'
+    left over        0 bytes
 
-the body is 11 bytes, and the header said 11
-bytes left over after this message: 0</span></pre></div>
+the response we built, one line at a time:
+    b'HTTP/1.1 404 Not Found\r\n'
+    b'Content-Type: text/plain\r\n'
+    b'Content-Length: 27\r\n'
+    b'Connection: close\r\n'
+    b'\r\n'        &lt;- ends the headers
+    b'no document with that name\n'
+
+the same function reading it back:
+    first line       HTTP/1.1 | 404 | Not Found
+    content-type     text/plain
+    content-length   27
+    connection       close
+    body             b'no document with that name\n'
+    left over        0 bytes</span></pre></div>
 </figure>
 
-<p>Notice the lines that are doing the work. <code>partition</code> on a blank line separates
-the headers from everything else. Splitting the first line on spaces gives three
-fields. Splitting each header on the first colon gives a name and a value.
-Reading exactly <code>Content-Length</code> bytes gives the body. That is the protocol. This
-is a small version of a real thing rather than a pretend one. A parser used in
-production adds limits on how long a header may be, careful handling of input
+<p>Read the two first lines against each other. <code>POST | /search | HTTP/1.1</code> and
+<code>HTTP/1.1 | 404 | Not Found</code> are the same three slots holding different things,
+which is why <code>parse</code> never needed to know which way the message was travelling.</p>
+
+<p>Notice which lines do the work. <code>partition</code> on a blank line separates the headers
+from everything else. Splitting the first line on spaces gives three fields.
+Splitting each header on the first colon gives a name and a value. Reading
+exactly <code>Content-Length</code> bytes gives the body. That is the protocol. A parser used
+in production adds limits on how long a header may be, careful handling of input
 designed to break it, support for chunked bodies, and a great deal of attention
-to what to do when the text is malformed. What it does not add is a different
-shape.</p>
+to malformed text. What it does not add is a different shape.</p>
 
 <h2 id="check">Check it yourself: two messages in one stream</h2>
 
 <div class="check">
-  <p>The claim worth testing is the one about boundaries, because it is the one that
-sounds like a detail. Change the last part of the file to read <code>parse(RAW + RAW)</code>
-instead of <code>parse(RAW)</code>, which puts two complete requests back to back in one run
-of bytes, exactly as they would arrive on a busy connection, and run it again.</p>
+  <p>The claim worth testing is the one about boundaries, because it sounds like a
+detail. Call <code>show("parsing RAW + RAW:", RAW + RAW)</code> instead, which puts two
+complete requests back to back in one run of bytes, exactly as they would arrive
+on a busy connection.</p>
   <div class="term-block"><div class="term-head">terminal</div>
-<pre class="out">body     b'q=packets\r\n'
-
-the body is 11 bytes, and the header said 11
-bytes left over after this message: 148</pre></div>
+<pre class="out">parsing RAW + RAW:
+    first line       POST | /search | HTTP/1.1
+    host             example.com
+    user-agent       curl/8.7.1
+    content-type     application/x-www-form-urlencoded
+    content-length   11
+    body             b'q=packets\r\n'
+    left over        148 bytes</pre></div>
   <p>The parsed message is identical. Nothing about the first request changed because
-a second one was stuck to the end of it, and the parser stopped in the right
-place with 148 bytes remaining, which is the second request untouched and
-waiting. Now consider what the parser had to go on. There is no marker in those
-bytes saying that the first message ended. No blank line separates the two, and
-the second request starts immediately after the last byte of the first body. The
-only reason the boundary was found is that a header stated a number and the
-parser believed it. Throw those leftover bytes away and the second visitor is
-silently ignored. Read too far and you consume the beginning of somebody else's
-request and both break. Both of these are real bugs that real servers have
-shipped, and you now know what causes them.</p>
+a second was stuck to the end of it, and the parser stopped in the right place
+with 148 bytes remaining, which is the second request untouched and waiting.</p>
+  <p>Now consider what the parser had to go on. There is no marker in those bytes
+saying the first message ended. No blank line separates the two, and the second
+request starts immediately after the last byte of the first body. The only
+reason the boundary was found is that a header stated a number and the parser
+believed it. Throw the leftover bytes away and the second visitor is silently
+ignored. Read too far and you consume the beginning of somebody else's request
+and both break. Both are real bugs that real servers have shipped, and the first
+exercise makes you cause them on purpose.</p>
 </div>
 
-<h2 id="limit">What still has to happen</h2>
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>Take two identical requests back to back and change the <code>Content-Length</code> both of
+them declare. Write down the body and the number of leftover bytes for 11, then
+9, then 20, before running anything. Then parse the leftover each time and print
+the first line the next reader would see.</p>
+<p class="ex-look">At 11 the next reader sees a clean <code>POST | /search | HTTP/1.1</code>. At 9 it sees an
+empty string, because the two bytes the first message left behind are the line
+ending, and the stream is now one message out of step. At 20 it sees <code>rch |
+HTTP/1.1</code>, because the first parse ate nine bytes of the next request. Nothing
+raised an exception in any of the three. This is the shape of a real and serious
+attack called request smuggling: get two programs in a chain to disagree by one
+byte about where a message ended, and you can post your request inside somebody
+else's.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Write <code>dechunk(rest)</code>, which reads a body sent the other way: a length in
+hexadecimal, then that many bytes, repeated, ending with a length of zero.
+Return the joined body and whatever came after the final piece.</p>
+<p class="ex-look">Two pieces of 23 and 12 bytes join into 35, and nothing after the zero belongs
+to this message. Notice what you had to write to get there: the reader is a loop
+that trusts a stated length, exactly like the <code>Content-Length</code> path, just
+repeated. Notice also what this buys, because it is the reason it exists at all.
+A server can start sending before it knows how much there will be, which is how
+a page is streamed while it is still being produced, and how the token by token
+output of chapter eighteen's model reaches you.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Send the parser a header line with the colon missing, <code>Content-Length 4</code>, followed
+by a four byte body. Predict what it does, then decide what a server ought to do
+instead and write that version.</p>
+<p class="ex-look">It raises nothing. The line becomes a header named <code>content-length 4</code> with an
+empty value, so the real length is lost, the body is read as zero bytes, and the
+four bytes of body are handed to the next reader as if they were a new request.
+One missing character desynchronised the connection. The fix is not to guess:
+check the line, and if it cannot be understood, answer <code>400 Bad Request</code> and close
+the connection. Being strict about what you accept is not pedantry here, it is
+the only way the next message stays findable.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>Open the Network tab in your browser's developer tools and click any request:
+the headers panel is these exact lines, prettified. <code>fetch()</code> in JavaScript and
+<code>requests</code> in Python are wrappers that write them for you. HTTP/2 and HTTP/3 carry
+the same fields in a compressed binary form, which is why <code>curl --http1.1</code> above
+was needed to see them as text at all, and why the mental model survives the
+change. And request smuggling, the thing exercise one produced by accident, is a
+live vulnerability class precisely because a proxy and a server can disagree
+about a length.</p>
+</div>
+
+<h2 id="limit">Where this runs out</h2>
 
 <p>We can write a request by hand and we can read a response. What we cannot yet do
 is anything at all.</p>
@@ -279,13 +384,12 @@ is anything at all.</p>
   <span class="limit-label">where this runs out</span>
   <p>Text does not send itself. Something has to open a connection to the right
 machine, write those exact bytes into it, and read the answer back out. Nothing
-so far has done that, and chapters eight and nine are about the machinery
-underneath it. Then there is the other half. Even with the response in hand, we
-have 559 bytes of angle brackets. Something has to turn <code>&lt;h1&gt;</code> into a large
-line of text on a screen, and that raises a question the format cannot answer
-for itself: who decided that <code>&lt;h1&gt;</code> means a heading? HTML is only useful if
-the program reading it agrees with the program that wrote it, and there is no
-authority in the bytes to enforce that.</p>
+so far has done that. Then there is the other half: even with the response in
+hand, we have 559 bytes of angle brackets, and something has to turn <code>&lt;h1&gt;</code>
+into a large line of text on a screen. That raises a question the format cannot
+answer for itself. Who decided that <code>&lt;h1&gt;</code> means a heading? HTML is only
+useful if the program reading it agrees with the program that wrote it, and
+there is no authority in the bytes to enforce that.</p>
   <p class="to">Sending the text, drawing the result, and agreeing on what the marks mean are
 three jobs. One kind of program does all three, and how it came to be trusted
 with the third is a stranger story than the other two. That is chapter seven.</p>
