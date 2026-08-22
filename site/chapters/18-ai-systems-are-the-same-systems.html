@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>18 · AI systems are the same systems — swe the hard way</title>
+<meta name="description" content="Training is a process, inference is a server. Walk the whole stack again with the AI names attached.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part five · more users, more machines</span><span class="here"><span class="hn">18</span><span class="ht">AI systems are the same systems</span></span></span><span class="progress-label">18 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-what-programming-really-is.html" data-module="01-what-programming-really-is"><span class="n">01</span><span class="t">What programming really is</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-then-came-networks.html" data-module="02-then-came-networks"><span class="n">02</span><span class="t">Then came networks</span></a></li><li><a class="nav-item" href="03-and-then-the-web.html" data-module="03-and-then-the-web"><span class="n">03</span><span class="t">And then the web</span></a></li><li><a class="nav-item" href="04-a-website-is-a-file-on-someone-elses-computer.html" data-module="04-a-website-is-a-file-on-someone-elses-computer"><span class="n">04</span><span class="t">A website is a file on someone else&#x27;s computer</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses-are-just-text.html" data-module="06-requests-and-responses-are-just-text"><span class="n">06</span><span class="t">Requests and responses are just text</span></a></li><li><a class="nav-item" href="07-why-we-need-browsers.html" data-module="07-why-we-need-browsers"><span class="n">07</span><span class="t">Why we need browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-what-is-a-server-really-doing.html" data-module="08-what-is-a-server-really-doing"><span class="n">08</span><span class="t">What is a server really doing?</span></a></li><li><a class="nav-item" href="09-what-a-socket-is.html" data-module="09-what-a-socket-is"><span class="n">09</span><span class="t">What a socket is</span></a></li><li><a class="nav-item" href="10-a-static-web-server-in-one-file.html" data-module="10-a-static-web-server-in-one-file"><span class="n">10</span><span class="t">A static web server in one file</span></a></li><li><a class="nav-item" href="11-when-the-page-is-different-for-every-visitor.html" data-module="11-when-the-page-is-different-for-every-visitor"><span class="n">11</span><span class="t">When the page is different for every visitor</span></a></li><li><a class="nav-item" href="12-two-things-called-a-server.html" data-module="12-two-things-called-a-server"><span class="n">12</span><span class="t">Two things called a server</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-can-you-handle-two-users-at-once.html" data-module="13-can-you-handle-two-users-at-once"><span class="n">13</span><span class="t">Can you handle two users at once?</span></a></li><li><a class="nav-item" href="14-where-the-data-lives.html" data-module="14-where-the-data-lives"><span class="n">14</span><span class="t">Where the data lives</span></a></li><li><a class="nav-item" href="15-can-you-handle-10000-users.html" data-module="15-can-you-handle-10000-users"><span class="n">15</span><span class="t">Can you handle 10,000 users?</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-more-than-one-machine.html" data-module="17-more-than-one-machine"><span class="n">17</span><span class="t">More than one machine</span></a></li><li><a class="nav-item current" href="18-ai-systems-are-the-same-systems.html" data-module="18-ai-systems-are-the-same-systems" aria-current="page"><span class="n">18</span><span class="t">AI systems are the same systems</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker brk">Part five · more users, more machines</p>
+<h1><span class="num">18 ·</span> AI systems are the same systems</h1>
+<p class="hook">The way people write about machine learning suggests a separate discipline, with
+its own vocabulary, its own conferences, its own hardware, and a habit of
+describing systems in terms that sound like nothing else in software. The
+question for this chapter is narrow. Set aside what a model is and what it does,
+which is a different subject and a good one. Ask only about the engineering.
+When a model is trained, what is running, and where? When you send a question to
+one and words come back, what happened between those two moments? The answer is
+this course again. Not similar to it, and not inspired by it. The same things
+with different words on them, and this chapter teaches nothing new on purpose.
+If it works, the feeling by the end is recognition rather than learning.</p>
+
+<h2 id="training">Training is chapter one, with the numbers changed</h2>
+
+<p>Training a model is a program running on a computer. There is a file on a disk,
+or a great many of them, holding the data. A process is created, in the sense of
+chapter one, and the operating system gives it memory and schedules it. It reads
+a portion of the data off the disk, does a large amount of arithmetic, adjusts
+some numbers it is holding, and does it again. Millions of times.</p>
+
+<p>The arithmetic runs on a graphics processor rather than the one chapter one
+described, and the difference is one of shape rather than of kind. A <span class="term">GPU</span> has
+thousands of simpler processors that all perform the same operation on different
+numbers at the same moment, which suits arithmetic on very large grids of
+numbers. Chapter one's fetch, do, advance loop is what each of them is doing.
+There are just a lot of them. Everything else in chapter one applies unchanged.
+The process has a process id. It can be listed with <code>ps</code>. It uses memory that the
+operating system gave it, and when it exits that memory is gone, which is why
+training runs write their numbers to a disk from time to time. That saved copy
+is called a <span class="term">checkpoint</span>, and it exists for the reason chapter fourteen gave: a
+process's memory does not survive the process, and something restarts programs
+that die, which is chapter fifteen's supervisor.</p>
+
+<p>There is a less obvious inheritance from chapter fifteen. Those thousands of
+processors are expensive, and they sit idle if the data does not arrive fast
+enough. So a large part of the engineering in training is reading files off
+disks quickly and getting them into the right memory, which is the problem of
+one slow component holding up everything in front of it.</p>
+
+<h2 id="training-distributed">Training is also chapter seventeen</h2>
+
+<p>A model too large for one machine, or a training run that would take a year on
+one machine, is spread across many. At that point every sentence in chapter
+seventeen applies. The usual arrangement gives each machine a copy of the
+numbers and a different portion of the data. Each does its arithmetic, and then
+all of them have to combine their adjustments before the next step, because
+otherwise they would drift into being different models. That combining step is a
+point where every machine waits for every other one. Which means the slowest
+machine sets the pace for all of them, and one machine that has become slow
+rather than dead is worse than one that failed, exactly as chapter seventeen
+described. It also means that a machine failing partway through a step stops the
+step, so the run goes back to the last checkpoint and repeats the work since
+then.</p>
+
+<p>When the model itself is too large for one machine's memory, it is cut up and
+the pieces are placed on different machines, which is chapter seventeen's
+sharding with the same costs. Work that used to be one operation becomes several
+machines exchanging results, and the network between them is the limit rather
+than the arithmetic. None of that is specific to models. It is what happens
+whenever a computation is split across machines that have to agree on a shared
+result at every step.</p>
+
+<h2 id="serving">A model that answers is chapter five's server</h2>
+
+<p>Training produces a large file of numbers. Using it is a different program with
+a completely familiar shape. A process is started on a machine. It loads that
+file into memory. It opens a socket, binds a port, listens, and waits, which is
+chapters eight and nine with no modification whatsoever. It is a server in
+exactly chapter five's sense: it was running before you arrived, it does not
+know you exist until you connect, and it cannot start the conversation.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 304" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">the same stack, with the other set of names on it</text><text x="40" y="52" class="lbl b">this course</text><text x="420" y="52" class="lbl b">the other vocabulary</text><rect x="40" y="64" width="360" height="22" rx="2" class="box learn"/><text x="50" y="79" class="lbl sm">a process reading files and doing arithmetic</text><rect x="420" y="64" width="250" height="22" rx="2" class="box"/><text x="430" y="79" class="lbl sm">a training run on GPUs</text><text x="690" y="79" class="lbl sm mut">ch 1</text><path d="M400,75 L420,75" class="flow mut"/><rect x="40" y="90" width="360" height="22" rx="2" class="box learn"/><text x="50" y="105" class="lbl sm">a saved copy because memory dies with the process</text><rect x="420" y="90" width="250" height="22" rx="2" class="box"/><text x="430" y="105" class="lbl sm">a checkpoint</text><text x="690" y="105" class="lbl sm mut">ch 14</text><path d="M400,101 L420,101" class="flow mut"/><rect x="40" y="116" width="360" height="22" rx="2" class="box learn"/><text x="50" y="131" class="lbl sm">many machines agreeing at every step</text><rect x="420" y="116" width="250" height="22" rx="2" class="box"/><text x="430" y="131" class="lbl sm">distributed training</text><text x="690" y="131" class="lbl sm mut">ch 17</text><path d="M400,127 L420,127" class="flow mut"/><rect x="40" y="142" width="360" height="22" rx="2" class="box learn"/><text x="50" y="157" class="lbl sm">a server: socket, bind, listen, accept</text><rect x="420" y="142" width="250" height="22" rx="2" class="box"/><text x="430" y="157" class="lbl sm">a model serving requests</text><text x="690" y="157" class="lbl sm mut">ch 5</text><path d="M400,153 L420,153" class="flow mut"/><rect x="40" y="168" width="360" height="22" rx="2" class="box learn"/><text x="50" y="183" class="lbl sm">a request: text in lines, JSON in the body</text><rect x="420" y="168" width="250" height="22" rx="2" class="box"/><text x="430" y="183" class="lbl sm">a prompt, in tokens</text><text x="690" y="183" class="lbl sm mut">ch 6</text><path d="M400,179 L420,179" class="flow mut"/><rect x="40" y="194" width="360" height="22" rx="2" class="box learn"/><text x="50" y="209" class="lbl sm">a chunked response, a piece at a time</text><rect x="420" y="194" width="250" height="22" rx="2" class="box"/><text x="430" y="209" class="lbl sm">streaming</text><text x="690" y="209" class="lbl sm mut">ch 6</text><path d="M400,205 L420,205" class="flow mut"/><rect x="40" y="220" width="360" height="22" rx="2" class="box learn"/><text x="50" y="235" class="lbl sm">a queue, a cache, backpressure, a health check</text><rect x="420" y="220" width="250" height="22" rx="2" class="box"/><text x="430" y="235" class="lbl sm">batching, KV cache, rate limits</text><text x="690" y="235" class="lbl sm mut">ch 15</text><path d="M400,231 L420,231" class="flow mut"/><rect x="40" y="246" width="360" height="22" rx="2" class="box learn"/><text x="50" y="261" class="lbl sm">a client making HTTP requests and acting on them</text><rect x="420" y="246" width="250" height="22" rx="2" class="box"/><text x="430" y="261" class="lbl sm">an agent</text><text x="690" y="261" class="lbl sm mut">ch 7</text><path d="M400,257 L420,257" class="flow mut"/><text x="20" y="292" class="lbl sm mut">nothing on the left is missing from the right</text></svg></div>
+  <figcaption>the same stack with the other set of names on it; nothing on the left is missing
+from the right</figcaption>
+</figure>
+
+<p>Your request travels there as chapter six described. A request line, headers
+with your credentials among them, a blank line, and a body, which for these
+particular servers is usually JSON. The answer comes back as a status line,
+headers, a blank line and a body. If you have an API key for such a service you
+can send that request with <code>nc</code> and read the reply, and there is nothing in it
+that chapter six did not cover. The <span class="term">tokens</span> everybody talks about are one detail
+worth naming, because the word is unavoidable. Before the model sees your text
+it is cut into pieces, each a common run of characters, and the model works in
+those pieces rather than in letters or words. That is a unit of counting. It
+changes nothing about the machinery in this chapter.</p>
+
+<h2 id="streaming">Why the words appear one at a time</h2>
+
+<p>The one visible difference between a chat window and an ordinary web page is
+that the answer arrives gradually. That looks like a new capability and it is
+chapter six. <code>stream.py</code> is a server that sends a sentence one word at a time, and
+a client that prints each piece as it arrives with the time it turned up.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 stream.py</span>
+<span class="out"> 0.00s  b'HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n'
+ 0.00s  b'2\r\na \r\n'
+ 0.16s  b'6\r\nmodel \r\n'
+ 0.31s  b'a\r\nanswering \r\n'
+ 0.46s  b'3\r\nis \r\n'
+ 0.62s  b'2\r\na \r\n'
+ 0.77s  b'7\r\nserver \r\n'
+ 0.93s  b'8\r\nwriting \r\n'
+ 1.09s  b'5\r\ntext \r\n'
+ 1.24s  b'5\r\ndown \r\n'
+ 1.40s  b'2\r\na \r\n'
+ 1.56s  b'7\r\nsocket \r\n'
+ 1.72s  b'0\r\n\r\n'</span></pre></div>
+</figure>
+
+<p>That is <code>Transfer-Encoding: chunked</code>, which chapter six met on a response from
+<code>example.com</code> and described as the way a server sends a body whose total length it
+does not know when it starts. Each line is a length in hexadecimal, then that
+many bytes, then the next one, ending with a length of zero. A server producing
+text a piece at a time does not know the total length when it starts. So it uses
+the mechanism that already existed for that, and the words appear as they are
+produced. Real services usually put a slightly more structured format inside the
+same stream, with each piece written as a <code>data:</code> line, but the transport
+underneath is this. The connection stays open for the whole answer, which is why
+chapter thirteen and chapter seventeen matter so much for these services. One
+conversation occupies a slot for as long as it takes, and how long that is
+cannot be known in advance.</p>
+
+<h2 id="pressures">Chapter fifteen, unchanged, with new names</h2>
+
+<p>Everything that surrounds one of these servers in production is chapter fifteen.
+Requests arrive faster than the expensive hardware can take them, so they go
+into a queue and wait, which is why these services have rate limits and why a
+busy one tells you to try again later. That is backpressure, and refusing
+quickly is kinder than accepting and never answering. The hardware is far more
+efficient doing many requests together than one at a time, so the server
+deliberately waits a moment to collect several and runs them as a group. That is
+a queue with an intentional delay, trading a little latency for a lot of
+throughput, and the version that lets new requests join a group already in
+progress is called <span class="term">continuous batching</span>.</p>
+
+<p>While answering, the model reuses results it computed for earlier parts of the
+same conversation, and keeping those rather than recomputing them is a cache in
+exactly chapter fifteen's sense. It lives in the expensive memory next to the
+processors, which makes it the main limit on how many conversations one machine
+can hold at once, and when that memory fills something has to be thrown away.
+Cache eviction, with the same trade as always. When many requests begin with the
+same long piece of text, the work of processing that prefix is kept and reused,
+which is a cache with a key, and the providers call it <span class="term">prompt caching</span>. The
+<code>cf-cache-status: HIT</code> header from chapter six is the same idea at a different
+layer. A request that times out may have been completed and billed, so a client
+that retries needs chapter seventeen's identifier to let the server recognise a
+repeat. Requests are logged, latency is measured at the ninety fifth and ninety
+ninth percentile, and a version that answers only when the model is loaded is a
+health check.</p>
+
+<h2 id="different">What is genuinely different</h2>
+
+<p>Three things, and it is worth being exact about them, because pretending nothing
+is different would be as wrong as pretending everything is. The work per request
+is enormous and its size cannot be known before it starts. An ordinary page
+takes about as long every time. Here the cost depends on how much text comes
+back, which is decided while the answer is being produced. That makes every
+timeout in chapter seventeen and every capacity calculation in chapter fifteen
+harder, because the thing being estimated is genuinely unknown at the moment you
+must estimate it. The same input does not have to produce the same output. A
+database read is a function of what is stored. These servers usually choose
+among possibilities as they go, so two identical requests can return different
+text. That does not break caching, but it means caching is now a decision about
+behaviour rather than an optimisation you can apply invisibly. And the file of
+numbers is very large. Starting a process means loading tens or hundreds of
+gigabytes before it can answer anything, which makes chapter fifteen's approach
+of starting the new version before stopping the old one expensive in a way it is
+not for a web application. Deployment strategies for these services are shaped
+almost entirely by that one fact.</p>
+
+<p>Notice what is not on that list. Nothing about how the requests arrive, how the
+server waits, how the data is stored, how the machines coordinate, or how the
+whole thing is deployed and watched. An <span class="term">agent</span>, while we are here, is a client.
+It is a program that makes HTTP requests to a model server, reads the answer,
+and on the strength of it makes further HTTP requests to other servers, with
+retries and timeouts and idempotency keys. Chapters five through seven describe
+it completely.</p>
+
+<h2 id="check">Check it yourself: read the pieces</h2>
+
+<div class="check">
+  <p>Run <code>stream.py</code> and look at the fourth line of output.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre class="out"> 0.31s  b'a\r\nanswering \r\n'</pre></div>
+  <p>The <code>a</code> is a length written in hexadecimal, so it is ten, and <code>answering </code> is ten
+bytes including its trailing space. That is the framing chapter six described,
+arriving from a program you wrote, over a socket you opened, three tenths of a
+second after the previous piece. Nothing about that line is about models. It is
+a length, some bytes, and a line ending. When you next watch an answer appear a
+few words at a time in a browser, that is what is happening underneath, and you
+have already written both ends of it.</p>
+</div>
+
+<h2 id="explain">What you can now explain</h2>
+
+<p>Here is the thing this course set out to make possible. Somebody types an
+address, presses enter, and a page appears. This is what happened.</p>
+
+<p>The browser cut the address into a scheme, a host and a path, and asked the
+operating system to turn the host into an address. The operating system asked a
+resolver, which asked a root server, which knew nothing about the site but knew
+who to ask about the last part of the name, and so on down until an address came
+back, along with a number of seconds for which the answer may be reused.</p>
+
+<p>The browser asked the operating system for a socket and asked it to connect to
+that address on port 443. The operating system, which owns the network card,
+made a note in a table, put a packet on the wire, and took the process off the
+schedule until an answer came. The packet went to a router in the building,
+which read the address, chose a link, and forgot about it, and then to a handful
+of machines belonging to companies with no relationship to either end. Some
+packets arrived out of order and at least one probably did not arrive at all,
+and TCP on the two end machines put them in order and asked again for the
+missing one, because the machines in the middle do not know that any of this is
+a conversation.</p>
+
+<p>On the far machine a program had been running for weeks, doing nothing. It had
+asked the operating system for a socket, bound it to port 443, and called
+accept, at which point it was taken off the schedule and used no processor at
+all. The arriving connection put it back on. It returned a second socket for
+this one conversation and went back to waiting. The browser wrote a request
+line, some headers including which site it wanted, and a blank line. The server
+read until the blank line, then read exactly as many further bytes as a header
+told it to, because the stream underneath has no message boundaries.</p>
+
+<p>The path did not name a file. It selected a function, which ran, read some rows
+out of a program on another machine that speaks its own protocol on its own
+port, and built a page. Or it did not run, because an identical answer was
+already sitting in a cache somewhere and the site's machines were never
+involved. Either way what came back was a status line, some headers, a blank
+line, and a body, produced by one of many threads or by one loop holding
+thousands of connections, on one of many machines behind a program that holds
+the public port so that any of them can be replaced without anybody noticing.</p>
+
+<p>The browser read the response, worked out which of the things it referred to
+were parts of the page and which were places you might go, fetched the parts in
+parallel, built a tree out of tags according to a specification that also says
+exactly how to handle the tags that are wrong, worked out where every box
+belongs on a screen the author never saw, and drew it. If a model was involved,
+it was a process on a machine, reading numbers it had saved to a disk, sitting
+behind a queue and a cache, writing text down a socket in pieces with a length
+in front of each one.</p>
+
+<p class="thesis">There is no layer in that account where the honest answer is that something
+happens.</p>
+
+<p>You came to this course having followed tutorials, and able to build what they
+showed you and not much else. The introduction promised that the fundamentals
+would let you form your own intuitions, so that the next higher level idea you
+meet lands on something. That is what the account above is. You can name every
+part of it, you have written a small version of most of them, and when the next
+tool or the next framework or the next kind of system arrives with its own
+vocabulary, you will be able to ask what it is underneath and recognise the
+answer. That was the whole point.</p>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>Two talks on what a model is and how one is trained, which is the subject this
+chapter set aside, and a short overview to go with them.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=zjkBMFhNj_g" target="_blank" rel="noopener">Intro to large language models, a one hour talk</a><span class="res-by">Andrej Karpathy</span></div><p class="res-note">What a model is and how one is trained, the subject this chapter deliberately sets aside.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=7xTGNNLPyMI" target="_blank" rel="noopener">Deep dive into LLMs like ChatGPT</a><span class="res-by">Andrej Karpathy</span></div><p class="res-note">The longer version, for when the hour is not enough.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=z-EtmaFJieY" target="_blank" rel="noopener">Machine learning and AI (Crash Course #34)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">A ten minute overview to go with the two talks.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="18-ai-systems-are-the-same-systems"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="17-more-than-one-machine.html"><span class="dir">previous</span><span class="name">17 · More than one machine</span></a><a class="next" href="../further-watching.html"><span class="dir">appendix</span><span class="name">Further watching</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

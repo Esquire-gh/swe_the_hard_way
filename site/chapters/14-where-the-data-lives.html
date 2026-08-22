@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14 · Where the data lives — swe the hard way</title>
+<meta name="description" content="Files on disk, why that stops working, and what a database actually is, down to the language it speaks.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part five · more users, more machines</span><span class="here"><span class="hn">14</span><span class="ht">Where the data lives</span></span></span><span class="progress-label">14 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-what-programming-really-is.html" data-module="01-what-programming-really-is"><span class="n">01</span><span class="t">What programming really is</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-then-came-networks.html" data-module="02-then-came-networks"><span class="n">02</span><span class="t">Then came networks</span></a></li><li><a class="nav-item" href="03-and-then-the-web.html" data-module="03-and-then-the-web"><span class="n">03</span><span class="t">And then the web</span></a></li><li><a class="nav-item" href="04-a-website-is-a-file-on-someone-elses-computer.html" data-module="04-a-website-is-a-file-on-someone-elses-computer"><span class="n">04</span><span class="t">A website is a file on someone else&#x27;s computer</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses-are-just-text.html" data-module="06-requests-and-responses-are-just-text"><span class="n">06</span><span class="t">Requests and responses are just text</span></a></li><li><a class="nav-item" href="07-why-we-need-browsers.html" data-module="07-why-we-need-browsers"><span class="n">07</span><span class="t">Why we need browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-what-is-a-server-really-doing.html" data-module="08-what-is-a-server-really-doing"><span class="n">08</span><span class="t">What is a server really doing?</span></a></li><li><a class="nav-item" href="09-what-a-socket-is.html" data-module="09-what-a-socket-is"><span class="n">09</span><span class="t">What a socket is</span></a></li><li><a class="nav-item" href="10-a-static-web-server-in-one-file.html" data-module="10-a-static-web-server-in-one-file"><span class="n">10</span><span class="t">A static web server in one file</span></a></li><li><a class="nav-item" href="11-when-the-page-is-different-for-every-visitor.html" data-module="11-when-the-page-is-different-for-every-visitor"><span class="n">11</span><span class="t">When the page is different for every visitor</span></a></li><li><a class="nav-item" href="12-two-things-called-a-server.html" data-module="12-two-things-called-a-server"><span class="n">12</span><span class="t">Two things called a server</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-can-you-handle-two-users-at-once.html" data-module="13-can-you-handle-two-users-at-once"><span class="n">13</span><span class="t">Can you handle two users at once?</span></a></li><li><a class="nav-item current" href="14-where-the-data-lives.html" data-module="14-where-the-data-lives" aria-current="page"><span class="n">14</span><span class="t">Where the data lives</span></a></li><li><a class="nav-item" href="15-can-you-handle-10000-users.html" data-module="15-can-you-handle-10000-users"><span class="n">15</span><span class="t">Can you handle 10,000 users?</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-more-than-one-machine.html" data-module="17-more-than-one-machine"><span class="n">17</span><span class="t">More than one machine</span></a></li><li><a class="nav-item" href="18-ai-systems-are-the-same-systems.html" data-module="18-ai-systems-are-the-same-systems"><span class="n">18</span><span class="t">AI systems are the same systems</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker brk">Part five · more users, more machines</p>
+<h1><span class="num">14 ·</span> Where the data lives</h1>
+<p class="hook">Every tutorial told you to add a database, and almost none of them said what one
+is. Chapters eleven and thirteen both ended in the same place: everything the
+guestbook knows is in the memory of one process, which dies with it, and is now
+touched by many threads at once. The data needs somewhere that outlives the
+process and already knows what to do when several people reach for the same
+thing. This chapter works out what that somewhere is by trying a file first and
+watching it fail.</p>
+
+<h2 id="file">The obvious answer, and it works</h2>
+
+<p>Chapter one said a file is a named stretch of bytes on a disk and that nothing
+is happening inside it while nobody is looking. That inertness is the property
+we want. Write the messages into a file and they are still there tomorrow.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;The obvious answer to losing everything on restart: write it down.
+
+Run it with: python3 to_a_file.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> json
+<span class="c-kw">import</span> pathlib
+
+BOOK = pathlib.Path(__file__).parent / <span class="c-st">&quot;guestbook.json&quot;</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">load</span>():
+    <span class="c-st">&quot;&quot;&quot;Every message written so far, or none if there is no file yet.&quot;&quot;&quot;</span>
+    <span class="c-kw">if</span> <span class="c-kw">not</span> BOOK.exists():
+        <span class="c-kw">return</span> []
+    <span class="c-kw">return</span> json.loads(BOOK.read_text())
+
+
+<span class="c-kw">def</span> <span class="c-fn">add</span>(who, text):
+    messages = load()
+    messages.append({<span class="c-st">&quot;who&quot;</span>: who, <span class="c-st">&quot;text&quot;</span>: text})
+    BOOK.write_text(json.dumps(messages))
+
+
+add(<span class="c-st">&quot;Ada&quot;</span>, <span class="c-st">&quot;first&quot;</span>)
+add(<span class="c-st">&quot;Grace&quot;</span>, <span class="c-st">&quot;second&quot;</span>)
+
+print(f<span class="c-st">&quot;the file is {BOOK.stat().st_size} bytes&quot;</span>)
+<span class="c-kw">for</span> message <span class="c-kw">in</span> load():
+    print(f<span class="c-st">&quot;  {message[&#x27;who&#x27;]}: {message[&#x27;text&#x27;]}&quot;</span>)
+</pre></div>
+<figcaption>to_a_file.py</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 to_a_file.py</span>
+<span class="out">the file is 69 bytes
+  Ada: first
+  Grace: second</span>
+<span class="prompt">$ python3 to_a_file.py</span>
+<span class="out">the file is 138 bytes
+  Ada: first
+  Grace: second
+  Ada: first
+  Grace: second</span></pre></div>
+</figure>
+
+<p>The second run found what the first run left. That is persistence, in eleven
+lines, and for a program with one user it is a perfectly good answer. A great
+deal of working software stores its data exactly like this and is right to.
+Notice the shape of <code>add</code>, because everything that follows is about it. Read the
+whole book. Change it. Write the whole book back.</p>
+
+<h2 id="costs">What it costs the moment anybody else is there</h2>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>Chapter thirteen ran four threads against a shared number in memory and lost
+three quarters of the additions, because the threads shared the memory. A file
+is on a disk. There is no shared variable, each write goes through the operating
+system, and the file is complete and valid between runs.</p>
+  <p><strong>Run the same four threads against this file. What, if anything, goes wrong?</strong></p>
+</div>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 lost_and_truncated.py</span>
+<span class="out">messages the program tried to write: 200
+times a reader found the file half written: 175
+the finished file is not valid at all: Extra data: line 1 column 375 (char 374)
+
+the file is 375 bytes
+interrupted: the machine lost power here
+the file is now 0 bytes</span></pre></div>
+</figure>
+
+<p>Your numbers will differ, and the three failures will not. A reader can see a
+file that is neither the old contents nor the new one. A hundred and seventy
+five attempts out of two hundred opened the file while somebody else was partway
+through writing it, and got something that was not valid at all. In this program
+those attempts gave up. In a web server they are an error page for a visitor who
+did nothing wrong. The file that survives is broken. Two writers wrote over each
+other and the result is not a list of messages any more. It is not that some
+messages were lost, which would be bad enough. The file cannot be read. And a
+write can be interrupted. Opening a file for writing empties it first, before a
+single byte of the new content is written, so there is a moment when everything
+is gone and nothing has replaced it. A power cut at that instant does not lose
+the last message. It loses the guestbook.</p>
+
+<p>There is a third cost, and it is the one you meet on a good day rather than a
+bad one. <code>scanning.py</code> looks for one record among many, first in a file and then
+in the thing this chapter is heading towards.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 scanning.py</span>
+<span class="out">    10000 records    file      6.4 ms    database   0.059 ms
+   100000 records    file     65.6 ms    database   0.073 ms
+  1000000 records    file    648.1 ms    database   0.089 ms</span></pre></div>
+</figure>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 246" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">finding record 999,999 two ways</text><text x="20" y="58" class="lbl b">scan</text><rect x="80" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="110" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="140" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="170" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="200" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="230" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="260" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="290" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="320" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="350" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="380" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="410" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="440" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="470" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="500" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="530" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="560" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="590" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="620" y="46" width="26" height="18" rx="1" class="box sunk"/><rect x="650" y="46" width="26" height="18" rx="1" class="box brk"/><text x="80" y="84" class="lbl sm brk">read every record until the one you want turns up: a million reads</text><text x="20" y="130" class="lbl b">search</text><rect x="300" y="104" width="120" height="28" rx="3" class="box learn"/><text x="360.0" y="122.0" class="lbl b mid">index</text><rect x="220" y="152" width="100" height="26" rx="3" class="box"/><text x="270.0" y="169.0" class="lbl b mid">id &lt; 500k</text><rect x="400" y="152" width="100" height="26" rx="3" class="box learn"/><text x="450.0" y="169.0" class="lbl b mid">id &gt;= 500k</text><path d="M340,132 L270,152" class="flow mut" marker-end="url(#arw)"/><path d="M380,132 L450,152" class="flow learn" marker-end="url(#arw)"/><rect x="80" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="110" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="140" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="170" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="200" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="230" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="260" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="290" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="320" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="350" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="380" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="410" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="440" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="470" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="500" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="530" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="560" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="590" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="620" y="196" width="26" height="18" rx="1" class="box sunk"/><rect x="650" y="196" width="26" height="18" rx="1" class="box learn"/><path d="M450,178 L663,196" class="flow learn" marker-end="url(#arw)"/><text x="80" y="234" class="lbl sm learn">a second structure, kept sorted on every write, says where to look: about twenty reads</text></svg></div>
+  <figcaption>finding the last record in a file means reading every record before it; an index
+is a second structure, kept sorted, that says where to look</figcaption>
+</figure>
+
+<p>Ten times the records, ten times the time, because finding the last record means
+reading every record before it. The right hand column barely moves. Whatever the
+database is doing, it is not looking at a million things to find one, and the
+difference between the columns is a hundred, then one thousand, then seven
+thousand.</p>
+
+<h2 id="build">Everything you would build next already exists</h2>
+
+<p>The useful exercise here is not to be told the answer. It is to work out what
+you would do about each of those, because the answers are not out of reach.</p>
+
+<p>For readers seeing half written files, stop writing in place. Write the new
+version to a second file, then rename it over the old one. A rename is one
+operation that the filesystem either does or does not do, so a reader sees the
+old file or the new one and never a mixture. For two writers overwriting each
+other, take a lock. The writers may be separate processes rather than threads,
+so it has to be a lock in the filesystem that any process can see, and now you
+have to decide what happens when the process holding it dies without releasing
+it. For rewriting the whole file on every message, stop doing that too. Append
+only what changed and work out the current state by replaying the changes. That
+is faster to write and slower to read, so eventually you need something that
+folds the accumulated changes back into a compact form, in the background,
+without stopping the writers. For the scanning, keep a second file mapping each
+id to a position in the first one, arranged so it can be searched without being
+read end to end. Then keep it correct on every single write, including the ones
+that fail halfway. For the day you add a field, put a version number in every
+record and write code that understands the old shapes.</p>
+
+<p>Every one of those is reasonable and none of them is exotic. Together they are a
+<span class="term">database</span>. That is what the word means. It is a program that keeps records on a
+disk in a layout designed around exactly these problems, and it has been
+attacked by more people over more years than your version ever will be.</p>
+
+<h2 id="sql">A language for saying one kind of thing</h2>
+
+<p>Some languages are built to express anything at all. Python is one of those, and
+so is every language you would call a programming language. Others are built to
+say one narrow kind of thing extremely well, and nothing else whatsoever. You
+have met two already in this course. The HTML in chapter six says what a
+document is made of and cannot add two numbers, and the CSS beside it says what
+a document should look like. A language shaped around one subject rather than
+around general computation is called a <span class="term">domain specific language</span>. Databases are
+driven by one, and it is called <span class="term">SQL</span>.</p>
+
+<p>The property that matters about it is easy to miss. You say what you want, and
+not how to get it.</p>
+
+<div class="code"><pre>SELECT who, text FROM messages WHERE id = 5</pre></div>
+
+<p>Nothing in that says whether to use an index or read every row. The database
+decides, and it decides differently as the table grows, without the sentence
+changing. Compare that with the file version, where the how is code you wrote
+and it will be scanning the whole file until somebody rewrites it.</p>
+
+<h2 id="kept-properly">The guestbook, kept properly</h2>
+
+<p><code>guestbook_db.py</code> uses <code>sqlite3</code>, which is in Python's standard library, so this
+chapter installs nothing. First it writes down the shape of a message.</p>
+
+<figure>
+<div class="code"><pre>setup = connect()
+setup.execute(<span class="c-st">&quot;&quot;&quot;
+    CREATE TABLE messages (
+        id    INTEGER PRIMARY KEY,
+        who   TEXT NOT NULL,
+        text  TEXT NOT NULL
+    )
+&quot;&quot;&quot;</span>)
+setup.execute(<span class="c-st">&quot;CREATE INDEX messages_by_who ON messages (who)&quot;</span>)
+setup.commit()</pre></div>
+<figcaption>guestbook_db.py, the shape of the data</figcaption>
+</figure>
+
+<p>Then it runs the same test as before: four threads, fifty messages each.</p>
+
+<figure>
+<div class="code"><pre><span class="c-kw">def</span> <span class="c-fn">writer</span>(number):
+    database = connect()
+    <span class="c-kw">for</span> line <span class="c-kw">in</span> range(EACH):
+        database.execute(<span class="c-st">&quot;INSERT INTO messages (who, text) VALUES (?, ?)&quot;</span>,
+                         (f<span class="c-st">&quot;writer {number}&quot;</span>, str(line)))
+        database.commit()
+    database.close()</pre></div>
+<figcaption>guestbook_db.py, one of four writers</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 guestbook_db.py</span>
+<span class="out">messages the program tried to write: 200
+messages actually stored: 200
+
+two of them, newest first:
+  writer 2: 49
+  writer 2: 48</span></pre></div>
+</figure>
+
+<p>Two hundred out of two hundred, and you did not write a lock. Making concurrent
+writers correct is the database's job, and it is the same job chapter thirteen
+handed to you, done once by people who spent years on nothing else. Three things
+in that listing are carrying more weight than they look.</p>
+
+<p>The <code>CREATE TABLE</code> writes the shape down and then enforces it. <code>NOT NULL</code> means a
+message with no author cannot be stored. In the JSON file, nothing stopped one,
+and you would discover it when a page failed to render for one visitor. The
+shape a table enforces is its <span class="term">schema</span>. The <code>CREATE INDEX</code> is the second structure
+from the previous section, kept correct on every write by somebody else. An
+<span class="term">index</span> is not free: it takes space, and it makes writes slower, because each
+write has to update it too. An index on every column is a common and expensive
+mistake. The <code>commit</code> marks the end of a <span class="term">transaction</span>, which is a group of changes
+that either all happen or none of them do. That is the answer to the truncated
+file, applied at every level. The properties usually quoted are that a
+transaction is all or nothing, that it leaves the data valid, that concurrent
+transactions never see each other half finished, and that once it says yes a
+power cut cannot undo it. Their initials spell <span class="term">ACID</span>, which is why you see the
+word.</p>
+
+<h2 id="injection">The third time this bug has appeared</h2>
+
+<p>The end of that program does one more thing. It takes a name that a stranger
+might have typed and uses it two different ways.</p>
+
+<figure>
+<div class="code"><pre><span class="c-cm"># Text from a stranger, used two different ways.</span>
+pretend_name = <span class="c-st">&quot;writer 1&#x27; OR &#x27;1&#x27;=&#x27;1&quot;</span>
+unsafe = setup.execute(
+    f<span class="c-st">&quot;SELECT count(*) FROM messages WHERE who = &#x27;{pretend_name}&#x27;&quot;</span>).fetchone()[0]
+safe = setup.execute(
+    <span class="c-st">&quot;SELECT count(*) FROM messages WHERE who = ?&quot;</span>, (pretend_name,)).fetchone()[0]
+print(f<span class="c-st">&quot;\npasted into the query: {unsafe} rows&quot;</span>)
+print(f<span class="c-st">&quot;passed as a value:     {safe} rows&quot;</span>)</pre></div>
+<figcaption>guestbook_db.py, the same name used two ways</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre class="out">pasted into the query: 200 rows
+passed as a value:     0 rows</pre></div>
+</figure>
+
+<p>The first one returned every message in the table. The quote in the middle of
+that name closed the string the query was building, and the rest of it became
+part of the question. There is no such author, and there did not need to be.
+This is <span class="term">SQL injection</span>, and it is the third appearance of one mistake. In chapter
+ten, a path from a stranger was joined onto a directory and read a file outside
+the site. In chapter eleven, a name from a stranger was put into a page and
+became a script. Here, a name from a stranger is pasted into a query and becomes
+part of the query.</p>
+
+<p>Every one is the same sentence: text that came from outside was placed somewhere
+the program keeps its own instructions. Every fix is the same shape too. Do not
+build the instruction out of the text. Leave a slot in the instruction and hand
+the text over as a value, which is what the <code>?</code> is doing.</p>
+
+<h2 id="server-in-front">The server in front, and why it is there</h2>
+
+<p>One thing here is not like a real deployment, and it is worth being straight
+about it. <code>sqlite3</code> is a library. Your process opens the file and reads it
+directly, and there is no other program involved, which is why this chapter
+installed nothing. That is a genuine database by every part of the definition
+above except one.</p>
+
+<p>The usual arrangement is a separate program that owns the files and lets nobody
+else near them. Your program connects to it over a socket, exactly as chapter
+nine described, on its own port, speaking its own protocol which is not HTTP.
+Postgres does this on port 5432, MySQL on 3306. Everything from chapter five
+applies unchanged: the database server was started first, it waits, and your
+application is the client. The reason for the extra program is chapter seventeen
+arriving early. When your application runs on eight machines, they cannot all
+open the same file on the same disk. They can all connect to one program.</p>
+
+<p>So the sentence is now complete. A database is a program that stores data on a
+disk, usually with a server in front of it speaking its own protocol, driven by
+a language built for one purpose. SQLite is the same thing with the server left
+out.</p>
+
+<h2 id="check">Check it yourself: ask the database what it plans to do</h2>
+
+<div class="check">
+  <p>The claim that SQL says what rather than how is checkable, because you can ask
+what it decided. <code>plan.py</code> asks the same question twice, before and after creating
+an index.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 plan.py</span>
+<span class="out">with no index on who:
+    SCAN messages
+
+after adding one:
+    SEARCH messages USING INDEX messages_by_who (who=?)</span></pre></div>
+  <p>The question was identical in both cases. The only thing that changed was that a
+second structure appeared on the disk, and the database noticed and changed its
+mind. <code>SCAN</code> is the file version from earlier in this chapter, reading everything.
+<code>SEARCH</code> is the fast column in that table. That is the payoff for saying what
+rather than how. Nobody edited a query, and the program got faster.</p>
+</div>
+
+<h2 id="limit">Now make it popular</h2>
+
+<p>Here is what exists now. A server that answers many people at once, running your
+code for each of them, with data that survives the process being stopped, kept
+correct while several visitors write at the same moment. That is a working
+system, and everything before this point has been about making it work at all.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>Everything after it is about a different problem, which is that it works and
+then a lot of people arrive. That problem is not one thing. The machine runs out
+of room for visitors. Some piece of work takes longer than anybody is willing to
+wait in front of a blank page. The same expensive answer gets computed thousands
+of times a second for thousands of people who would all accept the same one.
+Putting a new version of the code on the machine means stopping the old one, and
+stopping it means the site is down.</p>
+  <p class="to">Each of those has an answer, each answer is a word you have heard, and the words
+are much easier to remember when you have first felt the thing they fix. That is
+chapter fifteen.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>What a disk and a file actually are, underneath the database that this chapter
+builds the case for.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=KN8YgJnShPM" target="_blank" rel="noopener">Files and file systems (Crash Course #20)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">What a file on a disk actually is, which is the thing this chapter tries first and then puts a database in front of.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=TQCr9RV7twk" target="_blank" rel="noopener">Memory and storage (Crash Course #19)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">Memory against storage: why what a process holds dies with it and what survives.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="14-where-the-data-lives"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="13-can-you-handle-two-users-at-once.html"><span class="dir">previous</span><span class="name">13 · Can you handle two users at once?</span></a><a class="next" href="15-can-you-handle-10000-users.html"><span class="dir">next</span><span class="name">15 · Can you handle 10,000 users?</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

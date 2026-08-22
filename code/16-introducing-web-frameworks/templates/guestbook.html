@@ -2,7 +2,7 @@
 <h1>Guestbook</h1>
 <p>Signed in as {{ who }}.</p>
 <ul>
-{% for who, text in messages %}<li>{{ who }}: {{ text }}</li>
+{% for id, who, text in messages %}<li><a href="/messages/{{ id }}">{{ id }}</a> {{ who }}: {{ text }}</li>
 {% else %}<li>nothing yet</li>
 {% endfor %}</ul>
 <form method="post" action="/messages">

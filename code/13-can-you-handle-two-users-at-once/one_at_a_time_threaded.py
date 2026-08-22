@@ -34,6 +34,7 @@ listening.listen(5)
 print("listening on http://127.0.0.1:8200")
 
 
+# BEGIN threads
 def serve(conversation):
     """Everything that used to happen inside the loop."""
     conversation.sendall(handle(conversation.recv(65536)))
@@ -43,3 +44,4 @@ def serve(conversation):
 while True:
     conversation, _ = listening.accept()
     threading.Thread(target=serve, args=(conversation,), daemon=True).start()
+# END threads

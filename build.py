@@ -108,6 +108,8 @@ def inline_code(spec: str) -> str:
             raise MissingToken(f"{path_part}: no BEGIN/END {mark} markers")
         src = textwrap.dedent("\n".join(lines[a + 1:b])).strip("\n")
     body = highlight_python(src) if path.suffix == ".py" else escape(src)
+    # a template's own {{ }} must not look like one of our tokens
+    body = body.replace("{{", "&#123;&#123;").replace("}}", "&#125;&#125;")
     return f'<div class="code"><pre>{body}</pre></div>'
 
 

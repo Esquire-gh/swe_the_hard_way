@@ -1,0 +1,296 @@
+<p class="kicker brk">Part five · more users, more machines</p>
+<h1><span class="num">14 ·</span> Where the data lives</h1>
+<p class="hook">Every tutorial told you to add a database, and almost none of them said what one
+is. Chapters eleven and thirteen both ended in the same place: everything the
+guestbook knows is in the memory of one process, which dies with it, and is now
+touched by many threads at once. The data needs somewhere that outlives the
+process and already knows what to do when several people reach for the same
+thing. This chapter works out what that somewhere is by trying a file first and
+watching it fail.</p>
+
+<h2 id="file">The obvious answer, and it works</h2>
+
+<p>Chapter one said a file is a named stretch of bytes on a disk and that nothing
+is happening inside it while nobody is looking. That inertness is the property
+we want. Write the messages into a file and they are still there tomorrow.</p>
+
+<figure>
+{{ code:code/14-where-the-data-lives/to_a_file.py }}
+<figcaption>to_a_file.py</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 to_a_file.py</span>
+<span class="out">the file is 69 bytes
+  Ada: first
+  Grace: second</span>
+<span class="prompt">$ python3 to_a_file.py</span>
+<span class="out">the file is 138 bytes
+  Ada: first
+  Grace: second
+  Ada: first
+  Grace: second</span></pre></div>
+</figure>
+
+<p>The second run found what the first run left. That is persistence, in eleven
+lines, and for a program with one user it is a perfectly good answer. A great
+deal of working software stores its data exactly like this and is right to.
+Notice the shape of <code>add</code>, because everything that follows is about it. Read the
+whole book. Change it. Write the whole book back.</p>
+
+<h2 id="costs">What it costs the moment anybody else is there</h2>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>Chapter thirteen ran four threads against a shared number in memory and lost
+three quarters of the additions, because the threads shared the memory. A file
+is on a disk. There is no shared variable, each write goes through the operating
+system, and the file is complete and valid between runs.</p>
+  <p><strong>Run the same four threads against this file. What, if anything, goes wrong?</strong></p>
+</div>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 lost_and_truncated.py</span>
+<span class="out">messages the program tried to write: 200
+times a reader found the file half written: 175
+the finished file is not valid at all: Extra data: line 1 column 375 (char 374)
+
+the file is 375 bytes
+interrupted: the machine lost power here
+the file is now 0 bytes</span></pre></div>
+</figure>
+
+<p>Your numbers will differ, and the three failures will not. A reader can see a
+file that is neither the old contents nor the new one. A hundred and seventy
+five attempts out of two hundred opened the file while somebody else was partway
+through writing it, and got something that was not valid at all. In this program
+those attempts gave up. In a web server they are an error page for a visitor who
+did nothing wrong. The file that survives is broken. Two writers wrote over each
+other and the result is not a list of messages any more. It is not that some
+messages were lost, which would be bad enough. The file cannot be read. And a
+write can be interrupted. Opening a file for writing empties it first, before a
+single byte of the new content is written, so there is a moment when everything
+is gone and nothing has replaced it. A power cut at that instant does not lose
+the last message. It loses the guestbook.</p>
+
+<p>There is a third cost, and it is the one you meet on a good day rather than a
+bad one. <code>scanning.py</code> looks for one record among many, first in a file and then
+in the thing this chapter is heading towards.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 scanning.py</span>
+<span class="out">    10000 records    file      6.4 ms    database   0.059 ms
+   100000 records    file     65.6 ms    database   0.073 ms
+  1000000 records    file    648.1 ms    database   0.089 ms</span></pre></div>
+</figure>
+
+<figure>
+  <div class="dgm">{{ diagram:index-scan-vs-search }}</div>
+  <figcaption>finding the last record in a file means reading every record before it; an index
+is a second structure, kept sorted, that says where to look</figcaption>
+</figure>
+
+<p>Ten times the records, ten times the time, because finding the last record means
+reading every record before it. The right hand column barely moves. Whatever the
+database is doing, it is not looking at a million things to find one, and the
+difference between the columns is a hundred, then one thousand, then seven
+thousand.</p>
+
+<h2 id="build">Everything you would build next already exists</h2>
+
+<p>The useful exercise here is not to be told the answer. It is to work out what
+you would do about each of those, because the answers are not out of reach.</p>
+
+<p>For readers seeing half written files, stop writing in place. Write the new
+version to a second file, then rename it over the old one. A rename is one
+operation that the filesystem either does or does not do, so a reader sees the
+old file or the new one and never a mixture. For two writers overwriting each
+other, take a lock. The writers may be separate processes rather than threads,
+so it has to be a lock in the filesystem that any process can see, and now you
+have to decide what happens when the process holding it dies without releasing
+it. For rewriting the whole file on every message, stop doing that too. Append
+only what changed and work out the current state by replaying the changes. That
+is faster to write and slower to read, so eventually you need something that
+folds the accumulated changes back into a compact form, in the background,
+without stopping the writers. For the scanning, keep a second file mapping each
+id to a position in the first one, arranged so it can be searched without being
+read end to end. Then keep it correct on every single write, including the ones
+that fail halfway. For the day you add a field, put a version number in every
+record and write code that understands the old shapes.</p>
+
+<p>Every one of those is reasonable and none of them is exotic. Together they are a
+<span class="term">database</span>. That is what the word means. It is a program that keeps records on a
+disk in a layout designed around exactly these problems, and it has been
+attacked by more people over more years than your version ever will be.</p>
+
+<h2 id="sql">A language for saying one kind of thing</h2>
+
+<p>Some languages are built to express anything at all. Python is one of those, and
+so is every language you would call a programming language. Others are built to
+say one narrow kind of thing extremely well, and nothing else whatsoever. You
+have met two already in this course. The HTML in chapter six says what a
+document is made of and cannot add two numbers, and the CSS beside it says what
+a document should look like. A language shaped around one subject rather than
+around general computation is called a <span class="term">domain specific language</span>. Databases are
+driven by one, and it is called <span class="term">SQL</span>.</p>
+
+<p>The property that matters about it is easy to miss. You say what you want, and
+not how to get it.</p>
+
+<div class="code"><pre>SELECT who, text FROM messages WHERE id = 5</pre></div>
+
+<p>Nothing in that says whether to use an index or read every row. The database
+decides, and it decides differently as the table grows, without the sentence
+changing. Compare that with the file version, where the how is code you wrote
+and it will be scanning the whole file until somebody rewrites it.</p>
+
+<h2 id="kept-properly">The guestbook, kept properly</h2>
+
+<p><code>guestbook_db.py</code> uses <code>sqlite3</code>, which is in Python's standard library, so this
+chapter installs nothing. First it writes down the shape of a message.</p>
+
+<figure>
+{{ code:code/14-where-the-data-lives/guestbook_db.py#setup }}
+<figcaption>guestbook_db.py, the shape of the data</figcaption>
+</figure>
+
+<p>Then it runs the same test as before: four threads, fifty messages each.</p>
+
+<figure>
+{{ code:code/14-where-the-data-lives/guestbook_db.py#writer }}
+<figcaption>guestbook_db.py, one of four writers</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 guestbook_db.py</span>
+<span class="out">messages the program tried to write: 200
+messages actually stored: 200
+
+two of them, newest first:
+  writer 2: 49
+  writer 2: 48</span></pre></div>
+</figure>
+
+<p>Two hundred out of two hundred, and you did not write a lock. Making concurrent
+writers correct is the database's job, and it is the same job chapter thirteen
+handed to you, done once by people who spent years on nothing else. Three things
+in that listing are carrying more weight than they look.</p>
+
+<p>The <code>CREATE TABLE</code> writes the shape down and then enforces it. <code>NOT NULL</code> means a
+message with no author cannot be stored. In the JSON file, nothing stopped one,
+and you would discover it when a page failed to render for one visitor. The
+shape a table enforces is its <span class="term">schema</span>. The <code>CREATE INDEX</code> is the second structure
+from the previous section, kept correct on every write by somebody else. An
+<span class="term">index</span> is not free: it takes space, and it makes writes slower, because each
+write has to update it too. An index on every column is a common and expensive
+mistake. The <code>commit</code> marks the end of a <span class="term">transaction</span>, which is a group of changes
+that either all happen or none of them do. That is the answer to the truncated
+file, applied at every level. The properties usually quoted are that a
+transaction is all or nothing, that it leaves the data valid, that concurrent
+transactions never see each other half finished, and that once it says yes a
+power cut cannot undo it. Their initials spell <span class="term">ACID</span>, which is why you see the
+word.</p>
+
+<h2 id="injection">The third time this bug has appeared</h2>
+
+<p>The end of that program does one more thing. It takes a name that a stranger
+might have typed and uses it two different ways.</p>
+
+<figure>
+{{ code:code/14-where-the-data-lives/guestbook_db.py#injection }}
+<figcaption>guestbook_db.py, the same name used two ways</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre class="out">pasted into the query: 200 rows
+passed as a value:     0 rows</pre></div>
+</figure>
+
+<p>The first one returned every message in the table. The quote in the middle of
+that name closed the string the query was building, and the rest of it became
+part of the question. There is no such author, and there did not need to be.
+This is <span class="term">SQL injection</span>, and it is the third appearance of one mistake. In chapter
+ten, a path from a stranger was joined onto a directory and read a file outside
+the site. In chapter eleven, a name from a stranger was put into a page and
+became a script. Here, a name from a stranger is pasted into a query and becomes
+part of the query.</p>
+
+<p>Every one is the same sentence: text that came from outside was placed somewhere
+the program keeps its own instructions. Every fix is the same shape too. Do not
+build the instruction out of the text. Leave a slot in the instruction and hand
+the text over as a value, which is what the <code>?</code> is doing.</p>
+
+<h2 id="server-in-front">The server in front, and why it is there</h2>
+
+<p>One thing here is not like a real deployment, and it is worth being straight
+about it. <code>sqlite3</code> is a library. Your process opens the file and reads it
+directly, and there is no other program involved, which is why this chapter
+installed nothing. That is a genuine database by every part of the definition
+above except one.</p>
+
+<p>The usual arrangement is a separate program that owns the files and lets nobody
+else near them. Your program connects to it over a socket, exactly as chapter
+nine described, on its own port, speaking its own protocol which is not HTTP.
+Postgres does this on port 5432, MySQL on 3306. Everything from chapter five
+applies unchanged: the database server was started first, it waits, and your
+application is the client. The reason for the extra program is chapter seventeen
+arriving early. When your application runs on eight machines, they cannot all
+open the same file on the same disk. They can all connect to one program.</p>
+
+<p>So the sentence is now complete. A database is a program that stores data on a
+disk, usually with a server in front of it speaking its own protocol, driven by
+a language built for one purpose. SQLite is the same thing with the server left
+out.</p>
+
+<h2 id="check">Check it yourself: ask the database what it plans to do</h2>
+
+<div class="check">
+  <p>The claim that SQL says what rather than how is checkable, because you can ask
+what it decided. <code>plan.py</code> asks the same question twice, before and after creating
+an index.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 plan.py</span>
+<span class="out">with no index on who:
+    SCAN messages
+
+after adding one:
+    SEARCH messages USING INDEX messages_by_who (who=?)</span></pre></div>
+  <p>The question was identical in both cases. The only thing that changed was that a
+second structure appeared on the disk, and the database noticed and changed its
+mind. <code>SCAN</code> is the file version from earlier in this chapter, reading everything.
+<code>SEARCH</code> is the fast column in that table. That is the payoff for saying what
+rather than how. Nobody edited a query, and the program got faster.</p>
+</div>
+
+<h2 id="limit">Now make it popular</h2>
+
+<p>Here is what exists now. A server that answers many people at once, running your
+code for each of them, with data that survives the process being stopped, kept
+correct while several visitors write at the same moment. That is a working
+system, and everything before this point has been about making it work at all.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>Everything after it is about a different problem, which is that it works and
+then a lot of people arrive. That problem is not one thing. The machine runs out
+of room for visitors. Some piece of work takes longer than anybody is willing to
+wait in front of a blank page. The same expensive answer gets computed thousands
+of times a second for thousands of people who would all accept the same one.
+Putting a new version of the code on the machine means stopping the old one, and
+stopping it means the site is down.</p>
+  <p class="to">Each of those has an answer, each answer is a word you have heard, and the words
+are much easier to remember when you have first felt the thing they fix. That is
+chapter fifteen.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>What a disk and a file actually are, underneath the database that this chapter
+builds the case for.</p>
+
+{{ resources }}

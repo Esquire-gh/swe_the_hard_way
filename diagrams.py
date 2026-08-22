@@ -656,3 +656,232 @@ def web_vs_app_server(_=None) -> str:
     b.append(_t(20, 192, "a rack in a building is a third thing with the same name; "
                          "the laptop this runs on today is a fourth", "lbl sm mut"))
     return _svg(720, 204, "".join(b), 620)
+
+
+# --------------------------------------------------------------------------
+# chapter thirteen: one at a time, then a thread each, then the race
+# --------------------------------------------------------------------------
+
+@diagram("serialized-vs-threaded")
+def serialized_vs_threaded(_=None) -> str:
+    b = [_t(20, 24, "a slow visitor and a fast one, two ways", "lbl b")]
+    b.append(_t(20, 60, "one loop", "lbl b"))
+    b.append(_box(120, 46, 400, 22, "box brk", rx=2))
+    b.append(_t(320, 61, "slow page, 2 s", "lbl sm mid"))
+    b.append(_box(520, 46, 40, 22, "box", rx=2))
+    b.append(_t(540, 61, "fast", "lbl sm mid"))
+    b.append(_line(240, 80, 520, 80, "flow brk"))
+    b.append(_t(380, 94, "the fast visitor waits 1.7 s for somebody else's page", "lbl sm mid brk"))
+    b.append(_t(20, 140, "a thread each", "lbl b"))
+    b.append(_box(120, 126, 400, 22, "box", rx=2))
+    b.append(_t(320, 141, "slow page, 2 s", "lbl sm mid"))
+    b.append(_box(240, 154, 40, 22, "box learn", rx=2))
+    b.append(_t(260, 169, "fast", "lbl sm mid"))
+    b.append(_t(290, 169, "answered in 0.0006 s, while the slow one is still asleep", "lbl sm learn"))
+    b.append(_line(120, 200, 640, 200, "flow mut"))
+    b.append(_t(648, 204, "time", "lbl sm mut"))
+    b.append(_t(20, 232, "the loop only goes back to accept when it has finished; a thread "
+                         "per visitor lets accept run again at once", "lbl sm mut"))
+    return _svg(720, 244, "".join(b), 640)
+
+
+@diagram("race")
+def race(_=None) -> str:
+    b = [_t(20, 24, "two threads, one shared total, and an addition that vanishes", "lbl b")]
+    b.append(_t(90, 56, "thread one", "lbl b mid"))
+    b.append(_t(360, 56, "total", "lbl b mid"))
+    b.append(_t(630, 56, "thread two", "lbl b mid"))
+    steps = [
+        (84, "read 5", None, None),
+        (116, None, None, "read 5"),
+        (148, "write 6", "6", None),
+        (180, None, "6", "write 6"),
+    ]
+    b.append(_line(360, 64, 360, 210, "flow mut", arrow=False))
+    b.append(_t(372, 78, "5", "lbl b"))
+    for y, left, mid, right in steps:
+        if left:
+            cls = "flow learn" if "write" in left else "flow"
+            if "read" in left:
+                b.append(_line(350, y, 130, y, cls))
+            else:
+                b.append(_line(130, y, 350, y, cls))
+            b.append(_t(240, y - 6, left, "lbl sm mid"))
+        if right:
+            cls = "flow brk" if "write" in right else "flow"
+            if "read" in right:
+                b.append(_line(370, y, 590, y, cls))
+            else:
+                b.append(_line(590, y, 370, y, cls))
+            b.append(_t(480, y - 6, right, "lbl sm mid"))
+        if mid:
+            b.append(_t(372, y + 18, mid, "lbl b"))
+    b.append(_t(20, 236, "two additions happened and the total went up by one; the scheduler "
+                         "chose the moment, and nothing reported it", "lbl sm mut"))
+    return _svg(720, 248, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter fourteen: reading everything against looking it up
+# --------------------------------------------------------------------------
+
+@diagram("index-scan-vs-search")
+def index_scan_vs_search(_=None) -> str:
+    b = [_t(20, 24, "finding record 999,999 two ways", "lbl b")]
+    b.append(_t(20, 58, "scan", "lbl b"))
+    for i in range(20):
+        x = 80 + i * 30
+        cls = "box brk" if i == 19 else "box sunk"
+        b.append(_box(x, 46, 26, 18, cls, rx=1))
+    b.append(_t(80, 84, "read every record until the one you want turns up: a million reads", "lbl sm brk"))
+    b.append(_t(20, 130, "search", "lbl b"))
+    b.append(_labelled_box(300, 104, 120, 28, "index", "", "box learn"))
+    b.append(_labelled_box(220, 152, 100, 26, "id < 500k", "", "box"))
+    b.append(_labelled_box(400, 152, 100, 26, "id >= 500k", "", "box learn"))
+    b.append(_line(340, 132, 270, 152, "flow mut"))
+    b.append(_line(380, 132, 450, 152, "flow learn"))
+    for i in range(20):
+        x = 80 + i * 30
+        cls = "box learn" if i == 19 else "box sunk"
+        b.append(_box(x, 196, 26, 18, cls, rx=1))
+    b.append(_line(450, 178, 663, 196, "flow learn"))
+    b.append(_t(80, 234, "a second structure, kept sorted on every write, says where to look: "
+                         "about twenty reads", "lbl sm learn"))
+    return _svg(720, 246, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter fifteen: the six components, all on one machine
+# --------------------------------------------------------------------------
+
+@diagram("deployment-topology")
+def deployment_topology(_=None) -> str:
+    b = [_t(20, 24, "one machine, six pressures answered: every box is a process", "lbl b")]
+    b.append('<rect x="150" y="40" width="550" height="230" rx="4" class="box sunk"/>')
+    b.append(_t(160, 56, "one machine", "lbl sm mut"))
+    b.append(_labelled_box(20, 100, 100, 44, "browsers", "the internet", "box"))
+    b.append(_labelled_box(180, 100, 130, 44, "reverse proxy", "holds port 443", "box learn"))
+    b.append(_line(120, 122, 180, 122))
+    b.append(_labelled_box(360, 72, 130, 40, "app, old", "finishing up", "box"))
+    b.append(_labelled_box(360, 128, 130, 40, "app, new", "your code", "box learn"))
+    b.append(_line(310, 115, 360, 92, "flow mut"))
+    b.append(_line(310, 128, 360, 148, "flow learn"))
+    b.append(_labelled_box(540, 72, 140, 40, "database", "its own port", "box"))
+    b.append(_labelled_box(540, 128, 140, 40, "cache", "shared answers", "box"))
+    b.append(_line(490, 148, 540, 148, "flow mut"))
+    b.append(_line(490, 140, 540, 96, "flow mut"))
+    b.append(_labelled_box(360, 200, 130, 40, "queue", "jobs written down", "box"))
+    b.append(_labelled_box(540, 200, 140, 40, "worker", "does them later", "box"))
+    b.append(_line(425, 168, 425, 200, "flow mut"))
+    b.append(_line(490, 220, 540, 220, "flow mut"))
+    b.append(_t(180, 216, "supervisor: restarts", "lbl sm mut"))
+    b.append(_t(180, 230, "anything that dies", "lbl sm mut"))
+    b.append(_t(180, 254, "logs and metrics: what happened", "lbl sm mut"))
+    b.append(_t(20, 292, "the proxy is the only process with a public address; "
+                         "everything behind it still binds 127.0.0.1", "lbl sm mut"))
+    return _svg(720, 304, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter sixteen: your code inside the framework
+# --------------------------------------------------------------------------
+
+@diagram("framework-shell")
+def framework_shell(_=None) -> str:
+    b = [_t(20, 24, "you do not call a framework; it calls you", "lbl b")]
+    b.append('<rect x="40" y="44" width="640" height="200" rx="4" class="box sunk"/>')
+    b.append(_t(52, 62, "uvicorn and FastAPI: the loop, the reader, the router, the parsers, the escaper", "lbl sm mut"))
+    b.append(_labelled_box(60, 80, 150, 40, "accept loop", "a pool or an event loop", "box"))
+    b.append(_labelled_box(60, 136, 150, 40, "read a request", "limits, timeouts, 400", "box"))
+    b.append(_labelled_box(60, 192, 150, 40, "route and parse", "fields, cookies, types", "box"))
+    b.append(_line(210, 212, 270, 212))
+    b.append('<rect x="270" y="80" width="390" height="152" rx="4" class="box learn"/>')
+    b.append(_t(280, 98, "app.py: the thirty lines that are about a guestbook", "lbl sm learn"))
+    for i, name in enumerate(["guestbook()", "log_in()", "sign()", "one_message()"]):
+        b.append(_box(284 + i * 94, 112, 86, 26, "box"))
+        b.append(_t(327 + i * 94, 129, name, "lbl sm mid"))
+    b.append(_labelled_box(284, 156, 180, 40, "templates", "escaped for you", "box"))
+    b.append(_labelled_box(480, 156, 170, 40, "sqlite", "chapter fourteen's", "box"))
+    b.append(_line(480, 176, 464, 176, "flow mut", arrow=False))
+    b.append(_t(20, 268, "everything outside the indigo box is something you wrote by hand "
+                         "between chapters ten and fifteen", "lbl sm mut"))
+    return _svg(720, 280, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter seventeen: why a system spreads, and what a partition forces
+# --------------------------------------------------------------------------
+
+@diagram("three-distributions")
+def three_distributions(_=None) -> str:
+    b = [_t(20, 24, "the same system, spread three ways", "lbl b")]
+    b.append(_t(20, 80, "for load", "lbl b"))
+    b.append(_labelled_box(120, 60, 90, 32, "proxy", "", "box"))
+    for i in range(3):
+        y = 40 + i * 36
+        b.append(_labelled_box(300, y, 90, 28, f"app {i + 1}", "", "box learn"))
+        b.append(_line(210, 76, 300, y + 14, "flow mut"))
+    b.append(_t(410, 80, "horizontal scaling: the same program, three times", "lbl sm mut"))
+    b.append(_t(20, 172, "for data", "lbl b"))
+    b.append(_labelled_box(120, 152, 110, 32, "primary", "", "box learn"))
+    b.append(_labelled_box(260, 152, 90, 32, "copy", "", "box"))
+    b.append(_labelled_box(370, 152, 90, 32, "copy", "", "box"))
+    b.append(_line(230, 168, 260, 168, "flow mut"))
+    b.append(_line(350, 168, 370, 168, "flow mut"))
+    b.append(_t(480, 172, "replication, or shards by key", "lbl sm mut"))
+    b.append(_t(20, 244, "for capability", "lbl b"))
+    for i, (name, sub) in enumerate([("database", "big disks"), ("cache", "big memory"), ("queue", "its own job")]):
+        b.append(_labelled_box(140 + i * 150, 222, 130, 44, name, sub, "box"))
+    b.append(_t(140, 284, "one job, one machine, with the hardware that job wants", "lbl sm mut"))
+    b.append(_t(20, 312, "every line between boxes is now chapter two's network: out of order, lossy, "
+                         "and silent about timing", "lbl sm mut"))
+    return _svg(720, 324, "".join(b), 640)
+
+
+@diagram("partition")
+def partition(_=None) -> str:
+    b = [_t(20, 24, "the network splits, and each side has to choose", "lbl b")]
+    for i in range(3):
+        b.append(_labelled_box(40 + i * 90, 60, 80, 36, f"copy {i + 1}", "", "box"))
+    for i in range(2):
+        b.append(_labelled_box(460 + i * 90, 60, 80, 36, f"copy {i + 4}", "", "box"))
+    b.append('<path d="M310,78 L460,78" class="flow brk"/>')
+    b.append(_t(385, 70, "no packets cross", "lbl sm mid brk"))
+    b.append(_t(160, 130, "three copies, a majority", "lbl b mid"))
+    b.append(_t(160, 148, "can keep deciding, and knows it", "lbl sm mut mid"))
+    b.append(_t(545, 130, "two copies, a minority", "lbl b mid"))
+    b.append(_t(545, 148, "refuse and stay right, or answer and risk being stale", "lbl sm mut mid"))
+    b.append(_t(20, 190, "that choice is the whole of CAP: what you give up while the split lasts, "
+                         "not a menu of three", "lbl sm mut"))
+    return _svg(720, 202, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter eighteen: the stack again, with the other names on it
+# --------------------------------------------------------------------------
+
+@diagram("stack-relabelled")
+def stack_relabelled(_=None) -> str:
+    b = [_t(20, 24, "the same stack, with the other set of names on it", "lbl b")]
+    rows = [
+        ("a process reading files and doing arithmetic", "a training run on GPUs", 1),
+        ("a saved copy because memory dies with the process", "a checkpoint", 14),
+        ("many machines agreeing at every step", "distributed training", 17),
+        ("a server: socket, bind, listen, accept", "a model serving requests", 5),
+        ("a request: text in lines, JSON in the body", "a prompt, in tokens", 6),
+        ("a chunked response, a piece at a time", "streaming", 6),
+        ("a queue, a cache, backpressure, a health check", "batching, KV cache, rate limits", 15),
+        ("a client making HTTP requests and acting on them", "an agent", 7),
+    ]
+    b.append(_t(40, 52, "this course", "lbl b"))
+    b.append(_t(420, 52, "the other vocabulary", "lbl b"))
+    for i, (ours, theirs, ch) in enumerate(rows):
+        y = 64 + i * 26
+        b.append(_box(40, y, 360, 22, "box learn", rx=2))
+        b.append(_t(50, y + 15, ours, "lbl sm"))
+        b.append(_box(420, y, 250, 22, "box", rx=2))
+        b.append(_t(430, y + 15, theirs, "lbl sm"))
+        b.append(_t(690, y + 15, f"ch {ch}", "lbl sm mut"))
+        b.append(_line(400, y + 11, 420, y + 11, "flow mut", arrow=False))
+    b.append(_t(20, 292, "nothing on the left is missing from the right", "lbl sm mut"))
+    return _svg(720, 304, "".join(b), 640)

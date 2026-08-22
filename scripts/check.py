@@ -61,7 +61,7 @@ TITLE_HEADINGS = {"Software Engineering the Hard Way"}
 TAG = re.compile(r"<[^>]+>")
 TOKEN = re.compile(r"\{\{[^}]*\}\}")
 HEADING = re.compile(r"<h([1-3])[^>]*>(.*?)</h\1>", re.S)
-HREF = re.compile(r'(?:href|src)="([^"]+)"')
+HREF = re.compile(r'<(?:a|link|script|img)\b[^>]*?(?:href|src)="([^"]+)"')
 CODE_TOKEN = re.compile(r"\{\{\s*code:([^#}\s]+)")
 CODE_MENTION = re.compile(r"(?<![\w/])(code/[A-Za-z0-9._/-]+)")
 BAD_TOKEN_MARK = "background:#f8e4ee"

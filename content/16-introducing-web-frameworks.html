@@ -1,0 +1,373 @@
+<p class="kicker learn">Part five · more users, more machines</p>
+<h1><span class="num">16 ·</span> Introducing web frameworks</h1>
+<p class="hook">Every tutorial you have followed started here, with an install command, and this
+course has waited fifteen chapters to run one. That was deliberate. Chapter
+fifteen ended by counting what you have written by hand since chapter ten, and
+every item on that list was tedious, easy to get subtly wrong, and identical in
+every web application anybody has ever written. Now there is a list of specific
+problems to buy solutions for, and the rule for this chapter is strict. Nothing
+appears here that cannot be pointed at a block of code you already wrote.</p>
+
+<h2 id="why">Why everybody uses one</h2>
+
+<p>Chapter eleven ended with a hundred and three lines that are a guestbook, in the
+sense that a car is a journey. About thirty of them are about signing a book.
+The rest is machinery, the machinery is unfinished, and the unfinished parts are
+the ones that let a stranger take the server down with one line.</p>
+
+<p>That combination, tedious and risky and the same everywhere, is exactly what a
+library is for, and a <span class="term">framework</span> is a library large enough that your code sits
+inside it rather than the other way round. You do not call a framework. It calls
+you. That sentence is the whole difference, and the rest of this chapter is
+watching it happen.</p>
+
+<h2 id="install">The first thing this course installs</h2>
+
+<p>Four packages, and every one of them names a section of chapter eleven.</p>
+
+<figure>
+{{ code:code/16-introducing-web-frameworks/requirements.txt }}
+<figcaption>requirements.txt</figcaption>
+</figure>
+
+<p>Set it up the usual way.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ cd code/16-introducing-web-frameworks</span>
+<span class="prompt">$ python3 -m venv .venv</span>
+<span class="prompt">$ .venv/bin/pip install -r requirements.txt</span></pre></div>
+</figure>
+
+<p>A <span class="term">virtual environment</span> is a directory holding one project's libraries, so that
+installing something for this course cannot break something else on your
+machine. It is a convention rather than a mechanism. The mechanism is the same
+directories and files as chapter one, and if you rename the folder it lives in,
+the scripts inside it still point at the old path and stop working, which is
+worth knowing before it costs you an afternoon.</p>
+
+<h2 id="again">The same guestbook, again</h2>
+
+<p>Here is the whole application. It keeps its messages in the database from
+chapter fourteen, and it is shorter than the version that kept them in a list.</p>
+
+<figure>
+{{ code:code/16-introducing-web-frameworks/app.py }}
+<figcaption>app.py</figcaption>
+</figure>
+
+<p>The pages live in a <code>templates</code> directory. This is the one that lists the
+messages.</p>
+
+<figure>
+{{ code:code/16-introducing-web-frameworks/templates/guestbook.html }}
+<figcaption>templates/guestbook.html</figcaption>
+</figure>
+
+<p>Run it, and notice that you do not run <code>app.py</code>.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre><span class="prompt">$ .venv/bin/uvicorn app:app --port 8000</span>
+<span class="out">INFO:     Started server process [71362]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)</span></pre></div>
+</figure>
+
+<p>If the operating system says the address is already in use, chapter twelve told
+you what that means. Something else on your machine holds port 8000, and the fix
+is to pick another number. It behaves like chapter eleven, with one page more.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -c jar http://127.0.0.1:8000/</span>
+<span class="out">&lt;!doctype html&gt;
+&lt;h1&gt;Guestbook&lt;/h1&gt;
+&lt;p&gt;Say who you are before signing.&lt;/p&gt;
+&lt;form method="post" action="/login"&gt;
+  &lt;input name="name"&gt;&lt;button&gt;continue&lt;/button&gt;
+&lt;/form&gt;</span>
+<span class="prompt">$ curl -s -i -c jar -b jar -X POST -d 'name=Ada' http://127.0.0.1:8000/login</span>
+<span class="out">HTTP/1.1 303 See Other
+date: Sat, 22 Aug 2026 13:11:23 GMT
+server: uvicorn
+content-length: 0
+location: /
+set-cookie: session=c5dee2ff877c3961c51e390eaeb5be67; HttpOnly; Path=/; SameSite=lax</span>
+<span class="prompt">$ curl -s -b jar -X POST -d 'message=&lt;b&gt;first&lt;/b&gt;' http://127.0.0.1:8000/messages</span>
+<span class="prompt">$ curl -s -b jar http://127.0.0.1:8000/</span>
+<span class="out">&lt;!doctype html&gt;
+&lt;h1&gt;Guestbook&lt;/h1&gt;
+&lt;p&gt;Signed in as Ada.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="/messages/1"&gt;1&lt;/a&gt; Ada: &amp;lt;b&amp;gt;first&amp;lt;/b&amp;gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;form method="post" action="/messages"&gt;
+  &lt;input name="message"&gt;&lt;button&gt;sign&lt;/button&gt;
+&lt;/form&gt;</span></pre></div>
+</figure>
+
+<p>And in terminal one, something chapter fifteen asked for has appeared without
+being written.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre class="out">INFO:     127.0.0.1:50980 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50981 - "POST /login HTTP/1.1" 303 See Other
+INFO:     127.0.0.1:50982 - "POST /messages HTTP/1.1" 303 See Other</pre></div>
+</figure>
+
+<p>One line per request, with the method, the path, and the status. That is a log,
+in chapter fifteen's sense, and it is the least of what just happened.</p>
+
+<h2 id="line-by-line">Line by line against what it replaces</h2>
+
+<p>Now the point of the chapter. Every piece of that file is standing where
+something you wrote used to be.</p>
+
+<figure>
+  <div class="dgm">{{ diagram:framework-shell }}</div>
+  <figcaption>your functions sit inside the framework; the framework runs the loop, reads the
+request, and calls the one that matches</figcaption>
+</figure>
+
+<p><strong>The accept loop is gone.</strong> The bottom of every step file in chapter eleven was the
+same eight lines: make a socket, set <code>SO_REUSEADDR</code>, bind, listen, print, loop
+forever, accept, close. That is now the word <code>uvicorn</code> in a command. You do not
+run <code>app.py</code> because <code>app.py</code> is not a program. It is a collection of functions that
+uvicorn calls, which is what it means to say your code sits inside the
+framework.</p>
+
+<p><strong><code>read_request</code> is gone.</strong> Chapter eleven counted bytes against <code>Content-Length</code> in a
+loop, and admitted that the loop would happily try to collect four billion bytes
+if a stranger asked it to. Uvicorn reads the request, and it also enforces the
+limits and timeouts that chapter eleven listed as missing.</p>
+
+<p><strong>The chain of <code>if</code> statements is gone.</strong> <code>handle</code> decided what to do by comparing the
+path against a series of strings, in a function far away from the code that
+answers. Now <code>@app.get("/")</code> sits directly above the function that answers <code>GET /</code>.
+The routing moved to the thing being routed to.</p>
+
+<p><strong>The 405 branches are gone.</strong> Chapter eleven needed explicit code so that a <code>POST</code> to
+a page that only reads returned 405 rather than 404. Here, registering <code>/</code> for <code>GET</code>
+is enough. Anything else arriving at <code>/</code> gets a 405 that nobody wrote.</p>
+
+<p><strong><code>split_target</code> and <code>parse_fields</code> are gone.</strong> Chapter eleven pulled fields apart on
+<code>&amp;</code> and <code>=</code> and undid the percent encoding, once for the query string and again
+for the body. Here it is <code>name: str = Form()</code> in the function signature. The field
+is named where it is used, and if it is absent the framework answers rather than
+the function crashing on a missing key.</p>
+
+<p><strong><code>headers_of</code> and <code>cookies_of</code> are gone.</strong> Two more parsers, each with its own
+separator, replaced by <code>session: str = Cookie(default="")</code>.</p>
+
+<p><strong>The <code>redirect</code> builder is gone.</strong> <code>RedirectResponse("/", status_code=303)</code> does what
+those four lines of string joining did, and the post then redirect then get
+reasoning from chapter eleven is unchanged. The framework did not remove the
+need to understand that, and it should not.</p>
+
+<p><strong>The <code>response</code> builder is gone.</strong> Chapter eleven assembled a status line,
+<code>Content-Type</code>, <code>Content-Length</code> and <code>Connection</code> for every reply. Returning a value
+now does it.</p>
+
+<p><strong><code>escape</code> is gone, and this is the important one.</strong> Chapter eleven's fix was a
+function you had to remember to call at every single place text from outside
+entered a page, and the chapter said plainly that the one you forget is the bug.
+Look at <code>app.py</code> and the templates and find the call. There is not one. Jinja2
+escapes everything placed into a page unless it is explicitly told not to, which
+is why <code>&lt;b&gt;first&lt;/b&gt;</code> came back as
+<code>&amp;lt;b&amp;gt;first&amp;lt;/b&amp;gt;</code> above. The rule moved out of your
+memory and into the tool. That is the difference between a habit and a property.</p>
+
+<p><strong>String pasting is gone.</strong> Chapter eleven's <code>guestbook_page</code> built HTML with an
+f-string wrapped around a generator expression. The template has a loop, an
+empty case, and readable HTML, and a person who writes pages rather than Python
+can edit it.</p>
+
+<p><strong>The list is gone, and this one is chapter fourteen's doing rather than the
+framework's.</strong> Messages go into a table, through a <code>?</code> slot rather than a pasted
+string, and <code>connect</code> opens a fresh connection for each request. The comment on it
+says why, and the reason is chapter thirteen. Several of these functions are
+running at the same moment, on different threads, and a connection is not
+something two of them may share.</p>
+
+<h2 id="new-page">The page chapter eleven could not write</h2>
+
+<p>Chapter eleven finished by asking you to imagine a page showing one message by
+number, at <code>/messages/3</code>, and pointed out that a chain of equality checks cannot
+express it. Here it is, and it is the last function in the file. The <code>{number}</code> in
+the path is the pattern matching chapter eleven said would have to be written
+from scratch. The <code>number: int</code> is the part worth stopping on. It is an ordinary
+Python type annotation, and the framework reads it and enforces it before your
+function runs.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s http://127.0.0.1:8000/messages/1</span>
+<span class="out">&lt;!doctype html&gt;
+&lt;h1&gt;One message&lt;/h1&gt;
+&lt;p&gt;Ada wrote: &amp;lt;b&amp;gt;first&amp;lt;/b&amp;gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="/"&gt;back&lt;/a&gt;&lt;/p&gt;</span>
+<span class="prompt">$ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/messages/99</span>
+<span class="out">404</span>
+<span class="prompt">$ curl -s http://127.0.0.1:8000/messages/banana</span>
+<span class="out">{"detail":[{"type":"int_parsing","loc":["path","number"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"banana"}]}</span></pre></div>
+</figure>
+
+<p>Three different wrong things, three different answers. The 404 is yours, since
+only your code knows which messages exist. The 422 for <code>banana</code> is the
+framework's, and your function never ran, because a value that cannot be an
+integer never reached it.</p>
+
+<h2 id="quietly">What the framework quietly handles</h2>
+
+<p>Some of what it took over is visible in the listing as an absence. Some of it is
+not in the listing at all, and those are the pieces you cannot afford to accept
+without recognising them.</p>
+
+<p>The first is chapter thirteen. Two people can use this guestbook at once, and
+nothing in <code>app.py</code> says a word about how. Uvicorn runs an event loop, the one
+chapter thirteen named, and hands each of your ordinary <code>def</code> functions to a
+thread from a pool so that a slow one does not stop the loop. Your functions run
+on a thread, the functions around them run on other threads, and the lock
+chapter thirteen made you write is not in the file at all. The reason it can be
+left out is not that the framework removed the race. It is that the shared state
+moved into a program that already knows about concurrent writers, which was
+chapter fourteen's argument for a database in the first place. The one piece of
+state still held in a dictionary, <code>sessions</code>, is exactly as unprotected as it was
+in chapter eleven.</p>
+
+<p>The second is chapter eleven's crash. Send the hand written server a line that
+is not a request and it prints a traceback and exits. Send the same line here.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ printf 'not a request at all\r\n\r\n' | nc 127.0.0.1 8000</span>
+<span class="out">HTTP/1.1 400 Bad Request
+content-type: text/plain; charset=utf-8
+Connection: close
+
+Invalid HTTP request received.</span>
+<span class="prompt">$ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/</span>
+<span class="out">200</span></pre></div>
+</figure>
+
+<p>A 400, and still serving. The line that killed chapter eleven's server was the
+one that split a request line into three parts and assumed there were three.
+Uvicorn makes no such assumption, and the whole of the reading code is somebody
+else's problem to keep correct.</p>
+
+<p>Two smaller things arrived unasked. The cookie came back with <code>SameSite=lax</code> on
+it, which stops a different site from making a visitor's browser send requests
+to yours, and nothing in <code>app.py</code> requested it. And because the routes are now
+declarations rather than <code>if</code> statements, they can be read by other code, so the
+framework can describe its own interface.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s http://127.0.0.1:8000/openapi.json | python3 -c "import json, sys
+d = json.load(sys.stdin)
+print(sorted((p, m) for p, v in d['paths'].items() for m in v))"</span>
+<span class="out">[('/', 'get'), ('/login', 'post'), ('/messages', 'post'), ('/messages/{number}', 'get')]</span>
+<span class="prompt">$ curl -s -o /dev/null -w "/docs -&gt; %{http_code}\n" http://127.0.0.1:8000/docs</span>
+<span class="out">/docs -&gt; 200</span></pre></div>
+</figure>
+
+<p>There is a browsable page of documentation for a program you did not document.
+That is not magic. It is the direct consequence of having written the routing
+down as data instead of burying it in control flow.</p>
+
+<h2 id="map">The same thing under other names</h2>
+
+<p>FastAPI is one of many, and now that you can see what it is made of, the others
+are easy to place. Flask and Django in Python, Express in JavaScript, Rails in
+Ruby, Spring in Java, Laravel in PHP. Every one of them is the list above: a
+loop somebody else runs, a router, parsers for fields and cookies, a response
+builder, and a template engine that escapes by default. What they differ in is
+how much else they bundle. Flask and Express ship the list and little more, and
+you choose the database layer and the session store yourself. Django and Rails
+ship the list plus a database layer, a session store, an admin interface and a
+way to log in, and the word for that is batteries included. Neither is better.
+One is a smaller thing to understand and the other is a smaller thing to
+assemble.</p>
+
+<p>The vocabulary on their front pages is the same vocabulary too. Routing is
+chapter eleven's <code>if</code> chain. Middleware is code that runs on every request before
+yours, which is where chapter fifteen's logging and chapter eleven's cookie
+reading go. An ORM is a library that turns chapter fourteen's SQL into method
+calls on objects, and it is still SQL underneath. Sessions are chapter eleven's
+dictionary, moved to a database or a cache for chapter fifteen's reasons. If a
+framework's documentation names something you cannot place in this course, that
+is the thing to look up first, because it is either a new idea or, far more
+often, an old one with a new name.</p>
+
+<h2 id="not">What a framework does not do</h2>
+
+<p>This should feel like relief rather than cleverness. Every line of it is doing
+something you did by hand and can still describe. It is also worth being exact
+about what did not move, because the tutorials that start with the install
+command tend to leave the impression that everything did.</p>
+
+<p>The framework does not know your data. The table, its columns, the <code>NOT NULL</code>, and
+the decision to index a column or not are chapter fourteen's and remain yours.
+It does not stop you pasting a string into a query, since the <code>?</code> slot is
+something you choose to use, and an ORM makes the safe way the easy way without
+making the unsafe way impossible. It does not pick your cache keys, and chapter
+fifteen showed what a wrong one does silently. It does not make anything
+idempotent. And it does not know what your site is for, which is why the thirty
+lines that remain are the thirty that were always the point.</p>
+
+<h2 id="check">Check it yourself: stop it and start it again</h2>
+
+<div class="check">
+  <p>One thing the framework fixed and one thing it did not are both visible in one
+restart. Press control C in terminal one, start uvicorn again, and ask for the
+message and then the guestbook, with the same cookie jar.</p>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s http://127.0.0.1:8000/messages/1</span>
+<span class="out">&lt;!doctype html&gt;
+&lt;h1&gt;One message&lt;/h1&gt;
+&lt;p&gt;Ada wrote: &amp;lt;b&amp;gt;first&amp;lt;/b&amp;gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="/"&gt;back&lt;/a&gt;&lt;/p&gt;</span>
+<span class="prompt">$ curl -s -b jar http://127.0.0.1:8000/</span>
+<span class="out">&lt;!doctype html&gt;
+&lt;h1&gt;Guestbook&lt;/h1&gt;
+&lt;p&gt;Say who you are before signing.&lt;/p&gt;
+&lt;form method="post" action="/login"&gt;
+  &lt;input name="name"&gt;&lt;button&gt;continue&lt;/button&gt;
+&lt;/form&gt;</span></pre></div>
+  <p>The message survived and Ada is signed out. The messages are in a file on a
+disk, chapter fourteen's answer, and the sessions are in a dictionary that died
+with the process, chapter one's observation. No framework can fix the second one
+for you, because it is not a web problem. Chapter fifteen said where the
+sessions belong, and the comment beside <code>sessions</code> in the listing points at it.</p>
+</div>
+
+<h2 id="limit">One machine has a ceiling</h2>
+
+<p>That is the install command, fifteen chapters late and, for the first time in
+your experience of one, completely explained. Everything behind it is something
+you have written a small version of.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>Look again at what the framework is running on. One process, on one machine,
+with a thread pool whose size is a number in a configuration file. Chapter
+fifteen's answers, the cache and the queue and the worker and the proxy, were
+all processes on that same machine. The framework does nothing about that, and
+cannot, because the machine is the thing with the ceiling. At some number of
+visitors the processor is busy all the time, or the memory is full, or one disk
+cannot be read fast enough, and no arrangement of processes on that computer
+helps.</p>
+  <p class="to">The next move is a second computer, and then a tenth, and the moment a system
+spans more than one machine a specific list of things that were reliably true
+stops being true. That list is chapter seventeen.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>The framework's own guide, which is readable in an afternoon now that every
+feature in it can be matched to something you wrote by hand.</p>
+
+{{ resources }}

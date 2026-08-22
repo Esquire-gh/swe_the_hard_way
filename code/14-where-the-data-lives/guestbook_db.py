@@ -21,6 +21,7 @@ def connect():
 
 
 BOOK.unlink(missing_ok=True)
+# BEGIN setup
 setup = connect()
 setup.execute("""
     CREATE TABLE messages (
@@ -31,8 +32,10 @@ setup.execute("""
 """)
 setup.execute("CREATE INDEX messages_by_who ON messages (who)")
 setup.commit()
+# END setup
 
 
+# BEGIN writer
 def writer(number):
     database = connect()
     for line in range(EACH):
@@ -40,6 +43,7 @@ def writer(number):
                          (f"writer {number}", str(line)))
         database.commit()
     database.close()
+# END writer
 
 
 threads = [threading.Thread(target=writer, args=(n,)) for n in range(WRITERS)]
@@ -57,6 +61,7 @@ for who, text in setup.execute(
         "SELECT who, text FROM messages ORDER BY id DESC LIMIT 2"):
     print(f"  {who}: {text}")
 
+# BEGIN injection
 # Text from a stranger, used two different ways.
 pretend_name = "writer 1' OR '1'='1"
 unsafe = setup.execute(
@@ -65,6 +70,7 @@ safe = setup.execute(
     "SELECT count(*) FROM messages WHERE who = ?", (pretend_name,)).fetchone()[0]
 print(f"\npasted into the query: {unsafe} rows")
 print(f"passed as a value:     {safe} rows")
+# END injection
 
 setup.close()
 BOOK.unlink()

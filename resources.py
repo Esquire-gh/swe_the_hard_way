@@ -87,6 +87,16 @@ RESOURCES = {r.key: r for r in [
              "Udacity (free)", "https://www.udacity.com/course/client-server-communication--ud897"),
     Resource("ud-networking", "course", "Networking for web developers",
              "Udacity (free)", "https://www.udacity.com/course/networking-for-web-developers--ud256"),
+    Resource("fastapi-tutorial", "course", "FastAPI tutorial, user guide",
+             "FastAPI documentation", "https://fastapi.tiangolo.com/tutorial/"),
+    Resource("kleppmann", "course", "Distributed systems lecture series",
+             "Martin Kleppmann · University of Cambridge",
+             "https://www.youtube.com/playlist?list=PLeKd45zvjcDFUEv_ohr_HdUFe97RItdiB"),
+
+    # Distributed systems and models
+    _v("berglund", "Y6Ev8GIlbxc", "Distributed systems in one lesson", "Tim Berglund · Devoxx"),
+    _v("karpathy-intro", "zjkBMFhNj_g", "Intro to large language models, a one hour talk", "Andrej Karpathy"),
+    _v("karpathy-deep", "7xTGNNLPyMI", "Deep dive into LLMs like ChatGPT", "Andrej Karpathy"),
 ]}
 
 
@@ -191,6 +201,47 @@ BY_CHAPTER = {
         ("lc-web2", "A developer's tour of what stands in front of what: web "
                     "servers, application servers and the machines they run "
                     "on.", 0),
+    ],
+    13: [
+        ("k-conc1", "Kanich on why you would want two things at once and what "
+                    "it costs, which is this chapter in a lecture.", 0),
+        ("k-race", "The race from race.py, explained in two minutes.", 0),
+        ("k-safety", "What it means for a piece of code to be safe to call "
+                     "from several threads, in two minutes.", 0),
+        ("k-deadlock", "Two threads each holding what the other wants, in "
+                       "three minutes.", 0),
+    ],
+    14: [
+        ("cc-files", "What a file on a disk actually is, which is the thing "
+                     "this chapter tries first and then puts a database in "
+                     "front of.", 0),
+        ("cc-mem", "Memory against storage: why what a process holds dies with "
+                   "it and what survives.", 0),
+    ],
+    15: [
+        ("k-mux", "Why one thread holding many connections suits a web server, "
+                  "which is the event loop this chapter's pressures lean on.", 0),
+        ("k-conc-ptio", "The three ways a server serves many people at once, "
+                        "side by side.", 0),
+        ("lc-web2", "A developer's tour of the components this chapter names: "
+                    "proxies, balancers and the machines they sit on.", 0),
+    ],
+    16: [
+        ("fastapi-tutorial", "The framework's own guide, readable now that every "
+                             "feature in it can be matched to a block of code you "
+                             "wrote by hand.", 0),
+    ],
+    17: [
+        ("berglund", "This chapter in an hour: storage, computation and "
+                     "messaging once they span more than one machine.", 0),
+        ("kleppmann", "A full lecture course on the same ground, from the "
+                      "author of Designing Data-Intensive Applications.", 0),
+    ],
+    18: [
+        ("karpathy-intro", "What a model is and how one is trained, the subject "
+                           "this chapter deliberately sets aside.", 0),
+        ("karpathy-deep", "The longer version, for when the hour is not enough.", 0),
+        ("cc-ml", "A ten minute overview to go with the two talks.", 0),
     ],
 }
 

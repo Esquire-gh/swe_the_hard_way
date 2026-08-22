@@ -1,4 +1,4 @@
-# Everything chapter 13 installs, and the complaint from chapter 12 it answers.
+# Everything chapter sixteen installs, and what from chapter eleven it answers.
 fastapi          # routing, methods, status codes, request reading
 uvicorn          # the accept loop, and reading a request without trusting it
 python-multipart # form bodies

@@ -15,3 +15,4 @@ knock.txt
 *.jsonl
 guestbook.json
 .claude/
+code/16-introducing-web-frameworks/guestbook.db*
