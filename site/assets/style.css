@@ -412,8 +412,11 @@ caption {
 
 .check {
   background: var(--surface); border: 1px solid var(--rule);
-  padding: 1.1rem 1.3rem; max-width: var(--measure);
+  padding: 1.1rem 1.3rem; max-width: min(100%, 43rem);
 }
+/* prose inside stays at the reading measure; terminal blocks may use the
+   whole box, so an eighty column capture does not need its own scrollbar */
+.check p, .check li { max-width: var(--measure); }
 .check > p:first-child { margin-top: 0; }
 .check ol { margin: .6rem 0 0; }
 .trouble {

@@ -14,119 +14,116 @@
 everyday purposes nobody minds. Here the difference is the whole chapter. The
 internet moves bytes and has no idea what they mean. The web is one agreement
 about what some of those bytes mean, one of many that were tried, and it arrived
-late, with no advantage anybody could see at the time. This chapter is about
-what it had that the others did not.</p>
+late with no advantage anybody could see at the time. This chapter is about what
+it had that the others did not, and it is one decision.</p>
 
 <h2 id="not-the-web">The internet is not the web</h2>
 
-<p>Chapter two finished with a stream of bytes arriving reliably and in order, and
-with the receiving program having no idea what they were. TCP delivers 4,206
-bytes and expresses no view about whether they are a photograph, a price, or a
-poem. Two programs that disagree about the meaning will both work correctly and
-understand nothing. That is the internet: the machines, the addresses, and the
-promise that bytes you send will arrive. It was running for twenty years before
-the web existed, and it would carry on running if the web disappeared tomorrow.</p>
+<p>The last chapter ended with bytes arriving reliably and in order, and with the
+receiving program having no idea what they were. That is the internet: the
+machines, the addresses, and the promise that bytes you send will arrive. It was
+running for twenty years before the web existed and would carry on running if
+the web disappeared tomorrow.</p>
 
 <p>What makes a bare network useful is an agreement, made in advance, about what
 the bytes will mean. An agreement between two programs about what to send, in
 what order, and what it signifies is called a <span class="term">protocol</span>. TCP is one, and its
 subject is delivery. The interesting ones sit on top of it, and their subject is
-whatever people wanted to do. Many were built. The web was a late one, it had no
-advantage anybody could see at the time, and for its first few years it was not
-even the most popular. So the question of this chapter is what it had that the
-others did not.</p>
+whatever people wanted to do.</p>
 
-<h2 id="before">What people built before the web</h2>
+<p>Many were built and several are still running. Electronic mail arrived in 1971
+and delivers a document to one person's box. File transfer arrived the same year
+and lets you take a copy of a file if you already know the machine, the
+directory and the name. Usenet carried discussion, and Gopher, which arrived the
+same year as the web, offered menus of documents you could walk down into. They
+differ in every visible way and they share one thing. In all of them a document
+is a dead end: once you are reading it, the document cannot point anywhere.
+Whatever structure exists lives outside the documents, in a menu or a directory
+listing that somebody has to maintain.</p>
 
-<p>Electronic mail across a network arrived in 1971, when Ray Tomlinson sent a
-message between two machines on the ARPANET and picked the <code>@</code> sign to separate
-the person from the machine they were on. It worked, it spread, and it is still
-here. But mail is addressed to a person and lands in their box. There is no way
-to write something once and let anyone who is interested come and read it.</p>
+<h2 id="refusals">Four refusals</h2>
 
-<p>File transfer arrived the same year, and it fixes exactly that. You put a file
-on a machine, and other people connect to that machine and take a copy. For
-years this was how software and documents were shared. What it lacks is any way
-to get around. You have to already know which machine, then find your way to the
-right directory, then know the filename, and nothing inside one file can tell
-you about another.</p>
+<p>Text that points at other text was not a new idea. Working systems had existed
+for decades, and by the late 1980s people used them daily. They had one property
+in common, and it was considered the mark of a serious system: their links were
+guaranteed. The system knew every link, refused to let you point at something
+that was not there, updated links when a document moved, and removed them when
+it was deleted.</p>
 
-<p>Usenet arrived around 1980 and carried discussion rather than documents. Gopher
-arrived in 1991 from the University of Minnesota, and it came closest of all:
-menus of documents you could walk down into, arranged in a hierarchy across many
-machines. For a couple of years it was more widely used than the web.</p>
+<p>That guarantee puts a hard ceiling on how far a system can spread, because
+keeping every link honest means something has to know about every document and
+every link at once. Workable on one machine. Not workable across machines owned
+by people who have never met. The proposal Tim Berners-Lee wrote at CERN in
+March 1989 gave it up, and three other things with it. Each of the four is a
+refusal to do what the established systems did.</p>
 
-<p>Look at what all of them share. In every one, a document is a dead end. You can
-be sent to a document, or pick one off a menu, but once you are reading it, the
-document cannot point anywhere. Whatever structure exists lives outside the
-documents, in a directory listing or a menu that somebody has to maintain.</p>
+<p><b>Links are allowed to break.</b> A link is a one way pointer that names a document,
+and nothing checks that the document exists until somebody follows it. No
+registry, no cooperation, no repair when the target moves. Following a dead link
+fails, and failing is an ordinary outcome rather than a fault in the system.
+This is where <code>404 not found</code> comes from, and it is the decision that let the
+thing span machines nobody coordinated.</p>
 
-<h2 id="links">The idea of a link was forty years old already</h2>
+<p><b>Anyone may publish without asking.</b> There is no central list to be added to and
+no authority to apply to. You put a file on a machine, run a program that hands
+it out, and it is on the web.</p>
 
-<p>Text that points at other text was not a new thought. Vannevar Bush described a
-machine in 1945 that would let a researcher build trails between documents and
-follow them later. Ted Nelson gave the idea its name in 1965 and called it
-<span class="term">hypertext</span>. Doug Engelbart demonstrated a working system with linked documents in
-1968, along with the mouse and shared editing. By the late 1980s there were
-hypertext systems people used every day, and Apple's HyperCard shipped with
-every Macintosh from 1987.</p>
-
-<p>They worked well, and they had one property in common that turns out to be the
-whole story. Their links were guaranteed. The system knew about every link, and
-it would not let you point at something that was not there. If a document moved,
-the links to it were updated, and if it was deleted, the links to it went too.
-That guarantee is a good idea, and it is what everyone assumed a serious system
-had to provide. It also puts a hard ceiling on how far the system can spread,
-because keeping every link honest means something has to know about every
-document and every link at once. That is workable on one machine. It is not
-workable across machines owned by people who have never met.</p>
-
-<h2 id="cern">What CERN needed, and what Tim Berners-Lee gave up</h2>
-
-<p>The problem that produced the web was not a grand vision. It was an
-administrative mess at a physics laboratory. CERN in the late 1980s had
-thousands of scientists from dozens of institutions, most of them visiting
-rather than permanent. They brought incompatible computers running incompatible
-operating systems and wrote documents in incompatible formats. People left
-constantly and their knowledge left with them. Tim Berners-Lee, working there as
-a software engineer, wrote a proposal in March 1989 that began by pointing out
-that information at CERN kept getting lost.</p>
-
-<p>His design has four decisions in it, and each one is a refusal to do something
-the established systems did.</p>
-
-<p>The first is that links are allowed to break. A link is a one way pointer that
-names a document, and nothing checks that the document exists until somebody
-follows it. Nobody maintains a registry. When the target has moved, following
-the link fails, and failing is an ordinary outcome rather than an error in the
-system. This is where <code>404 not found</code> comes from, and it is the single decision
-that let the thing span machines nobody coordinated.</p>
-
-<p>The second is that anyone may publish without asking. There is no central list
-of documents to be added to and no authority to apply to. You put a file on a
-machine, run a program that hands it out, and it is on the web. The third is
-that anyone may link without asking. Pointing at somebody's document requires no
+<p><b>Anyone may link without asking.</b> Pointing at somebody's document needs no
 permission and no cooperation from them, because a link is only a name written
-inside your document. The fourth is that the format describes the document, not
-the screen. A page says that a piece of text is a heading, and each machine
-decides for itself what a heading should look like. Given a room full of
-incompatible computers, that was not a nicety. It was the only way the same
-document could be readable on all of them.</p>
+inside your own document. They never find out unless you tell them.</p>
 
-<p>Then in April 1993 CERN put the whole thing into the public domain. Anybody
-could implement it, sell it, or build on it, for nothing, forever. That same
-year the University of Minnesota announced it would charge licence fees for
-running a Gopher server. Gopher had been ahead. Within about two years it was
-finished. The web did not win on elegance. It won because it asked nobody for
-permission and cost nothing, and it could do that because Berners-Lee gave up
-the guarantee that everyone else thought was essential.</p>
+<p><b>The format describes the document, not the screen.</b> A page says that a run of
+text is a heading, and each machine decides for itself what a heading looks
+like. Given a laboratory full of incompatible computers, that was not a nicety,
+it was the only way one document could be readable on all of them.</p>
+
+<p>Then CERN put the whole design into the public domain in 1993, free for anyone
+to implement or sell, the same year the University of Minnesota announced
+licence fees for running a Gopher server. Gopher had been ahead. Within about
+two years it was finished. The web did not win on elegance. It won because it
+asked nobody for permission, and it could do that only because it had given up
+the guarantee everyone else thought was essential.</p>
+
+<h2 id="link">What a link actually is</h2>
+
+<p>Strip the decoration away and a link is a name written inside a document. Three
+notations for the same thing, one of which you are about to build:</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">the same idea, three ways of writing it</div>
+<pre><span class="out">-&gt; packets                                                  the library below
+&lt;a href="https://iana.org/domains/example"&gt;Learn more&lt;/a&gt;   HTML
+[Learn more](https://iana.org/domains/example)              Markdown</span></pre></div>
+</figure>
+
+<p>You can watch a real one being followed. <code>curl</code> fetches a page and prints it
+without drawing anything, which is what you want when the question is what the
+bytes actually say.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ curl -s https://example.com | grep -o "&lt;a href.*&lt;/a&gt;"</span>
+<span class="out">&lt;a href="https://iana.org/domains/example"&gt;Learn more&lt;/a&gt;</span>
+<span class="prompt">$ curl -sL -o /dev/null -w "%{http_code} %{url_effective}\n" \
+    https://iana.org/domains/example</span>
+<span class="out">200 https://www.iana.org/help/example-domains</span>
+<span class="prompt">$ curl -s -o /dev/null -w "%{http_code}\n" https://example.com/the-one-that-moved</span>
+<span class="out">404</span></pre></div>
+</figure>
+
+<p>That is the whole mechanism. The page contained a name. Something read the name
+out of the page and asked for it, and a machine at the other end answered with a
+number saying how it went. Nothing in the first page knew whether the second one
+existed, and the third command shows what the answer is when it does not. Notice
+also that the address in the page and the address that answered are not the same
+string, which is a hint the next chapter picks up.</p>
 
 <h2 id="library">A library that lets its links break</h2>
 
 <p>Hypertext with everything else stripped away is small enough to build. Here is a
 library of documents where any line beginning with an arrow names another
 document, and nothing anywhere checks that the named document exists. The
-documents are in <code>code/03-the-web/library/</code>, and this is the first one.</p>
+documents live in <code>code/03-the-web/library/</code>, and this is the first one.</p>
 
 <figure>
 <div class="code"><pre>A library of four documents, three of which exist.
@@ -143,12 +140,13 @@ Nothing anywhere checks that the named document is really there.
 
 <figure>
   <div class="dgm"><svg viewBox="0 0 720 252" role="img" style="min-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">four documents, three of which exist; every arrow is one link</text><rect x="40" y="100" width="130" height="44" rx="3" class="box learn"/><text x="105.0" y="120.0" class="lbl b mid">welcome</text><text x="105.0" y="135.0" class="lbl sm mut mid">start here</text><rect x="300" y="46" width="130" height="44" rx="3" class="box"/><text x="365.0" y="72.0" class="lbl b mid">networks</text><rect x="300" y="154" width="130" height="44" rx="3" class="box"/><text x="365.0" y="180.0" class="lbl b mid">packets</text><rect x="540" y="100" width="150" height="44" rx="3" class="box brk" stroke-dasharray="5 4"/><text x="615" y="118" class="lbl sm b mid brk">the-one-that-moved</text><text x="615" y="133" class="lbl sm mut mid">no such document</text><path d="M170,114 L300,72" class="flow" marker-end="url(#arw)"/><path d="M170,130 L300,172" class="flow" marker-end="url(#arw)"/><path d="M105,144 L105,222 L615,222 L615,144" class="flow brk" marker-end="url(#arw)"/><text x="360" y="240" class="lbl sm mut mid">one link points at nothing, and nothing noticed when it was written</text><path d="M352,90 L352,154" class="flow" marker-end="url(#arw)"/><path d="M378,154 L378,90" class="flow" marker-end="url(#arw)"/><text x="392" y="126" class="lbl sm mut">one link each way</text></svg></div>
-  <figcaption>the structure lives inside the documents, every link points one way, and one of
-them points at nothing</figcaption>
+  <figcaption>the structure lives inside the documents, every link points one way,
+and one of them points at nothing</figcaption>
 </figure>
 
-<p>The program that walks the library starts at <code>welcome</code>, reads every document it is
-pointed at, and keeps going until there is nothing left to follow.</p>
+<p>The program starts at <code>welcome</code>, reads whatever it is pointed at, and keeps going
+until there is nothing left to follow. Give it a network instead of a folder and
+this is a <span class="term">crawler</span>, which is how every search engine finds out what exists.</p>
 
 <figure>
 <div class="code"><pre><span class="c-st">&quot;&quot;&quot;Walk a small library of documents by following the links inside them.
@@ -217,22 +215,22 @@ documents read: 3
 links that point at nothing: ['the-one-that-moved']</span></pre></div>
 </figure>
 
-<p>Three things in thirty lines, and all three are the web. The structure is inside
-the documents. There is no index and no menu, and the only way to know that
-<code>welcome</code> leads to <code>networks</code> is to read <code>welcome</code>. Adding a document to this library
-means writing a file and having something point at it, and nobody has to be
-told.</p>
+<p>Three things in that run, and all three are the web. The structure is inside the
+documents: there is no index and no menu, and the only way to know that <code>welcome</code>
+leads to <code>networks</code> is to read <code>welcome</code>. Adding a document means writing a file and
+having something point at it, and nobody has to be told.</p>
 
 <p>Links go one way. <code>networks</code> points at <code>packets</code> and <code>packets</code> points back, but those
 are two separate one way links that happen to face each other. Nothing about the
-first creates the second, and <code>packets</code> has no way of knowing who points at it,
-which is why finding out who links to a page is a whole industry rather than a
-query.</p>
+first creates the second, and <code>packets</code> has no way of knowing who points at it.
+That asymmetry is the second exercise, and it is worth more than it looks:
+knowing who links to a page is not a lookup, it is a scan of everything, which
+is a large part of what a search engine is for.</p>
 
-<p>A broken link is a result, not a crash. <code>the-one-that-moved</code> is missing, and the
-walk carries on and finishes. To make the guarantee the older systems made,
-every one of these files would have to be registered somewhere, and creating a
-file would stop being a private act.</p>
+<p>A broken link is a result, not a crash. <code>the-one-that-moved</code> is missing, the walk
+carries on, and the program finishes and reports it. To make the guarantee the
+older systems made, every one of these files would have to be registered
+somewhere, and creating a file would stop being a private act.</p>
 
 <h2 id="check">Check it yourself: take a document away</h2>
 
@@ -257,26 +255,75 @@ lists three links, one of which now fails. No file had to be edited, no index
 had to be rebuilt, and the walk still ran to the end. That is the trade written
 out in full: in exchange for accepting that some fraction of links will be dead
 at any moment, publishing and linking become things you can do alone. The web is
-the largest thing humans have built out of that one exchange.</p>
+the largest thing people have built out of that one exchange.</p>
   <p>Put the file back with <code>mv library/packets.txt.away library/packets.txt</code> when you
 have looked.</p>
 </div>
 
-<h2 id="limit">What a name has to name</h2>
+<h2 id="exercises">Exercises</h2>
 
-<p>There is a gap in the library, and it is doing a lot of quiet work. When a
-document says <code>-&gt; packets</code>, the program turns that into a filename in a folder
-on this machine. That is fine here, because there is only one machine and one
-folder. On the web there is no such folder.</p>
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>You want to answer the question <em>which documents link to <code>packets</code></em>. Before writing
+anything, say how many of the library's files have to be read to be sure of the
+answer, and say what the equivalent number would be for a page on the real web.</p>
+<p class="ex-look">All of them, every time, because a document records what it points at and
+nothing records what points at it. On the web the equivalent is every page that
+exists, which is why the answer to that question is a company with data centres
+rather than a query.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Write <code>who_links_to(name)</code>, which returns every document in the library that
+points at <code>name</code>. Run it for <code>packets</code>, <code>networks</code>, <code>welcome</code> and <code>the-one-that-moved</code>,
+and print how many documents it had to read each time.</p>
+<p class="ex-look">Three reads for every question, including the one about a document that does not
+exist. Two results are worth stopping on. <code>the-one-that-moved</code> has a link pointing
+at it and no file behind it, which is a dead link seen from the other end. And
+<code>welcome</code>, the document everything starts from, is linked from nothing at all; on
+the real web a page like that is invisible, because a crawler that has never
+been given its name has no way to reach it.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Take the memory out of the walk: delete the <code>seen</code> set and the two lines that use
+it. Predict what happens to <code>networks</code> and <code>packets</code>, which point at each other,
+then run it with a limit on the number of reads so you can watch rather than
+reach for control C.</p>
+<p class="ex-look">The queue never empties. The two documents feed each other names forever, and
+after twelve reads there are still names waiting. Nothing is broken and no rule
+was violated: the library is a graph with a cycle in it, and one way links mean
+nobody can see the cycle from inside a document. Every crawler on the internet
+carries this set, and how large it can get is one of the real problems in
+running one.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>The first refusal created industries. Link checkers exist because links rot, and
+the Internet Archive's Wayback Machine exists to keep copies of pages before
+they do. Google started as <code>who_links_to</code> run over everything, with each link
+counted as a vote. And the crawler you just wrote is the same shape as the one
+that fetched this page for a search engine, plus rate limits, politeness rules
+and a very large <code>seen</code> set.</p>
+</div>
+
+<h2 id="limit">Where this runs out</h2>
+
+<p>There is a gap in the library, and it is doing quiet work. When a document says
+<code>-&gt; packets</code>, the program turns that name into a filename in a folder on this
+machine. That is fine here, because there is one machine and one folder. On the
+web there is no such folder.</p>
 
 <div class="limit">
   <span class="limit-label">where this runs out</span>
   <p>The document being pointed at might be on a machine in another country, owned by
 a stranger, and the pointer has to work anyway. So a name on the web has to
 carry more than a filename. It has to be enough to find one particular machine
-out of every machine on earth, then ask that specific machine for one particular
-file, and it has to do that from a document written years ago by somebody who
+out of every machine on earth, then ask that machine for one particular
+document, and it has to do that from a page written years ago by somebody who
 has never heard of you.</p>
+  <p>The <code>curl</code> run above already showed the seam: the name in the page was
+<code>iana.org/domains/example</code> and what answered was
+<code>www.iana.org/help/example-domains</code>. Two different strings, one document.</p>
   <p class="to">Which raises the question this chapter has been avoiding. When you point at a
 page, where is that page actually sitting, and how does anything find the
 machine it is sitting on? That is chapter four.</p>
