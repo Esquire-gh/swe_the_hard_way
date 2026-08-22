@@ -2,10 +2,11 @@
 
 ## What this repository is
 
-This is a free, open course that teaches software engineering from the
-ground up, with a deliberate focus on software for the web. Not from a framework. Not from a template. From the point where a
-computer is just a machine that follows instructions, all the way to the
-systems that serve millions of people and the AI models that run on top of them.
+This is a free, open course that teaches software engineering from the ground
+up, with a deliberate focus on software for the web. Not from a framework. Not
+from a template. From the point where a computer is just a machine that
+follows instructions, all the way to the systems that serve millions of people
+and the AI models that run on top of them.
 
 Every chapter answers a question that the previous chapter made you ask. That
 is the whole design. You should never be told to type a command whose purpose
