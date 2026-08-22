@@ -1,12 +1,14 @@
 <p class="kicker learn">Part four · building the server</p>
 <h1><span class="num">12 ·</span> Servers as hardware and software</h1>
-<p class="hook">You now have two programs, and the same word is used for both. The one from
-chapter ten reads files off a disk and sends them back. The one from chapter
-eleven runs your code to produce the answer. You are also sitting at a laptop,
-which is answering HTTP requests, and which nobody would call a server. The word
-is doing at least three jobs, and mixing them up makes most writing about this
-subject harder to read than it needs to be. This chapter sorts the word out, and
-it takes five minutes.</p>
+<p class="hook">You now have two programs, and the same word is used for both. One reads files
+off a disk and sends them back. One runs your code to produce the answer. You
+are
+also sitting at a laptop that is answering HTTP requests, and nobody would call
+a
+laptop a server. The word is doing at least three jobs at once, and mixing them
+up makes most writing about this subject harder to read than it needs to be.
+This
+chapter sorts the word out, and it takes about five minutes.</p>
 
 <h2 id="two-meanings">The two things the word means</h2>
 
@@ -16,88 +18,112 @@ plays, and any machine can run one. <code>server_safe.py</code> is a server in t
 and so is <code>step4_session.py</code>.</p>
 
 <p>A <span class="term">server</span> in the other sense is a physical computer, and specifically one built
-for running programs like that continuously. It usually has no screen or
+for running programs like that without stopping. It usually has no screen or
 keyboard, it is shaped to slide into a rack, it has more memory and more
 processors than a desktop, often two power supplies in case one fails, memory
 that can detect and correct its own errors, and some way to be restarted by
 somebody who is not in the building.</p>
 
-<p>The two meanings share a word for a boring historical reason. For a long time,
-if you were running server programs, you bought a machine specifically to do it,
-and nothing else ran on that machine. Naming the box after its job was
-reasonable, because the box had one job.</p>
+<p>The two meanings share a word for a dull historical reason. For a long time, if
+you ran server programs you bought a machine specifically to do it, and nothing
+else ran on that machine. Naming the box after its job was reasonable, because
+the box had one job. That is no longer true in either direction, and both
+directions are worth seeing.</p>
 
-<h2 id="why-it-matters">Why keeping them apart matters now</h2>
+<h2 id="many-on-one">One machine, many servers</h2>
 
-<p>That one to one relationship is gone in both directions, and both directions are
-worth seeing. One machine runs many servers. Chapter five had you list the
-programs on your own laptop in the waiting state, and there were more than you
-expected. Here is that list again while chapter ten's server is running.</p>
+<p>Chapter five had you list the programs on your laptop that were in the waiting
+state, and there were more than you expected. Here is that list again while the
+proxy and backend from later in this chapter are both running.</p>
 
 <figure>
-  <div class="term-block"><div class="term-head">terminal</div>
+  <div class="term-block"><div class="term-head">terminal, trimmed to a few lines</div>
 <pre><span class="prompt">$ lsof -nP -iTCP -sTCP:LISTEN</span>
 <span class="out">COMMAND     PID    NAME
-com.docke   52512  *:8000 (LISTEN)
-python3.1   77974  127.0.0.1:8000 (LISTEN)</span></pre></div>
+python3.1   37168  127.0.0.1:8000
+python3.1   37165  127.0.0.1:8001
+com.docke   52512  *:5432
+com.docke   52512  *:6379</span></pre></div>
 </figure>
 
-<p>Two programs, one machine, and the machine is a laptop. The operating system's
-list does not distinguish your twenty lines from anything else on it, because
-there is nothing to distinguish. And one server runs on many machines. The thing
-people call "the Wikipedia server" is a large number of computers in several
-countries, and chapter four already showed you one name resolving to several
-addresses. Chapter seventeen is about what that costs.</p>
+<p>Four servers, one laptop. Two of them are your own Python processes, each
+holding
+one port. The other two are a database and a cache, and they are worth a second
+look, because they share one process id. That single <code>com.docker</code> process is
+holding both ports, and behind it are two <span class="term">containers</span>, which chapter fifteen will
+use in earnest. A container is not a machine. It is ordinary processes on this
+laptop, as described in chapter one, given a restricted view of the filesystem
+and the network so they behave as though they were alone. From the operating
+system's side, seen through <code>lsof</code>, a container is what you are looking at: a
+process holding a port. The mystery is mostly in the naming.</p>
 
-<p>The machine may also not be a machine. When you rent a server today you are
-usually given a <span class="term">virtual machine</span>, which is a computer implemented in software on
-top of a real one, convinced it has hardware of its own. One physical box runs
-several of them, belonging to different customers who have never met. A
-<span class="term">container</span> is a lighter arrangement again, and it is not a machine at all: it is
-ordinary processes on the host, as described in chapter one, given a restricted
-view of the filesystem and the network so they behave as though they were alone.
-Chapter fifteen is where those earn their place, so this is only enough to stop
-the words being frightening.</p>
+<p>The machine underneath may also not be a machine. When you rent a server today
+you are usually given a <span class="term">virtual machine</span>, which is a computer implemented in
+software on top of a real one, convinced it has hardware of its own, and one
+physical box runs several of them for customers who have never met. This is
+enough to stop the words being frightening; the details wait until you need
+them.</p>
 
-<p>The practical value of separating the two meanings shows up when something
-breaks. "The server is down" can mean the building lost power, or that the
-machine is fine and your process exited four minutes ago, which you watched
-happen at the end of chapter eleven. Those have nothing in common except the
-sentence.</p>
+<h2 id="one-on-many">One server, many machines</h2>
 
-<h2 id="web-vs-app">The other split: web server and application server</h2>
+<p>It runs the other way too. The thing people call "the Wikipedia server" is a
+large number of computers in several countries, and chapter four already showed
+you one name resolving to several addresses. The practical value of keeping the
+two meanings apart shows up when something breaks. "The server is down" can mean
+the building lost power, or that the machine is perfectly fine and your process
+exited four minutes ago, which you watched happen at the end of chapter eleven.
+Those have nothing in common except the sentence.</p>
 
-<p>There is a second overloading inside the software meaning, and you have now
-written one of each. <code>server_safe.py</code> reads files off a disk and sends them back.
-A program whose job is that, speaking HTTP and serving documents, is what people
-mean by a <span class="term">web server</span> in the narrow sense. Nginx and Apache are the two everybody
-has heard of, and they are the same idea as your file server with thirty years
-of work on top. <code>step4_session.py</code> stops reading files and runs your code to
-produce the answer. That is a different job, and the name for a program that
-runs your code is an <span class="term">application server</span>. The FastAPI program in chapter sixteen
-is one.</p>
+<h2 id="web-vs-app">The other split, and a program that shows it</h2>
+
+<p>There is a second overloading inside the software meaning, and you have written
+one of each. A program whose job is to read files off a disk and send them back,
+speaking HTTP, is a <span class="term">web server</span> in the narrow sense; nginx and Apache are the two
+everybody has heard of, and they are your file server with thirty years of work
+on top. A program that stops reading files and runs your code to produce the
+answer is an <span class="term">application server</span>; the FastAPI program in chapter sixteen is one.</p>
+
+<p>In production both are usually present at once, and the way they are joined is a
+program simple enough to write here. A <span class="term">reverse proxy</span> holds the port the outside
+world connects to, and for each connection opens a second socket to the
+application server behind it and relays the bytes both ways. The visitor thinks
+it is talking to one server. It is talking to two, and the front one chose
+which.</p>
 
 <figure>
-  <div class="dgm">{{ diagram:web-vs-app-server }}</div>
-  <figcaption>in production both are usually present: the web server in front holds
-connections and serves what never changes, and passes the rest to the
-application server behind it</figcaption>
+{{ code:code/12-servers-as-hardware-and-software/proxy.py }}
+<figcaption>proxy.py, thirty lines that put one server in front of another</figcaption>
 </figure>
 
-<p>In production both are usually present at once. Nginx sits in front, holding the
-connections, handling encryption, and serving the files that never change. It
-passes everything else to the application server behind it, which runs the code.
-They are split because they are good at different things, and because the front
-one can go on answering while the back one is restarted. Keep the question
-"which server" available. When a piece of writing says the server does
-something, it is usually worth knowing whether the thing being described is a
-rack, a program serving files, or a program running application code.</p>
+<p>Run the guestbook on 8001 and this on 8000, and a visitor asking the proxy is
+answered by the backend without ever connecting to it.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two, with proxy.py on 8000 and a backend on 8001</div>
+<pre><span class="prompt">$ curl -s http://127.0.0.1:8000/</span>
+<span class="out">&lt;h1&gt;the guestbook, on 8001&lt;/h1&gt;</span></pre></div>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one, the backend's own log</div>
+<pre class="out">Serving HTTP on 127.0.0.1 port 8001 ...
+127.0.0.1 - - [22/Aug/2026 16:14:46] "GET / HTTP/1.1" 200 -</pre></div>
+</figure>
+
+<p>Read the backend's log. The client it recorded is <code>127.0.0.1</code>, the proxy, not
+whoever ran <code>curl</code>. From the backend's side the proxy is the visitor, which is
+exactly the property that makes this useful. The front program can hold
+thousands
+of slow connections, serve the files that never change, handle encryption, and
+pass only the real work to the back. It can also go on answering while the back
+one is restarted, which is the whole of the zero downtime deploy chapter fifteen
+builds on top of this same file.</p>
 
 <h2 id="check">Check it yourself: one machine, many servers, one port each</h2>
 
 <div class="check">
-  <p>The claim that a machine can hold any number of servers, but that a port can
-hold one, is checkable in fifteen lines.</p>
+  <p>The claim that a machine can hold any number of servers, but that a port holds
+one, is checkable in fifteen lines.</p>
   <figure>
 {{ code:code/12-servers-as-hardware-and-software/two_at_one_port.py }}
   <figcaption>two_at_one_port.py</figcaption>
@@ -107,18 +133,72 @@ hold one, is checkable in fifteen lines.</p>
 <span class="out">claimed port 8200
 claimed port 8201 as well, on the same machine
 asking for port 8200 again: Address already in use</span></pre></div>
-  <p>One process here is holding two ports, and a machine could hold thousands. The
-third attempt is refused, and the refusal comes from the operating system rather
-than from any agreement between programs. Chapter nine explained why: the port
-is how the operating system decides which waiting program an arriving connection
-belongs to, so allowing two claims on one number would leave it with a question
-it could not answer.</p>
+  <p>One process here holds two ports, and a machine could hold thousands. The third
+attempt is refused, and the refusal comes from the operating system rather than
+from any agreement between programs. Chapter nine explained why: the port is how
+the operating system decides which waiting program an arriving connection
+belongs
+to, so allowing two claims on one number would leave it with a question it could
+not answer.</p>
   <div class="trouble">
     <b>if it fails on the first call instead of the third</b>
     <p>One of those numbers is already taken on your machine. That is the same message
 telling you the same thing, and picking a different number fixes it. Ports being
 occupied by things you forgot you installed is a normal part of this work.</p>
   </div>
+</div>
+
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>One program binds <code>0.0.0.0:8000</code> and another binds <code>127.0.0.1:8000</code>. They are
+different addresses, so do they both succeed? Write your answer down before
+running <code>two_addresses.py</code>.</p>
+<p class="ex-look">They collide, and the second one is refused. <code>0.0.0.0</code> does not mean one address;
+it means every address this machine has, and <code>127.0.0.1</code> is one of them, so the
+first bind already owns the second's port. The rule from the check still holds,
+you were just reading the addresses as if they did not overlap. Two genuinely
+different addresses, two real network cards, could each hold port 8000, which is
+how one machine serves two networks on the same number.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Build the reverse proxy above from scratch before reading it closely. Hold one
+port, connect to another, and relay bytes both ways. The relaying is the part
+that repays thought: a connection has two directions, and each ends at a
+different time, so you cannot copy one way and then the other. Run any backend
+behind it and confirm the backend sees the proxy as its client.</p>
+<p class="ex-look">The two directions are why the listing starts a thread for one way and runs the
+other on the current one. Copy visitor to backend to completion first and you
+would never start sending the answer back, because the visitor has not hung up.
+This is the same one-thing-at-a-time limit as chapter eight, met from the other
+side: two independent streams need two flows of control, and a thread is the
+cheapest one to reach for. That is chapter thirteen arriving early again.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>The check says a port holds one program. Break it on purpose. Set
+<code>SO_REUSEPORT</code> on two sockets and bind both to the same port, and predict what
+happens before you run <code>reuseport.py</code>.</p>
+<p class="ex-look">Both binds succeed. One port, two programs, and the kernel hands each new
+connection to one of them. The rule was never physics; it was a policy the
+operating system enforces by default and will drop when you ask, precisely so a
+server can run several identical worker processes behind one port with nothing
+in
+front of them. Knowing which of your certainties are laws and which are switches
+somebody chose is most of what separates fixing a system from guessing at it.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>The arrangement in this chapter has a standard shape and two standard names.
+nginx in front is the reverse proxy you wrote, grown up: it terminates
+encryption, serves static files, and holds the connections. gunicorn or uWSGI
+behind it is the application server running your code, and the pair is described
+as "nginx in front of gunicorn" so often it sounds like one word. When a cloud
+platform says it gives you a container, the process it starts is the back half
+of
+this picture, and its own load balancer is the front half, which is why you so
+rarely have to write either by hand. You have now written both.</p>
 </div>
 
 <h2 id="limit">Naming things does not add capability</h2>
@@ -128,10 +208,11 @@ as capable as they were.</p>
 
 <div class="limit">
   <span class="limit-label">where this runs out</span>
-  <p>In particular, both of them still answer one visitor at a time. The loop accepts
-a connection, deals with it from start to finish, and only then goes back to
-<code>accept</code>. With small pages on your own laptop nobody can tell. The first time a
-request takes a while, everybody behind it finds out.</p>
+  <p>Both of them still answer one visitor at a time. The loop accepts a connection,
+deals with it from start to finish, and only then goes back to <code>accept</code>. With
+small pages on your own laptop nobody can tell. The first time a request takes a
+while, everybody behind it finds out. The proxy you just wrote is the one
+exception, and only because it reached for a thread, which was a hint.</p>
   <p class="to">Part five opens with the question every server eventually has to answer: can you
 handle two users at once? That is chapter thirteen.</p>
 </div>
