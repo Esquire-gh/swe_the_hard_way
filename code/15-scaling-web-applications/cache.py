@@ -33,11 +33,13 @@ print(f"{REQUESTS} requests, no cache     {without:5.2f} seconds, "
 remembered = {}
 
 
+# BEGIN cached
 def cached_page():
-    key = len(messages)
+    key = len(messages)         # the bug: counts, does not describe
     if key not in remembered:
         remembered[key] = build_page(messages)
     return remembered[key]
+# END cached
 
 
 built = 0

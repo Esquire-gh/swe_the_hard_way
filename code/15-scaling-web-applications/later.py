@@ -25,6 +25,7 @@ def timed(work):
 inline = timed(lambda: send_the_email("ada@example.com"))
 print(f"answering after doing the work:   {inline * 1000:8.2f} ms")
 
+# BEGIN worker
 jobs = queue.Queue()
 
 
@@ -36,6 +37,7 @@ def worker():
 
 
 threading.Thread(target=worker, daemon=True).start()
+# END worker
 
 queued = timed(lambda: jobs.put("grace@example.com"))
 print(f"answering after writing it down:  {queued * 1000:8.2f} ms")
