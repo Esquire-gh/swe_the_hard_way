@@ -12,91 +12,71 @@
 <h1><span class="num">05 ·</span> Clients and servers</h1>
 <p class="hook">You have heard client and server, or front end and back end, often enough that
 they sound settled. What makes one program the client and the other the server
-is a single fact, so obvious that it is almost never said out loud: one of them
-was already running, and the other one started the conversation. The role
-belongs to the conversation, not to the machine. Your laptop is a client while
-you read a page and a server while your phone prints through it, and the only
-thing that decides which is which is who asked and who answered. The arrangement
-has a name, the client server model, and almost every design decision in the
-rest of this course follows from it.</p>
+is a single fact, so obvious it is almost never said out loud: one of them was
+already running, and the other one started the conversation. Everything else
+people believe about the two words follows from that, or is wrong.</p>
 
 <h2 id="already-there">One of them was already there</h2>
 
-<p>Chapter four got us as far as a machine and a path. There is a computer with a
-file on its disk, we can turn a name into its address, and chapter two gives us
-an ordered stream of bytes between two programs once they are joined up. What
-has not been settled is anything about the two programs themselves. One of them
-has the file and one of them wants it, and every other detail is open: which one
-starts, whether the machine holding the file is doing anything while nobody is
-asking, whether it knows you exist before you turn up.</p>
+<p>The last chapter got us as far as a machine and a path. There is a computer with
+a file on its disk, we can turn a name into its address, and chapter two gives
+us an ordered stream of bytes between two programs once they are joined up. What
+has not been settled is anything about the two programs. One has the file and
+one wants it, and every other detail is open.</p>
 
 <p>Start with the machine that has the file. It cannot spring into life when you
 ask for something, because nothing on it would hear you. For your request to be
-heard, a program on that machine has to have been started already, and it has to
-have been sitting there, doing nothing, waiting for somebody to arrive. That
-gives the two roles. The program that starts the conversation, because it wants
-something, is the <span class="term">client</span>. The program that was already running, and answers, is
-the <span class="term">server</span>. This arrangement, one side waiting and the other side asking, is
-what the field calls the <span class="term">client server model</span>. When you see the words client side
-and server side, or front end and back end, this is the line being drawn: the
-program that asked, and the program that answered.</p>
+heard, a program on that machine must have been started already, and must have
+been sitting there doing nothing, waiting for somebody to arrive.</p>
+
+<p>That gives the two roles. The program that starts the conversation, because it
+wants something, is the <span class="term">client</span>. What it sends is a <span class="term">request</span>. The program that was
+already running is the <span class="term">server</span>, and what it sends back is a <span class="term">response</span>. This
+arrangement, one side waiting and the other side asking, is what the field calls
+the <span class="term">client server model</span>. When you see client side and server side, or front end
+and back end, this is the line being drawn.</p>
 
 <figure>
   <div class="dgm"><svg viewBox="0 0 720 266" role="img" style="min-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">two programs, one conversation, and who was there first</text><path d="M40,76 L40,224" class="flow mut" marker-end="url(#arw)"/><text x="48" y="228" class="lbl sm mut">time</text><text x="520" y="52" class="lbl b mid">server</text><text x="520" y="66" class="lbl sm mut mid">already running</text><path d="M520,72 L520,236" class="flow learn"/><text x="532" y="94" class="lbl sm mut">waiting, and it costs nothing</text><text x="200" y="52" class="lbl b mid">client</text><text x="200" y="66" class="lbl sm mut mid">starts because it wants something</text><path d="M200,100 L200,180" class="flow"/><path d="M206,118 L514,118" class="flow" marker-end="url(#arw)"/><text x="360" y="112" class="lbl sm mid">request: the client speaks first</text><path d="M514,160 L206,160" class="flow learn" marker-end="url(#arw)"/><text x="360" y="176" class="lbl sm mid learn">response</text><text x="200" y="196" class="lbl sm mut mid">exits</text><text x="532" y="206" class="lbl sm mut">waiting for the next one</text><text x="20" y="254" class="lbl sm mut">whoever sent the first arrow is the client; the role belongs to the conversation, not the machine</text></svg></div>
-  <figcaption>the server was running before the client existed and is still running after it
-has gone; the client exists to ask one thing</figcaption>
+  <figcaption>the server was running before the client existed and is still running
+after it has gone; the client exists to ask one thing</figcaption>
 </figure>
 
-<p>That is the whole model, and five things follow from it. A server's ordinary
-condition is doing nothing. It spends nearly all of its life waiting, and
-waiting costs almost nothing, which you measured in chapter one when the
-sleeping process showed no processor use at all and still counted on time. A
-server does not know its clients in advance. It has no list of who might call;
-it finds out that you exist at the moment you arrive, and it usually forgets you
-again when you leave. The conversation can only be opened from one end. A server
-cannot ring you up, and this one shapes an enormous amount of what the web looks
-like: for years, a page that wanted to show you a new message had to keep asking
-whether anything had happened yet, because there was no way for the server to
-speak first. Clients are brief and servers are long lived. A client exists to
-ask one thing and then stops; the server was running before it arrived and is
-still running after it has gone. And clients arrive whenever they like, and
-there are many of them. A server with one visitor and a server with a thousand
-are the same program in a different situation, and dealing with that difference
+<p>Three consequences are worth having in mind before you meet them as bugs. A
+server does not know its clients in advance: it has no list of who might call,
+finds out you exist when you arrive, and usually forgets you when you leave. The
+conversation can only be opened from one end, so a server cannot ring you up,
+which is why for years a page that wanted to show you a new message had to keep
+asking whether anything had happened yet. And clients arrive whenever they like,
+in unpredictable numbers. A server with one visitor and a server with a thousand
+are the same program in a different situation, and coping with that difference
 is most of part five.</p>
 
 <h2 id="role">It is a role, not a kind of machine</h2>
 
-<p>This is the part worth stressing, because the word server also names a kind of
-computer, and that makes people picture the role as something only a machine in
-a data centre can play. It is not. The role belongs to the conversation. The
-same computer can be a client in one conversation and a server in another at the
-same instant. Your laptop is a client while you read a page, and a server if you
-are sharing your screen, running a development server, or letting a phone in the
-house print through it. None of those change what the machine is. They change
-what it is doing in a particular exchange, and the only thing that decides which
-role it is playing is who initiated the request and who returned the response.</p>
+<p>This is worth stressing, because the word server also names a kind of computer,
+and that makes people picture the role as something only a machine in a data
+centre can play. It is not. The role belongs to the conversation. The same
+computer can be a client in one conversation and a server in another at the same
+instant. Your laptop is a client while you read a page, and a server if you are
+sharing your screen, running a development server, or letting a phone in the
+house print through it. None of that changes what the machine is. The only thing
+that decides the role is who initiated the request and who returned the
+response.</p>
 
-<p>It is also worth saying that this arrangement is a convention rather than a law,
-because it is so common that it starts to look like one. Nothing in chapter two
-is asymmetric. Any address may send a packet to any other address, and the
-routers in the middle do not know or care which end started it. Systems where
-every program does both jobs at once are real, and file sharing networks are the
-well known example; the arrangement is called <span class="term">peer to peer</span>. Client and server
-won because it is easier to reason about, and because of the practical asymmetry
-from chapter four: most machines sit behind a shared public address and cannot
-be reached from outside at all. A design where everyone must be reachable was
-possible in 1980 and is awkward now.</p>
-
-<p>Chapter twelve returns to the other meaning of the word, the physical computer
-built to run programs like this all day. Everything in this chapter is the
-program.</p>
+<p>The arrangement is also a convention rather than a law. Nothing in chapter two
+is asymmetric: any address may send a packet to any other, and the routers in
+the middle do not care which end started it. Systems where every program does
+both jobs at once are real, and file sharing networks are the well known
+example; the arrangement is called <span class="term">peer to peer</span>. Client and server won partly
+because it is easier to reason about, and partly because most machines now sit
+behind a shared public address and cannot be reached from outside at all.</p>
 
 <h2 id="watching">Watching the two roles run</h2>
 
-<p>We do not yet know how a program listens for someone arriving over a network,
+<p>We do not yet know how a program listens for somebody arriving over a network,
 because that is chapters eight and nine. So here the two programs talk through a
-directory on the disk, which is something chapter one already covered. The
-channel is a placeholder. The roles are the real subject.</p>
+directory on the disk. The channel is a placeholder; the roles are the subject.</p>
 
 <p>The waiting half checks a mailbox directory for requests, answers each one into
 a matching file, and goes back to checking.</p>
@@ -176,51 +156,86 @@ response.unlink()
 <figcaption>asker.py, the client</figcaption>
 </figure>
 
-<p>Start the waiting one in a terminal window and leave it alone, then in a second
-window ask it three things.</p>
+<p>Start the waiting one in a terminal and leave it alone, then in a second
+terminal ask it three things.</p>
 
 <figure>
   <div class="term-block"><div class="term-head">terminal one</div>
 <pre><span class="prompt">$ python3 waiter.py</span>
-<span class="out">waiting for requests in mailbox/ as process 59632</span></pre></div>
+<span class="out">waiting for requests in mailbox/ as process 88019</span></pre></div>
 </figure>
 
 <figure>
   <div class="term-block"><div class="term-head">terminal two</div>
 <pre><span class="prompt">$ python3 asker.py time</span>
-<span class="out">process 59672 asked 'time' and is now waiting
-answer: 00:38:08</span>
+<span class="out">process 88021 asked 'time' and is now waiting
+answer: 15:20:02</span>
 <span class="prompt">$ python3 asker.py who</span>
-<span class="out">process 59673 asked 'who' and is now waiting
-answer: process 59632</span>
+<span class="out">process 88050 asked 'who' and is now waiting
+answer: process 88019</span>
 <span class="prompt">$ python3 asker.py weather</span>
-<span class="out">process 59674 asked 'weather' and is now waiting
+<span class="out">process 88051 asked 'weather' and is now waiting
 answer: I was not taught the question 'weather'</span></pre></div>
 </figure>
 
-<p>While that happened, the first window filled in.</p>
+<p>While that happened, the first terminal filled in.</p>
 
 <figure>
   <div class="term-block"><div class="term-head">terminal one</div>
-<pre class="out">asked 'time', answered '00:38:08'
-asked 'who', answered 'process 59632'
+<pre class="out">asked 'time', answered '15:20:02'
+asked 'who', answered 'process 88019'
 asked 'weather', answered 'I was not taught the question 'weather''</pre></div>
 </figure>
 
 <p>The process ids are the part to read closely. Three separate client processes
-ran, 59672, 59673 and 59674, each of which existed for a fraction of a second
-and then died. Every one of them was answered by process 59632, which was there
-before any of them started and is still there now. That is the asymmetry, in
-numbers.</p>
+ran, 88021, 88050 and 88051, each of which existed for a fraction of a second
+and then died. Every one was answered by process 88019, which was there before
+any of them started and is still there now. That is the asymmetry, in numbers.</p>
 
 <p>The third answer matters too. The client asked something the server had never
 been taught, and the server answered anyway, saying what was wrong. It did not
 crash and it did not go quiet. A server that stops working because somebody sent
-it something unexpected is a server that any stranger can turn off, and
-strangers are the entire audience. Now replace that directory with a network
-connection and you have a web server. That substitution is chapters eight
-through ten, and nothing in the shape above changes, which is the reason for
-showing it before the machinery arrives.</p>
+it something unexpected is a server any stranger can turn off, and strangers are
+the entire audience. Now replace the directory with a network connection and you
+have a web server. That substitution is chapters eight through ten, and nothing
+in the shape above changes.</p>
+
+<h2 id="cost">What waiting actually costs</h2>
+
+<p>There is a lie of omission in the paragraph that said the server sits there
+doing nothing. Look at the last two lines of <code>waiter.py</code>. It is not doing nothing.
+It is looking in the directory, finding nothing, sleeping for fifty
+milliseconds, and looking again, twenty times a second, forever. That has a
+price, and it is measurable.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two, with waiter.py still running in terminal one</div>
+<pre><span class="prompt">$ python3 -c "import time; time.sleep(40)" &amp;</span>
+<span class="prompt">$ ps -o pid=,%cpu=,command= -A | grep -E "waiter|time.sleep"</span>
+<span class="out">89551   0.4  python3 waiter.py
+89553   0.0  python3 -c import time; time.sleep(40)</span></pre></div>
+</figure>
+
+<p>Two processes, both of them idle by any reasonable description, and only one of
+them costs anything. The sleeping process is genuinely asleep: the operating
+system will not consider running it until forty seconds have passed, so it uses
+no processor at all. The server is awake twenty times a second to ask a question
+whose answer is almost always no.</p>
+
+<p>The exercises measure the other side of the same coin. A client asks and gets
+its answer in about forty milliseconds, and almost all of that is spent waiting
+for the server's next look. Poll less often and the machine does less work while
+every answer gets slower. Poll more often and the reverse. There is no setting
+that is good, which is a strong hint that the whole approach is wrong and that
+something else must exist.</p>
+
+<div class="callout">
+  <span class="callout-label">carry this forward</span>
+  <p>What you want is a way for a program to say "wake me when somebody arrives, and
+until then do not schedule me at all", and get the zero in the second row
+without the fifty millisecond delay. That is what real servers do, the operating
+system provides it, and chapter eight is about how.</p>
+</div>
 
 <h2 id="check">Check it yourself: ask when nobody is listening</h2>
 
@@ -231,12 +246,12 @@ showing it before the machinery arrives.</p>
 <span class="out">process 60336 asked 'time' and is now waiting
 nobody answered. is waiter.py running?</span></pre></div>
   <p>Nothing the client can do will produce an answer. It cannot start the server,
-because starting a program on somebody else's machine is not something a network
-lets you do, and that is deliberate. The server has to already exist, which is
-the claim this chapter opened with, and it fails in exactly the way a browser
-fails when a site is down.</p>
+because starting a program on somebody else's machine is not something a
+network lets you do, and that is deliberate. The server has to already exist,
+which is the claim this chapter opened with, and it fails in exactly the way a
+browser fails when a site is down.</p>
   <p>Then look at how many programs on your own machine are currently playing the
-server role. On macOS or Linux:</p>
+server role.</p>
   <div class="term-block"><div class="term-head">terminal</div>
 <pre><span class="prompt">$ lsof -nP -iTCP -sTCP:LISTEN</span>
 <span class="out">COMMAND     NAME
@@ -248,13 +263,59 @@ ControlCe   *:5000 (LISTEN)
 author has installed. The word <code>LISTEN</code> is the operating system's record of a
 program that has asked to be told when somebody arrives, which is the mechanism
 chapter nine is about. The point of looking is the count. You did not start most
-of these and you would not describe any of them as a server, and yet each one is
-the waiting half of some conversation. Your laptop is a client and a server at
-the same time, right now, and which one it is in any given exchange depends only
-on who asked.</p>
+of these and you would not describe any of them as a server, and yet each is the
+waiting half of some conversation. Your laptop is a client and a server at the
+same time, right now.</p>
 </div>
 
-<h2 id="limit">What the roles do not tell you</h2>
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>Start <code>waiter.py</code> twice, in two terminals, on the same mailbox, then ask six
+questions from a third. Before you run it, write down which of the two process
+ids answers each question, and how you know.</p>
+<p class="ex-look">One of them answers all six and the other answers none, and which one is
+arbitrary. There is no rule anywhere deciding it: both wake up twenty times a
+second, and whichever happens to look first takes the file and deletes it before
+the other one's turn comes round. Nothing in the design shares work, balances
+it, or even notices that a second copy exists.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Teach the waiter two questions it cannot answer today: <code>count</code>, how many questions
+it has answered since it started, and <code>uptime</code>, how long it has been running. Then
+write a client that gives up after half a second instead of five, and print how
+long each answer actually took.</p>
+<p class="ex-look">Answers arrive in about forty milliseconds, and <code>count</code> climbs across separate
+client processes that never met each other. That is the asymmetry doing real
+work: the client is too short lived to remember anything, so anything worth
+remembering has to live on the side that was already running. Every session,
+shopping basket and login in the rest of this course is that observation with
+more machinery. Notice too that the deadline is the client's decision alone; the
+server is never told about it and cannot ask for more time.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Now put the two waiters under load. Start both, then drop three hundred requests
+into the mailbox at once, and report how many each answered.</p>
+<p class="ex-look">One answers all three hundred and the other dies partway through with
+<code>FileNotFoundError</code>, because it listed the directory, chose a file, and the other
+copy deleted that file before it could be read. Run it again and the roles swap.
+This is why the operating system, and not a convention, decides who owns an
+address: from chapter nine onward two programs cannot both claim the same port,
+and the second one is refused at the door rather than left to crash later.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>The roles nest. Your web server is a server to the browser and a client of
+Postgres and Redis in the same request, and none of those programs know which
+hat they are wearing. The one directional rule is why push notifications and
+WebSockets exist: both are ways of leaving a conversation open so the server can
+finally speak first. And the mailbox is not a toy analogy, it is roughly how a
+job queue works, which chapter sixteen builds on purpose.</p>
+</div>
+
+<h2 id="limit">Where this runs out</h2>
 
 <p>We now know who speaks first, who was there already, and who goes away
 afterwards. We know nothing whatsoever about what they say.</p>
