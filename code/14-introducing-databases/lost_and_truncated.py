@@ -16,6 +16,7 @@ EACH = 50
 unreadable = 0
 
 
+# BEGIN add
 def add(who, text):
     """Read the whole book, add one line, write the whole book back."""
     global unreadable
@@ -27,6 +28,7 @@ def add(who, text):
     time.sleep(0)                # the same handing over as chapter 13
     messages.append({"who": who, "text": text})
     BOOK.write_text(json.dumps(messages))
+# END add
 
 
 def writer(number):

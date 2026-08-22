@@ -29,11 +29,13 @@ def build(count):
     return database
 
 
+# BEGIN find
 def find_in_file(wanted):
     with open(LINES) as lines:
         for line in lines:
             if json.loads(line)["id"] == wanted:
                 return line
+# END find
 
 
 def seconds(work):

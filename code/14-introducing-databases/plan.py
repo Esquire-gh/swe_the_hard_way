@@ -15,6 +15,7 @@ database.executemany("INSERT INTO messages (who, text) VALUES (?, ?)",
                      ((f"person {n}", str(n)) for n in range(50_000)))
 database.commit()
 
+# BEGIN explain
 QUESTION = "SELECT text FROM messages WHERE who = ?"
 
 print("with no index on who:")
@@ -25,6 +26,7 @@ database.execute("CREATE INDEX messages_by_who ON messages (who)")
 print("\nafter adding one:")
 for row in database.execute(f"EXPLAIN QUERY PLAN {QUESTION}", ("person 7",)):
     print("   ", row[-1])
+# END explain
 
 database.close()
 BOOK.unlink()

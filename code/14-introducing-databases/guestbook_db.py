@@ -13,11 +13,13 @@ WRITERS = 4
 EACH = 50
 
 
+# BEGIN connect
 def connect():
     """One connection. Every thread needs its own."""
     database = sqlite3.connect(BOOK, timeout=10)
     database.execute("PRAGMA journal_mode=WAL")
     return database
+# END connect
 
 
 BOOK.unlink(missing_ok=True)
