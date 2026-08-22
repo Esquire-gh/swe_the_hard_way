@@ -54,12 +54,8 @@ jinja2           # pages that are not built by pasting strings together
 <span class="prompt">$ .venv/bin/pip install -r requirements.txt</span></pre></div>
 </figure>
 
-<p>A <span class="term">virtual environment</span> is a directory holding one project's libraries, so that
-installing something for this course cannot break something else on your
-machine. It is a convention rather than a mechanism. The mechanism is the same
-directories and files as chapter one, and if you rename the folder it lives in,
-the scripts inside it still point at the old path and stop working, which is
-worth knowing before it costs you an afternoon.</p>
+<p>A <span class="term">virtual environment</span> is a directory holding one project's libraries, so
+installing something here cannot break something else on your machine.</p>
 
 <h2 id="again">The same guestbook, again</h2>
 
@@ -227,76 +223,211 @@ INFO:     127.0.0.1:50982 - "POST /messages HTTP/1.1" 303 See Other</pre></div>
 <p>One line per request, with the method, the path, and the status. That is a log,
 in chapter fifteen's sense, and it is the least of what just happened.</p>
 
-<h2 id="line-by-line">Line by line against what it replaces</h2>
+<h2 id="replaced">What replaced what</h2>
 
 <p>Now the point of the chapter. Every piece of that file is standing where
-something you wrote used to be.</p>
+something you wrote by hand used to be, and the fastest way to see it is a
+table.
+The left column is code you wrote in chapters ten through fifteen; the right is
+the line that replaced it.</p>
+
+<div class="table-wrap"><table class="reading">
+<thead><tr><th>what you wrote by hand</th><th>what replaced it</th></tr></thead>
+<tbody>
+<tr><td>the eight-line accept loop, in every step file</td>
+<td>the word <code>uvicorn</code> in a command; <code>app.py</code> is not a program</td></tr>
+<tr><td><code>read_request</code>, counting bytes against <code>Content-Length</code></td>
+<td>uvicorn reads the request, with the limits and timeouts you lacked</td></tr>
+<tr><td>the chain of <code>if</code> statements in <code>handle</code></td>
+<td><code>@app.get("/")</code> sitting above the function that answers</td></tr>
+<tr><td>explicit branches to return <code>405</code> not <code>404</code></td>
+<td>registering <code>/</code> for <code>GET</code>; anything else there is a <code>405</code> nobody wrote</td></tr>
+<tr><td><code>split_target</code> and <code>parse_fields</code>, twice</td>
+<td><code>name: str = Form()</code> in the signature</td></tr>
+<tr><td><code>headers_of</code> and <code>cookies_of</code>, two more parsers</td>
+<td><code>session: str = Cookie(default="")</code></td></tr>
+<tr><td>the <code>redirect</code> and <code>response</code> builders</td>
+<td><code>RedirectResponse(...)</code>, and returning a value</td></tr>
+<tr><td><code>escape</code>, which you had to remember at every insertion</td>
+<td>Jinja2 escaping by default; there is no call to forget</td></tr>
+<tr><td><code>guestbook_page</code> built by pasting strings</td>
+<td>a template a non-programmer can edit</td></tr>
+<tr><td>the in-memory list</td>
+<td>the database from chapter fourteen, through a <code>?</code> slot</td></tr>
+</tbody>
+</table></div>
+
+<p>The one that matters most is <code>escape</code>. Chapter eleven's fix was a function you had
+to call at every place text from outside entered a page, and the chapter said
+plainly that the one you forget is the bug. There is no such call in <code>app.py</code> or
+the templates, which is why <code>&lt;b&gt;first&lt;/b&gt;</code> came back as
+<code>&amp;lt;b&amp;gt;first&amp;lt;/b&amp;gt;</code> above. The rule moved out of your
+memory and into the
+tool, which is the difference between a habit and a property.</p>
+
+<h2 id="mechanism">A framework is a registry and a loop</h2>
+
+<p>The sentence "you do not call a framework, it calls you" is easy to say and
+worth
+making literal, because the mechanism is small enough to write. A framework is
+two things: a registry that records which function answers which method and
+path,
+and a loop that reads a request, finds the matching function, and calls it. Here
+is both, in forty lines, on chapter eleven's socket code.</p>
 
 <figure>
-  <div class="dgm"><svg viewBox="0 0 720 280" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">you do not call a framework; it calls you</text><rect x="40" y="44" width="640" height="200" rx="4" class="box sunk"/><text x="52" y="62" class="lbl sm mut">uvicorn and FastAPI: the loop, the reader, the router, the parsers, the escaper</text><rect x="60" y="80" width="150" height="40" rx="3" class="box"/><text x="135.0" y="98.0" class="lbl b mid">accept loop</text><text x="135.0" y="113.0" class="lbl sm mut mid">a pool or an event loop</text><rect x="60" y="136" width="150" height="40" rx="3" class="box"/><text x="135.0" y="154.0" class="lbl b mid">read a request</text><text x="135.0" y="169.0" class="lbl sm mut mid">limits, timeouts, 400</text><rect x="60" y="192" width="150" height="40" rx="3" class="box"/><text x="135.0" y="210.0" class="lbl b mid">route and parse</text><text x="135.0" y="225.0" class="lbl sm mut mid">fields, cookies, types</text><path d="M210,212 L270,212" class="flow" marker-end="url(#arw)"/><rect x="270" y="80" width="390" height="152" rx="4" class="box learn"/><text x="280" y="98" class="lbl sm learn">app.py: the thirty lines that are about a guestbook</text><rect x="284" y="112" width="86" height="26" rx="3" class="box"/><text x="327" y="129" class="lbl sm mid">guestbook()</text><rect x="378" y="112" width="86" height="26" rx="3" class="box"/><text x="421" y="129" class="lbl sm mid">log_in()</text><rect x="472" y="112" width="86" height="26" rx="3" class="box"/><text x="515" y="129" class="lbl sm mid">sign()</text><rect x="566" y="112" width="86" height="26" rx="3" class="box"/><text x="609" y="129" class="lbl sm mid">one_message()</text><rect x="284" y="156" width="180" height="40" rx="3" class="box"/><text x="374.0" y="174.0" class="lbl b mid">templates</text><text x="374.0" y="189.0" class="lbl sm mut mid">escaped for you</text><rect x="480" y="156" width="170" height="40" rx="3" class="box"/><text x="565.0" y="174.0" class="lbl b mid">sqlite</text><text x="565.0" y="189.0" class="lbl sm mut mid">chapter fourteen&#x27;s</text><path d="M480,176 L464,176" class="flow mut"/><text x="20" y="268" class="lbl sm mut">everything outside the indigo box is something you wrote by hand between chapters ten and fifteen</text></svg></div>
-  <figcaption>your functions sit inside the framework; the framework runs the loop, reads the
-request, and calls the one that matches</figcaption>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;The forty lines that make &quot;you do not call a framework&quot; literal.
+
+A framework is a registry plus a loop. The decorator records which
+function answers which method and path. The loop, built on chapter
+eleven&#x27;s socket code, reads a request, finds the matching function,
+pulls {number} out of the path, converts it using the function&#x27;s own type
+annotation, and calls it. Your functions never call this file. This file
+calls them, which is the whole difference the chapter is about.
+
+Run it with:  python3 miniframework.py
+Then, from another window:  curl -s http://127.0.0.1:8400/messages/3
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> inspect
+<span class="c-kw">import</span> socket
+
+routes = []          <span class="c-cm"># (method, [path parts], function, annotations)</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">route</span>(method, pattern):
+    <span class="c-kw">def</span> <span class="c-fn">remember</span>(function):
+        parts = pattern.strip(<span class="c-st">&quot;/&quot;</span>).split(<span class="c-st">&quot;/&quot;</span>)
+        routes.append((method, parts, function, function.__annotations__))
+        <span class="c-kw">return</span> function
+    <span class="c-kw">return</span> remember
+
+
+<span class="c-kw">def</span> <span class="c-fn">match</span>(method, path):
+    <span class="c-st">&quot;&quot;&quot;Find a route, and pull the values out of the path it names.&quot;&quot;&quot;</span>
+    wanted = path.strip(<span class="c-st">&quot;/&quot;</span>).split(<span class="c-st">&quot;/&quot;</span>)
+    <span class="c-kw">for</span> route_method, parts, function, annotations <span class="c-kw">in</span> routes:
+        <span class="c-kw">if</span> route_method != method <span class="c-kw">or</span> len(parts) != len(wanted):
+            <span class="c-kw">continue</span>
+        values = {}
+        <span class="c-kw">for</span> part, given <span class="c-kw">in</span> zip(parts, wanted):
+            <span class="c-kw">if</span> part.startswith(<span class="c-st">&quot;{&quot;</span>) <span class="c-kw">and</span> part.endswith(<span class="c-st">&quot;}&quot;</span>):
+                values[part[1:-1]] = given          <span class="c-cm"># a captured piece</span>
+            <span class="c-kw">elif</span> part != given:
+                <span class="c-kw">break</span>
+        <span class="c-kw">else</span>:
+            <span class="c-kw">return</span> function, annotations, values
+    <span class="c-kw">return</span> <span class="c-kw">None</span>, <span class="c-kw">None</span>, <span class="c-kw">None</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">call</span>(function, annotations, values):
+    <span class="c-st">&quot;&quot;&quot;Convert each captured value by its annotation, then call.&quot;&quot;&quot;</span>
+    <span class="c-kw">for</span> name, value <span class="c-kw">in</span> values.items():
+        converter = annotations.get(name, str)
+        values[name] = converter(value)             <span class="c-cm"># &quot;3&quot; -&gt; 3, by int</span>
+    <span class="c-kw">return</span> function(**values)
+
+
+<span class="c-kw">def</span> <span class="c-fn">reply</span>(status, body):
+    head = (f<span class="c-st">&quot;HTTP/1.1 {status}\r\nContent-Length: {len(body)}\r\n&quot;</span>
+            <span class="c-st">&quot;Connection: close\r\n\r\n&quot;</span>)
+    <span class="c-kw">return</span> head.encode() + body.encode()
+
+
+<span class="c-cm"># ---- an application, written the way a framework lets you write one ----</span>
+@route(<span class="c-st">&quot;GET&quot;</span>, <span class="c-st">&quot;/&quot;</span>)
+<span class="c-kw">def</span> <span class="c-fn">home</span>():
+    <span class="c-kw">return</span> <span class="c-st">&quot;the guestbook&quot;</span>
+
+
+@route(<span class="c-st">&quot;GET&quot;</span>, <span class="c-st">&quot;/messages/{number}&quot;</span>)
+<span class="c-kw">def</span> <span class="c-fn">one_message</span>(number: int):
+    <span class="c-kw">return</span> f<span class="c-st">&quot;message {number}, and {number} is a real int: {number + 1}&quot;</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">serve</span>():
+    server = socket.socket()
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind((<span class="c-st">&quot;127.0.0.1&quot;</span>, 8400))
+    server.listen(16)
+    print(<span class="c-st">&quot;mini-framework on http://127.0.0.1:8400&quot;</span>)
+    <span class="c-kw">while</span> <span class="c-kw">True</span>:
+        connection, _ = server.accept()
+        request = connection.recv(65536).decode(errors=<span class="c-st">&quot;replace&quot;</span>)
+        method, path, *_ = request.split(<span class="c-st">&quot; &quot;</span>) + [<span class="c-st">&quot;&quot;</span>, <span class="c-st">&quot;&quot;</span>]
+        function, annotations, values = match(method, path)
+        <span class="c-kw">if</span> function <span class="c-kw">is</span> <span class="c-kw">None</span>:
+            connection.sendall(reply(<span class="c-st">&quot;404 Not Found&quot;</span>, <span class="c-st">&quot;no such route\n&quot;</span>))
+        <span class="c-kw">else</span>:
+            <span class="c-kw">try</span>:
+                connection.sendall(reply(<span class="c-st">&quot;200 OK&quot;</span>, call(function, annotations,
+                                                        values) + <span class="c-st">&quot;\n&quot;</span>))
+            <span class="c-kw">except</span> ValueError:
+                connection.sendall(reply(<span class="c-st">&quot;422 Unprocessable Content&quot;</span>,
+                                         <span class="c-st">&quot;a path value was the wrong type\n&quot;</span>))
+        connection.close()
+
+
+<span class="c-kw">if</span> __name__ == <span class="c-st">&quot;__main__&quot;</span>:
+    serve()
+</pre></div>
+<figcaption>miniframework.py, the decorator and the dispatch loop, entire</figcaption>
 </figure>
 
-<p><strong>The accept loop is gone.</strong> The bottom of every step file in chapter eleven was the
-same eight lines: make a socket, set <code>SO_REUSEADDR</code>, bind, listen, print, loop
-forever, accept, close. That is now the word <code>uvicorn</code> in a command. You do not
-run <code>app.py</code> because <code>app.py</code> is not a program. It is a collection of functions that
-uvicorn calls, which is what it means to say your code sits inside the
-framework.</p>
+<figure>
+  <div class="term-block"><div class="term-head">terminal two, with miniframework.py running in terminal one</div>
+<pre><span class="prompt">$ curl -s http://127.0.0.1:8400/messages/3</span>
+<span class="out">message 3, and 3 is a real int: 4</span>
+<span class="prompt">$ curl -s -o /dev/null -w "%{http_code}
+" http://127.0.0.1:8400/messages/banana</span>
+<span class="out">422</span>
+<span class="prompt">$ curl -s -o /dev/null -w "%{http_code}
+" http://127.0.0.1:8400/nope</span>
+<span class="out">404</span></pre></div>
+</figure>
 
-<p><strong><code>read_request</code> is gone.</strong> Chapter eleven counted bytes against <code>Content-Length</code> in a
-loop, and admitted that the loop would happily try to collect four billion bytes
-if a stranger asked it to. Uvicorn reads the request, and it also enforces the
-limits and timeouts that chapter eleven listed as missing.</p>
+<p>That is the whole trick, and every framework in the world is this with more
+cases
+handled. The <code>@route</code> decorator does not call your function; it files it away in a
+list. The loop owns control, and when a request arrives it looks your function
+up
+and calls it, pulling <code>3</code> out of <code>/messages/3</code> and, because the function annotated
+the parameter <code>int</code>, turning the text <code>"3"</code> into the number <code>3</code> before the call, or
+answering <code>422</code> when the text cannot be a number and your function never runs.
+That is exactly what FastAPI did for <code>/messages/{number}</code> a moment ago, and you
+have now written the machine that does it.</p>
 
-<p><strong>The chain of <code>if</code> statements is gone.</strong> <code>handle</code> decided what to do by comparing the
-path against a series of strings, in a function far away from the code that
-answers. Now <code>@app.get("/")</code> sits directly above the function that answers <code>GET /</code>.
-The routing moved to the thing being routed to.</p>
+<h2 id="where-they-run">Where your functions run</h2>
 
-<p><strong>The 405 branches are gone.</strong> Chapter eleven needed explicit code so that a <code>POST</code> to
-a page that only reads returned 405 rather than 404. Here, registering <code>/</code> for <code>GET</code>
-is enough. Anything else arriving at <code>/</code> gets a 405 that nobody wrote.</p>
+<p>One thing the framework handles is invisible in the listing because it is about
+chapter thirteen. Two people can use this guestbook at once, and nothing in
+<code>app.py</code> says a word about how. A route can tell you where it runs by asking for
+its own thread.</p>
 
-<p><strong><code>split_target</code> and <code>parse_fields</code> are gone.</strong> Chapter eleven pulled fields apart on
-<code>&amp;</code> and <code>=</code> and undid the percent encoding, once for the query string and again
-for the body. Here it is <code>name: str = Form()</code> in the function signature. The field
-is named where it is used, and if it is absent the framework answers rather than
-the function crashing on a missing key.</p>
+<figure>
+  <div class="term-block"><div class="term-head">terminal two, five requests sent at once</div>
+<pre><span class="prompt">$ python3 hit_sync.py       # five concurrent GETs to a def route</span>
+<span class="out">five concurrent /sync requests ran on these thread ids:
+    6107000832
+    6123827200
+    6140653568
+    6157479936
+    6174306304
+distinct threads: 5</span>
+<span class="prompt">$ curl -s http://127.0.0.1:8000/async</span>
+<span class="out">{"kind":"async def","thread":"MainThread","id":8518327936}</span></pre></div>
+</figure>
 
-<p><strong><code>headers_of</code> and <code>cookies_of</code> are gone.</strong> Two more parsers, each with its own
-separator, replaced by <code>session: str = Cookie(default="")</code>.</p>
-
-<p><strong>The <code>redirect</code> builder is gone.</strong> <code>RedirectResponse("/", status_code=303)</code> does what
-those four lines of string joining did, and the post then redirect then get
-reasoning from chapter eleven is unchanged. The framework did not remove the
-need to understand that, and it should not.</p>
-
-<p><strong>The <code>response</code> builder is gone.</strong> Chapter eleven assembled a status line,
-<code>Content-Type</code>, <code>Content-Length</code> and <code>Connection</code> for every reply. Returning a value
-now does it.</p>
-
-<p><strong><code>escape</code> is gone, and this is the important one.</strong> Chapter eleven's fix was a
-function you had to remember to call at every single place text from outside
-entered a page, and the chapter said plainly that the one you forget is the bug.
-Look at <code>app.py</code> and the templates and find the call. There is not one. Jinja2
-escapes everything placed into a page unless it is explicitly told not to, which
-is why <code>&lt;b&gt;first&lt;/b&gt;</code> came back as
-<code>&amp;lt;b&amp;gt;first&amp;lt;/b&amp;gt;</code> above. The rule moved out of your
-memory and into the tool. That is the difference between a habit and a property.</p>
-
-<p><strong>String pasting is gone.</strong> Chapter eleven's <code>guestbook_page</code> built HTML with an
-f-string wrapped around a generator expression. The template has a loop, an
-empty case, and readable HTML, and a person who writes pages rather than Python
-can edit it.</p>
-
-<p><strong>The list is gone, and this one is chapter fourteen's doing rather than the
-framework's.</strong> Messages go into a table, through a <code>?</code> slot rather than a pasted
-string, and <code>connect</code> opens a fresh connection for each request. The comment on it
-says why, and the reason is chapter thirteen. Several of these functions are
-running at the same moment, on different threads, and a connection is not
-something two of them may share.</p>
+<p>Five requests at once ran on five different threads. Uvicorn runs the event loop
+chapter thirteen named, and hands each ordinary <code>def</code> route to a thread from a
+pool, so a slow one cannot stop the loop, which is why the lock you wrote in
+chapter thirteen is nowhere in <code>app.py</code>. The shared state that would have needed
+that lock moved into the database, which already handles concurrent writers. A
+route written <code>async def</code> instead runs on the event loop itself, the <code>MainThread</code>
+above, which is chapter thirteen's other choice: faster, and unforgiving of any
+line that blocks. The word <code>app</code> in <code>uvicorn app:app</code> is the contract between the
+two programs, an <span class="term">ASGI</span> application: a single callable uvicorn agrees to hand
+requests to. Your whole application is one object of the shape uvicorn expects.</p>
 
 <h2 id="new-page">The page chapter eleven could not write</h2>
 
@@ -384,30 +515,6 @@ print(sorted((p, m) for p, v in d['paths'].items() for m in v))"</span>
 That is not magic. It is the direct consequence of having written the routing
 down as data instead of burying it in control flow.</p>
 
-<h2 id="map">The same thing under other names</h2>
-
-<p>FastAPI is one of many, and now that you can see what it is made of, the others
-are easy to place. Flask and Django in Python, Express in JavaScript, Rails in
-Ruby, Spring in Java, Laravel in PHP. Every one of them is the list above: a
-loop somebody else runs, a router, parsers for fields and cookies, a response
-builder, and a template engine that escapes by default. What they differ in is
-how much else they bundle. Flask and Express ship the list and little more, and
-you choose the database layer and the session store yourself. Django and Rails
-ship the list plus a database layer, a session store, an admin interface and a
-way to log in, and the word for that is batteries included. Neither is better.
-One is a smaller thing to understand and the other is a smaller thing to
-assemble.</p>
-
-<p>The vocabulary on their front pages is the same vocabulary too. Routing is
-chapter eleven's <code>if</code> chain. Middleware is code that runs on every request before
-yours, which is where chapter fifteen's logging and chapter eleven's cookie
-reading go. An ORM is a library that turns chapter fourteen's SQL into method
-calls on objects, and it is still SQL underneath. Sessions are chapter eleven's
-dictionary, moved to a database or a cache for chapter fifteen's reasons. If a
-framework's documentation names something you cannot place in this course, that
-is the thing to look up first, because it is either a new idea or, far more
-often, an old one with a new name.</p>
-
 <h2 id="not">What a framework does not do</h2>
 
 <p>This should feel like relief rather than cleverness. Every line of it is doing
@@ -448,6 +555,71 @@ disk, chapter fourteen's answer, and the sessions are in a dictionary that died
 with the process, chapter one's observation. No framework can fix the second one
 for you, because it is not a web problem. Chapter fifteen said where the
 sessions belong, and the comment beside <code>sessions</code> in the listing points at it.</p>
+</div>
+
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p><code>log_in</code> is declared with <code>name: str = Form()</code>. Predict what the server does with
+a <code>POST /login</code> that has no <code>name</code> field at all, and compare it with what chapter
+eleven's <code>parse_fields</code> did with the same missing field.</p>
+<p class="ex-look">FastAPI answers <code>422</code> with a body naming the missing field, and <code>log_in</code> never
+runs, because <code>Form()</code> with no default means required. Chapter eleven's
+<code>parse_fields</code> returned an empty string through <code>.get("name", "")</code>, so the function
+ran with a blank name and the mistake surfaced pages later, if at all. The
+framework turned a silent bad value into a loud refusal at the door, which is
+the
+same move the database's <code>NOT NULL</code> made in chapter fourteen, one layer up.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Write the framework, not just use one. A decorator that records <code>(method,
+pattern,
+function)</code> in a list, and a loop on chapter eleven's socket code that reads a
+request, finds the matching route, pulls <code>{number}</code> out of the path, converts it
+by the function's type annotation, and calls it. Make <code>/messages/{number}</code> with
+<code>number: int</code> work, and answer a bad integer without running the function.</p>
+<p class="ex-look"><code>miniframework.py</code> is forty lines and does exactly this. The decorator returns the
+function unchanged after filing it away, which is why <code>@route(...)</code> above a <code>def</code>
+does not change what the function is, only registers it. The conversion is one
+line, <code>annotations.get(name, str)(value)</code>, and it is the whole of what
+<code>number: int</code> buys you. Having written it, you will never again wonder what a
+framework is doing between the socket and your function, because the answer is
+the
+loop you just wrote, with more error cases handled.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Aim chapter eleven's four-billion-byte lie at uvicorn. Open a connection, claim
+a
+<code>Content-Length</code> of four billion, send a trickle, and go quiet, while asking for
+the normal page from another connection. Run the same attack against chapter
+eleven's step file for comparison.</p>
+<p class="ex-look">Against the step file, the server sat collecting the body until it ran out of
+memory, as chapter eleven's <code>oversized_body.py</code> showed. Against uvicorn,
+<code>oversized_uvicorn.py</code> reports the normal page served dozens of times while the
+liar's connection stalled on its own, because uvicorn reads each connection
+independently and enforces the limits chapter eleven never got to. The lesson is
+narrow and worth keeping: the framework did not make the attack impossible, it
+contained it to the one connection that tried it, which is most of what
+"production ready" means.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>FastAPI is one of many, and now that you can see what it is made of, the others
+are easy to place. Flask and Django in Python, Express in JavaScript, Rails in
+Ruby, Spring in Java, Laravel in PHP: every one is the registry and the dispatch
+loop you wrote, with a router, field and cookie parsers, a response builder, and
+a template engine that escapes by default. They differ in how much else they
+bundle. Flask and Express ship little more than the list and leave the database
+and session store to you; Django and Rails add a database layer, sessions, an
+admin, and a login system, and the word for that is batteries included. Their
+front-page vocabulary maps straight back onto this course: routing is the <code>if</code>
+chain, middleware is code that runs before yours (chapter fifteen's logging,
+chapter eleven's cookie reading), an ORM is chapter fourteen's SQL as method
+calls and still SQL underneath, and sessions are chapter eleven's dictionary
+moved somewhere that survives a restart. A word you cannot place is the one to
+look up first: it is either new, or far more often an old idea renamed.</p>
 </div>
 
 <h2 id="limit">One machine has a ceiling</h2>
