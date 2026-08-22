@@ -1,116 +1,135 @@
-# Instructions for writing this tutorial
+# Instructions for working on this course
 
-This file is written for a coding agent picking up this repository with a fresh
-context. Read it fully before touching anything.
+This file is written for somebody, or some agent, picking up this repository
+with a fresh context. Read it fully before touching anything.
 
 ## Where the work stands
 
-All eighteen chapters are written, and every listing named in a chapter exists
-under `code/` and was run to produce the output that is printed. So this file
-is now a record of the rules the tutorial was written against rather than a
-plan for writing it.
+The course is complete and published. An introduction and eighteen chapters
+are authored as HTML bodies under `content/`, built into `site/` by
+`build.py`, committed, and deployed to GitHub Pages on every push to `main`
+by `.github/workflows/pages.yml`. Every listing named in a chapter exists
+under `code/` and was run to produce the output printed beside it.
 
-Two things follow from that. Anything added later has to hold to the same
-rules, because a chapter written to a different standard is worse than no
-chapter. And anything edited has to keep the handoffs intact, since every
-chapter opens on the limit the previous one closed with, and changing one
-ending silently breaks the next opening.
+Anything added later has to hold to the same rules, because a chapter written
+to a different standard is worse than no chapter. Anything edited has to keep
+the handoffs intact, since every chapter opens on the limit the previous one
+closed with, and changing one ending silently breaks the next opening.
 
-## What is already decided
+## How the pieces fit
 
-The structure is fixed. Eighteen chapters, five parts, mapped one to one
-against the eighteen points in `BRIEF.md`. Do not renumber, merge, or drop
-chapters without being asked. The chapter files already exist as stubs with a
-brief inside each one.
+`chapters.py` is the spine. It lists the chapters in order with their slug,
+title, part, one line description, and what each builds and breaks. All
+navigation, the table of contents, and the part groupings are computed from
+it, so nothing can drift.
 
-The voice is fixed. `STYLE.md` is the contract. The single most important rule
-is that no chapter may use a term the reader has not met, and no chapter may
-introduce a tool before the reader has felt the problem the tool solves.
+`content/<slug>.html` is a chapter body. It uses the component vocabulary
+described in `STYLE.md` and four tokens that the build replaces:
 
-## Step zero, which is already done
+    {{ code:code/<slug>/f.py }}        the whole file, highlighted
+    {{ code:code/<slug>/f.py#MARK }}   the slice between BEGIN MARK and END MARK
+    {{ diagram:name }}                     an inline SVG from diagrams.py
+    {{ resources }}                        this chapter's cards from resources.py
 
-The sibling repository at `../beyond_rag` has been read and `STYLE.md` has
-been reconciled with it. You do not need to repeat this. What follows is the
-record of what was decided, so nobody has to guess later.
+`build.py` wraps each body in the shared shell (masthead, sidebar, previous
+and next, progress toggle, copy buttons), resolves the tokens, and writes
+`site/index.html`, `site/chapters/*.html` and `site/further-watching.html`.
+Braces inside inlined non-Python code are entity encoded so a template's own
+`{{ }}` is never mistaken for a token.
 
-Its voice rules were taken: full flowing sentences rather than fragments, no
-words that tell the reader a thing is easy, no words that promise more than
-the sentence delivers, headings that say what the reader is about to learn,
-the concept explained before any command is typed, and tools used to confirm
-understanding rather than to supply it. All of these now live in `STYLE.md`
-and most of them are enforced by `scripts/check.py`.
+`diagrams.py` holds every diagram as a function registered with
+`@diagram("name")`, drawn with the small helpers at the top of the file. Keep
+a diagram under about 700 units wide, and keep caption text short, since the
+page column is narrower than the drawing surface.
 
-Its layout was not taken. `beyond_rag` builds a static HTML site from source
-content, and `BRIEF.md` requires this tutorial to be readable on GitHub with
-no build step. So the chapters stay as markdown under `chapters/` with their
-code under `code/`. On voice `beyond_rag` wins, on layout this repository
-wins.
+`resources.py` is the pool of checked videos and courses and the per chapter
+mapping with a one sentence reason for each.
 
-One rule here is deliberately stricter. `beyond_rag` allows the rare em dash.
-This repository allows none, because the checker can enforce that and cannot
-enforce a judgement call.
+`code/<slug>/` holds the runnable files. Slices are marked with `# BEGIN x`
+and `# END x` comments.
 
-## How to write a chapter
+`site/` is committed output. Never edit it by hand. Rebuild it.
 
-Work in order, chapter one first. Do not jump ahead. The whole design depends
-on each chapter inheriting the exact question the previous one left open, and
-you cannot know what that question sounds like until the previous chapter is
-written.
+`site/assets/style.css` and `site/assets/site.js` are the design, copied
+from the author's `beneath-the-pipeline` and relabelled. Change them only for
+a reason that applies to the whole site.
 
-For each chapter:
+## How to edit a chapter
 
-1. Read the stub's brief, and read the finished chapter before it.
-2. Write the five movements in order. The question, the story, the thing
-   itself, the check, the next question.
-3. Write any code as a real file under `code/<chapter-slug>/`, run it, and
-   confirm the output matches what the chapter claims.
-4. Delete the stub brief and the horizontal rule above it.
-5. Check the chapter against `STYLE.md`, particularly the punctuation rules.
-6. Commit that one chapter on its own.
+1. Read the chapter before it and the chapter after it, so the handoffs stay
+   true.
+2. Edit `content/<slug>.html`, then run
+   `python3 scripts/reflow.py content/<slug>.html` to wrap prose at eighty
+   visible characters without touching tokens or preformatted blocks.
+3. If code changes, change the file under `code/`, run it, and paste the real
+   output into the chapter. Never claim output you did not see.
+4. `python3 build.py && python3 scripts/check.py` and expect no problems.
+5. Preview with `python3 -m http.server 8765 -d site` and open a browser.
+6. Commit the content, the code, and the rebuilt `site/` together.
+
+## How to add a diagram
+
+Write a function in `diagrams.py`, register it with `@diagram("name")`, and
+place `{{ diagram:name }}` inside a `<figure><div class="dgm">` with a
+`<figcaption>`. Check it rendered without overflow or collisions before
+committing. A throwaway page under `site/` that renders only the new
+diagrams is the quickest way to look at several at once. Delete it before
+committing.
+
+## How to add a resource
+
+Add the entry to the pool in `resources.py`, verify the link resolves to the
+named thing, then add it to the chapter's list with the sentence that says
+why this chapter sends the reader there. The further watching page is built
+from the same data.
 
 ## Hard rules
 
-No em dashes anywhere in the repository. Run the checker before every commit
-and expect it to pass:
+No em dashes or en dashes anywhere. Run the build and the checker before
+every commit and expect both to pass.
 
-    python3 scripts/check.py
+Every code listing shown in prose exists on disk under `code/` and runs.
 
-It checks for banned punctuation, over long lines, and links that point at
-nothing. Add rules to it as the repository grows rather than checking by eye.
+Prose wraps at eighty visible characters. Headings are sentence case.
 
-Every code listing shown in prose must exist on disk under `code/` and must
-run. If you cannot run it, do not claim its output.
+Every technical term is explained in plain words first, then named on the
+page with `.term`. Say "course", not "tutorial". Say "from the ground up".
 
-Prose wraps at eighty characters.
-
-Headings are sentence case.
-
-Nothing gets installed in the tutorial until a chapter has argued for it.
-Python's standard library carries the reader through chapter twelve. FastAPI
-arrives in chapter thirteen and not before. A database client arrives in
-chapter fifteen and not before.
+Nothing gets installed until a chapter has argued for it. The standard
+library carries the reader through chapter fifteen. FastAPI arrives in
+chapter sixteen and not before. The database in chapter fourteen is
+`sqlite3` from the standard library, and the chapter says why a real
+deployment has a server in front.
 
 ## Chapters that need extra care
 
-Chapter 12 is deliberately uncomfortable. The reader is meant to find it
-tedious, because chapter 13 only lands if the tedium was real. Do not make
-chapter 12 easier out of kindness.
+Chapter 10 must say that a static server maps the request path to a file
+path under a folder and answers 404 when the file is missing.
 
-Chapter 13 must map every FastAPI feature back to a specific block of hand
-written code from chapter 12. Side by side. If a framework feature cannot be
-tied to something the reader already suffered through, cut it.
+Chapter 11 is deliberately uncomfortable. The reader is meant to find it
+tedious, because chapter sixteen only lands if the tedium was real.
 
-Chapter 16 must introduce every concept from a symptom, never from a
-definition. Do not write a list of system design patterns. Apply pressure to
-the working system and let each fix name itself.
+Chapter 13 opens from chapter ten's one at a time limit, not from the
+framework. The framework is not mentioned until chapter sixteen.
 
-Chapter 18 must not teach machine learning. It walks the existing stack again
-with the AI names attached, and its whole job is to make the reader realise
-they already understood it.
+Chapter 15 introduces every component from a symptom, never from a
+definition, and ends by counting what was written by hand.
 
-## Definition of done for the repository
+Chapter 16 maps every framework feature to a specific block of hand written
+code from chapter eleven. If a feature cannot be tied to something the reader
+already suffered through, cut it. It also names what the framework quietly
+handles and what it does not.
 
-A reader with no computer science background can start at the front page, read
-straight through, type every listing, and finish able to explain what happens
-between pressing enter in a browser and seeing a page, at every layer, without
-hand waving.
+Chapter 17 opens with the three reasons a system spreads: load, data, and
+capability, tied to chapter fifteen's components.
+
+Chapter 18 must not teach machine learning. It walks the existing stack with
+the AI names attached, and closes on the introduction's promise.
+
+## Definition of done
+
+A reader who has followed tutorials and cannot build their own thing can start
+at the introduction, read straight through, type every listing, and finish
+able to explain what happens between pressing enter in a browser and seeing a
+page, at every layer, without hand waving, with the technical name for every
+part.

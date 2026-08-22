@@ -1,97 +1,92 @@
-# Software engineering the hard way
+# Software Engineering the Hard Way
 
-A free tutorial that teaches web software engineering from the ground up.
+A free course that teaches software engineering from the ground up, with a
+deliberate focus on software for the web.
 
-Most tutorials start you in the middle. They hand you a framework, tell you to
-run a command, and a website appears. It works, and you have no idea why. Then
-every problem you hit afterwards is a problem underneath the layer you were
-taught, so you cannot reason about any of it.
+Read it at **https://esquire-gh.github.io/swe_the_hard_way/**
 
-This one starts at the bottom. A computer is a machine that follows
-instructions. That is the first sentence, and everything else is built on it.
-By the end you will have written a web server from raw sockets, understood why
-frameworks exist by feeling the pain they remove, and be able to explain what
-happens between pressing enter in a browser and seeing a page, at every layer,
-without hand waving.
+It is written for somebody who has followed the tutorials, built the todo app
+or the Netflix clone, and found that they still cannot build their own thing.
+The missing piece is not another framework. It is the fundamentals underneath
+every framework, learned well enough that the next higher level idea lands on
+something. The hard way means doing the things tutorials let you skip: reading
+a request byte by byte, writing a server from a raw socket, watching two
+visitors collide, and only then installing the library that hides all of it.
 
-It is free, it is text, and it runs on a normal laptop.
+By the end you will be able to explain what happens between pressing enter in
+a browser and seeing a page, at every layer, without hand waving, and the last
+chapter shows that an AI system is that same stack with different names on it.
 
 ## How to read it
 
-Read it in order. Every chapter answers a question the previous chapter left
-you holding, and ends by breaking what it just built. That break is the next
-chapter. Skipping around will not work, because the questions will not be
+Start at the [introduction](https://esquire-gh.github.io/swe_the_hard_way/) and read in order. Every chapter builds
+something, then breaks it, and the break is the next chapter's opening
+question. Skipping around will not work, because the questions will not be
 there.
 
 ## The chapters
 
 **Part one: one computer**
 
-1. [What it means to tell a computer what to do](./chapters/01-what-it-means-to-tell-a-computer-what-to-do.md)
+1. [What programming really is](https://esquire-gh.github.io/swe_the_hard_way/chapters/01-what-programming-really-is.html)
 
-**Part two: how the machines got connected**
+**Part two: the machines get connected**
 
-2. [How networks came about](./chapters/02-how-networks-came-about.md)
-3. [How networks made the web possible](./chapters/03-how-networks-made-the-web-possible.md)
-4. [A website is a file on someone else's computer](./chapters/04-a-website-is-a-file-on-someone-elses-computer.md)
+2. [Then came networks](https://esquire-gh.github.io/swe_the_hard_way/chapters/02-then-came-networks.html)
+3. [And then the web](https://esquire-gh.github.io/swe_the_hard_way/chapters/03-and-then-the-web.html)
+4. [A website is a file on someone else's computer](https://esquire-gh.github.io/swe_the_hard_way/chapters/04-a-website-is-a-file-on-someone-elses-computer.html)
 
 **Part three: the conversation**
 
-5. [The client server model](./chapters/05-the-client-server-model.md)
-6. [Requests and responses are just text](./chapters/06-requests-and-responses-are-just-text.md)
-7. [Why we need browsers](./chapters/07-why-we-need-browsers.md)
+5. [Clients and servers](https://esquire-gh.github.io/swe_the_hard_way/chapters/05-clients-and-servers.html)
+6. [Requests and responses are just text](https://esquire-gh.github.io/swe_the_hard_way/chapters/06-requests-and-responses-are-just-text.html)
+7. [Why we need browsers](https://esquire-gh.github.io/swe_the_hard_way/chapters/07-why-we-need-browsers.html)
 
 **Part four: building the server**
 
-8. [How a server receives a request](./chapters/08-how-a-server-receives-a-request.md)
-9. [What a socket is](./chapters/09-what-a-socket-is.md)
-10. [A web server in one file](./chapters/10-a-web-server-in-one-file.md)
-11. [Server as hardware, server as software](./chapters/11-server-as-hardware-server-as-software.md)
-12. [From reading files to running code](./chapters/12-from-reading-files-to-running-code.md)
-13. [What a framework is for](./chapters/13-what-a-framework-is-for.md)
-14. [Two people at once](./chapters/14-two-people-at-once.md)
+8. [What is a server really doing?](https://esquire-gh.github.io/swe_the_hard_way/chapters/08-what-is-a-server-really-doing.html)
+9. [What a socket is](https://esquire-gh.github.io/swe_the_hard_way/chapters/09-what-a-socket-is.html)
+10. [A static web server in one file](https://esquire-gh.github.io/swe_the_hard_way/chapters/10-a-static-web-server-in-one-file.html)
+11. [When the page is different for every visitor](https://esquire-gh.github.io/swe_the_hard_way/chapters/11-when-the-page-is-different-for-every-visitor.html)
+12. [Two things called a server](https://esquire-gh.github.io/swe_the_hard_way/chapters/12-two-things-called-a-server.html)
 
-**Part five: everything on top**
+**Part five: more users, more machines**
 
-15. [Where the data lives](./chapters/15-where-the-data-lives.md)
-16. [What makes real systems hard](./chapters/16-what-makes-real-systems-hard.md)
-17. [More than one machine](./chapters/17-more-than-one-machine.md)
-18. [AI systems are the same systems](./chapters/18-ai-systems-are-the-same-systems.md)
+13. [Can you handle two users at once?](https://esquire-gh.github.io/swe_the_hard_way/chapters/13-can-you-handle-two-users-at-once.html)
+14. [Where the data lives](https://esquire-gh.github.io/swe_the_hard_way/chapters/14-where-the-data-lives.html)
+15. [Can you handle 10,000 users?](https://esquire-gh.github.io/swe_the_hard_way/chapters/15-can-you-handle-10000-users.html)
+16. [Introducing web frameworks](https://esquire-gh.github.io/swe_the_hard_way/chapters/16-introducing-web-frameworks.html)
+17. [More than one machine](https://esquire-gh.github.io/swe_the_hard_way/chapters/17-more-than-one-machine.html)
+18. [AI systems are the same systems](https://esquire-gh.github.io/swe_the_hard_way/chapters/18-ai-systems-are-the-same-systems.html)
 
 ## What you need
 
-A laptop, a terminal, and Python 3. Nothing else, and nothing is installed
-until a chapter has explained why the thing being installed needs to exist.
-Chapters 1 to 12 and 14 to 18 use only the standard library. Chapter 13 is the
-first one that installs anything, and it argues for every package first.
+A laptop, a terminal, and Python 3. Nothing is installed until a chapter has
+explained why the thing being installed needs to exist. Chapters 1 to 15 and
+17 to 18 use only the standard library. Chapter 16 is the first one that
+installs anything, and it argues for every package first.
 
 The commands are written for macOS and Linux. On Windows, use WSL.
 
-## Who this is for
-
-Anyone who can already write a small program in some language and wants to know
-what is underneath everything they use. You do not need a computer science
-degree. You do need patience, because this takes the long road on purpose.
-
 ## Running the code
 
-Every listing printed in a chapter is a real file under
-[`code/`](./code/), named after the chapter it belongs to, and every
-output shown was produced by running it. Run them from their own directory:
+Every listing printed in a chapter is a real file under [`code/`](./code/),
+named after the chapter it belongs to, and every output shown was produced by
+running it. Run them from their own directory:
 
 ```sh
-cd code/01-what-it-means-to-tell-a-computer-what-to-do
+cd code/01-what-programming-really-is
 python3 machine.py
 ```
 
 Some of them are servers. Those print the address they are listening on and
-keep running until you stop them with control C, and the chapter tells you what
-to do from a second terminal window.
+keep running until you stop them with control C, and the chapter tells you
+what to do from a second terminal window.
 
-Chapter 13 is the only one that needs anything installed:
+Chapter 16 is the only one that needs anything installed:
 
 ```sh
-cd code/13-what-a-framework-is-for
+cd code/16-introducing-web-frameworks
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/uvicorn app:app --port 8000
@@ -101,21 +96,23 @@ Your numbers will not match the ones printed in the chapters, and they are not
 meant to. Where a measurement depends on your machine, the chapter says so and
 says which part of the result is the claim.
 
-## The state of this repository
+## Building the site
 
-All eighteen chapters are written. See `docs/` for the reasoning behind the
-structure and the rules the writing is held to.
-
-- [`docs/BRIEF.md`](./docs/BRIEF.md) is why this exists and what already exists online.
-- [`docs/OUTLINE.md`](./docs/OUTLINE.md) is the chapter by chapter plan.
-- [`docs/STYLE.md`](./docs/STYLE.md) is the writing contract.
-- [`docs/HANDOFF.md`](./docs/HANDOFF.md) is the instruction set it was written against.
-
-Prose and links are checked by a program rather than by eye:
+The site is generated by a small Python build with no dependencies. The
+chapter bodies live in [`content/`](./content/), the spine in
+[`chapters.py`](./chapters.py), the inline diagrams in
+[`diagrams.py`](./diagrams.py), and the curated videos and courses in
+[`resources.py`](./resources.py). The output under [`site/`](./site/) is
+committed, so it opens from a file URL, and it is published to GitHub Pages
+on every push to `main`.
 
 ```sh
-python3 scripts/check.py
+python3 build.py          # regenerate site/
+python3 scripts/check.py  # dashes, banned words, line length, links, tokens
 ```
+
+See [`docs/HANDOFF.md`](./docs/HANDOFF.md) for how the pieces fit and
+[`docs/STYLE.md`](./docs/STYLE.md) for the rules the writing is held to.
 
 ## Licence
 

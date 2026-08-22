@@ -2,8 +2,8 @@
 
 ## What this repository is
 
-This is a free, open tutorial that teaches web software engineering from the
-ground up. Not from a framework. Not from a template. From the point where a
+This is a free, open course that teaches software engineering from the
+ground up, with a deliberate focus on software for the web. Not from a framework. Not from a template. From the point where a
 computer is just a machine that follows instructions, all the way to the
 systems that serve millions of people and the AI models that run on top of them.
 
@@ -137,6 +137,12 @@ The repository should be readable on GitHub with no build step. Someone should
 be able to land on the front page, start reading, and follow the whole thing to
 the end without installing anything until the chapter that needs it. The code
 should be small enough to type by hand and should run on a normal laptop.
+
+That brief was written before the site existed. The course is now published
+at https://esquire-gh.github.io/swe_the_hard_way/ as a static site built by
+a small Python script with no dependencies. The built pages are committed,
+so the repository still opens without installing anything, and the sources
+under `content/` and `code/` remain readable on GitHub.
 
 The measure of success is simple. A reader who finishes should be able to
 explain, without hand waving, what happens between pressing enter in a browser

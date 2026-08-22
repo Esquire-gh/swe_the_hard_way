@@ -1,229 +1,220 @@
 # The outline
 
-Eighteen chapters in five parts. The numbering matches the eighteen points in
-`BRIEF.md` one to one, so nothing gets quietly dropped or merged.
+An introduction and eighteen chapters in five parts. Each chapter below lists
+the question it opens with, the idea it delivers, and the limit it hits at the
+end. That limit is the next chapter's question. If a chapter cannot state its
+closing limit, the chapter is not ready to be written.
 
-Each chapter below lists the question it opens with, the idea it delivers, and
-the limit it hits at the end. That limit is the next chapter's question. If a
-chapter cannot state its closing limit, the chapter is not ready to be written.
+Titles are story beats or the reader's own question, in plain words. The
+technical term for each idea is named on the page, after the idea, never in
+the title.
+
+## Introduction
+
+Who this is for: somebody who has followed the tutorials and still cannot
+build their own thing. What the hard way means: doing what tutorials let you
+skip. Why the focus is the web, what other kinds of software exist, and why an
+AI system is software engineering at its core.
 
 ## Part one: one computer
 
-### Chapter 1. What it means to tell a computer what to do
+### Chapter 1. What programming really is
 
 Question: what is actually happening when you run a program.
 
-Idea: a computer follows instructions one at a time. A program on disk is just
-a file. Running it means the operating system makes a process, gives it memory,
-and takes turns letting the CPU work through its instructions. Everything else
-in this tutorial is built on this and nothing more.
+Idea: programming is telling a machine what to do, and a computer is a machine
+that follows instructions one at a time. A program on disk is a file. Running
+it means the operating system makes a process, gives it memory, and takes
+turns letting the processor work through its instructions.
 
-Limit: this only ever describes one machine, alone. Software that only one
-person can reach is not the software we use every day.
+Limit: this only ever describes one machine, alone.
 
-## Part two: how the machines got connected
+## Part two: the machines get connected
 
-### Chapter 2. How networks came about
+### Chapter 2. Then came networks
 
 Question: how do two computers reach each other at all.
 
-Idea: the problem of moving bytes between machines, why wires alone were not
-enough, and how packet switching and layered protocols solved it. Enough of the
-history to make the design feel inevitable rather than arbitrary.
+Idea: moving bytes between machines, why wires alone were not enough, and how
+packet switching and layered protocols solved it.
 
-Limit: a network gets bytes from one machine to another, but it does not tell
-you what those bytes mean.
+Limit: a network gets bytes from one machine to another, and does not say what
+those bytes mean.
 
-### Chapter 3. How networks made the web possible
+### Chapter 3. And then the web
 
 Question: given a network, what did people build on top of it, and why did the
 web win.
 
-Idea: the web as one application among many that a network allows. What was
-new about it: documents that link to each other, hosted anywhere, readable by
-anyone.
+Idea: the web as one application among many a network allows. Documents that
+link to each other, hosted anywhere, readable by anyone, with nobody's
+permission needed.
 
-Limit: saying documents are readable by anyone skips over how you find them.
+Limit: readable by anyone skips over how you find them.
 
 ### Chapter 4. A website is a file on someone else's computer
 
 Question: where does a web page physically live.
 
-Idea: a page is a file sitting on a disk in a machine you do not own. The
-internet is one enormous public network, IP addresses are how machines are
-found on it, and DNS is the phone book that turns a name people can remember
-into an address a machine can use.
+Idea: a file on a disk in a machine you do not own. Addresses, routing, and
+DNS as the delegation that turns a name into an address.
 
-Limit: knowing where the file is does not explain who asks for it and who hands
-it over.
+Limit: knowing where the file is does not explain who asks for it and who
+hands it over.
 
 ## Part three: the conversation
 
-### Chapter 5. The client server model
+### Chapter 5. Clients and servers
 
 Question: who is who in this exchange.
 
-Idea: one side has the thing, the other side wants it. The one who starts the
-conversation is the client. The one who answers is the server. This is a role,
-not a kind of machine, and the same computer can be both.
+Idea: the one who starts the conversation is the client and the one who
+answers is the server. This is the client server model. It is a role decided
+by who initiated the request and who returned the response, not a kind of
+machine, and any machine can be either at any moment.
 
-Limit: knowing the roles does not tell you what they actually say to each
-other.
+Limit: the roles do not say what the two sides actually say to each other.
 
 ### Chapter 6. Requests and responses are just text
 
 Question: what does a request literally look like on the wire.
 
-Idea: an HTTP request and response are text in a strict format. The rules of
-that format are HTTP. The document that usually comes back is HTML. Read a real
-request and a real response byte by byte until there is no mystery left.
+Idea: a request and a response are text in a strict format. The format is HTTP
+and the document that comes back is usually HTML. Read both byte by byte until
+there is no mystery left.
 
 Limit: if it is only text, something has to write it, send it, and draw the
 result.
 
 ### Chapter 7. Why we need browsers
 
-Question: why not just send the text yourself.
+Question: why not send the text yourself.
 
-Idea: you can, and the chapter shows you doing it. What a browser adds is
-everything else: writing the request correctly, drawing the result, and
-agreeing with every other browser on what the result should look like. The
-story of how that agreement became the HTML standard.
+Idea: you can, and the chapter does. A browser adds writing the request
+correctly, fetching the parts, drawing the result, and agreeing with every
+other browser on what the result should look like.
 
-Limit: this whole chapter has been about the side that asks. Now look at the
-side that answers.
+Limit: the whole part has been about the side that asks. Now the side that
+answers.
 
 ## Part four: building the server
 
-### Chapter 8. How a server receives a request
+### Chapter 8. What is a server really doing?
 
 Question: what is a web server, actually.
 
-Idea: a program that waits. It sits on a machine, listens for someone to
-connect, reads their text, and writes text back. Introduce the mechanism that
-lets a program wait for the network.
+Idea: a long running program that waits. The accept loop, the request response
+cycle, and the difference between polling and blocking.
 
-Limit: waiting for the network is not something a program can do on its own. It
-has to ask the operating system.
+Limit: waiting for the network is something the program has to ask the
+operating system for.
 
 ### Chapter 9. What a socket is
 
 Question: how does a program talk to the network.
 
-Idea: the operating system owns the network card, so it hands programs a
-handle. That handle is a socket. It behaves enough like a file that you can
-read from it and write to it, which is why the model stuck.
+Idea: the operating system owns the network card and hands the program a
+handle. A socket is a file descriptor that behaves enough like a file that
+read and write work on it, identified by a four tuple.
 
 Limit: this is an idea until you use it.
 
-### Chapter 10. A web server in one file
+### Chapter 10. A static web server in one file
 
 Question: can I really build this myself.
 
-Idea: yes. Open a socket, accept a connection, read the request text, write
-back a response with headers and an HTML body. Then extend it to read a real
-file off disk and return its contents. Almost every language has this same API,
-because almost every language is talking to the same operating system.
+Idea: yes. Accept a connection, read the request, map the request path to a
+file path under a folder, return the file or a 404. That is a static web
+server, and the path traversal bug is the first thing a stranger will try.
 
-Limit: it works for one visitor requesting one file, and falls apart on almost
-everything else.
+Limit: it sends the same bytes to everybody, one visitor at a time.
 
-### Chapter 11. Server as hardware, server as software
+### Chapter 11. When the page is different for every visitor
+
+Question: what happens when the page depends on who is asking.
+
+Idea: static against dynamic servers. Routing, query strings, forms, escaping
+what strangers type, post then redirect then get, cookies and sessions, every
+one written by hand and every one more work than it looks. This chapter is
+deliberately uncomfortable.
+
+Limit: one malformed line takes the server down, and the tedious code is the
+same in every application ever written.
+
+### Chapter 12. Two things called a server
 
 Question: when people say server, which one do they mean.
 
-Idea: a short chapter that separates the box in a rack from the program running
-on it. Both are called a server, and confusing them makes the rest of this
-subject much harder than it needs to be.
+Idea: the box in a rack and the program running on it, virtual machines and
+containers, web servers and application servers, and why two programs cannot
+hold one port.
 
-Limit: naming things is useful, but the program still cannot do very much.
+Limit: the program still answers one visitor at a time.
 
-### Chapter 12. From reading files to running code
+## Part five: more users, more machines
 
-Question: what happens when the page is different for every visitor.
-
-Idea: the move from serving fixed documents to generating them. Forms, methods
-other than GET, query strings, sessions, and state. Every one of these is
-implemented by hand, and every one of them is more work than it first looks.
-This chapter is deliberately uncomfortable.
-
-Limit: at this point you are writing the same tedious code over and over, and
-getting it subtly wrong.
-
-### Chapter 13. What a framework is for
-
-Question: why does everyone use a framework.
-
-Idea: rebuild chapter 12 in FastAPI, line by line against the hand written
-version, so every piece of the framework maps to a problem the reader already
-felt. A framework should feel like relief, not magic.
-
-Limit: the framework hides the hard parts, and the hardest one is still there
-underneath.
-
-### Chapter 14. Two people at once
+### Chapter 13. Can you handle two users at once?
 
 Question: what happens when a second visitor arrives.
 
-Idea: the hand written server can only do one thing at a time. Show it
-breaking. Then introduce threads, and what it means for the operating system to
-run parts of your program at the same time. Cover the things that go wrong when
-two threads touch the same data.
+Idea: watch the one at a time server make a fast visitor wait for a slow one.
+A thread per visitor fixes it in six lines and introduces the race condition,
+the lock, the deadlock, Python's interpreter lock, and the event loop by name.
 
-Limit: the server can now serve many people, but it forgets everything the
-moment it stops.
+Limit: the data lives in one process's memory, touched by many threads.
 
-## Part five: everything on top
+### Chapter 14. Where the data lives
 
-### Chapter 15. Where the data lives
+Question: how do you keep things after the process exits, and keep them
+correct while several people write.
 
-Question: how do you remember things after the program exits.
+Idea: try a file first and watch it fail three ways. Everything you would
+build next is a database. SQL as a domain specific language, transactions,
+indexes, and the third appearance of the injection bug.
 
-Idea: files on disk, then why that stops working, then what a database actually
-is. A database is a program that stores data on disk, with a server in front of
-it that speaks its own protocol, driven by a small special purpose language.
-SQL is that language, and the chapter explains what a domain specific language
-is before using the term.
+Limit: a working system, and everything after this is what happens when it
+becomes popular.
 
-Limit: you now have a working system, and everything that follows is about what
-happens when it becomes popular.
+### Chapter 15. Can you handle 10,000 users?
 
-### Chapter 16. What makes real systems hard
+Question: what breaks when a lot of people arrive.
 
-Question: why is there so much more to learn.
+Idea: six pressures, each with a symptom first and a component second. Caches,
+queues and workers, supervisors and health checks, reverse proxies and load
+balancing, containers, logs and metrics. Closes by counting everything written
+by hand since chapter ten.
 
-Idea: take the working system and apply pressure. More users, more data, slower
-answers. Each fix introduces a concept, and each concept is introduced only
-after the reader has felt the pain that motivates it. Caching, queues,
-background work, containers, and deployment. This is the chapter where system
-design thinking starts, and it starts from problems rather than from a list of
-patterns.
+Limit: that count is what a framework is for.
 
-Limit: every fix here still assumes one machine.
+### Chapter 16. Introducing web frameworks
+
+Question: why does everyone use a framework.
+
+Idea: the first install command, fifteen chapters late. The guestbook rebuilt
+on FastAPI and chapter fourteen's database, line by line against chapter
+eleven, plus what the framework quietly handles and what it does not.
+
+Limit: one machine has a ceiling.
 
 ### Chapter 17. More than one machine
 
 Question: what changes when the system spans many computers.
 
-Idea: the moment there is more than one machine, some things become
-impossible and others become difficult in a way one machine never was. Why
-the network is not reliable, why clocks disagree, what consistency costs, and
-how the common patterns are all trades against the same small set of
-constraints.
+Idea: the three reasons a system spreads, for load, for data and for
+capability, and then the list of things that stop being true. No answer is
+indistinguishable from every failure, clocks disagree, copies force a choice,
+agreement costs a majority, and slow is worse than dead.
 
-Limit: this is where most tutorials stop, and it leaves the newest and loudest
-part of the industry unexplained.
+Limit: this is where most treatments stop, and the loudest part of the
+industry sits on the other side.
 
 ### Chapter 18. AI systems are the same systems
 
 Question: is any of this different for AI.
 
-Idea: no. Training is a process on a machine, reading files, scheduled by an
-operating system, spread across many machines with the same coordination
-problems from chapter 17. Inference is a server, listening on a socket,
-accepting requests, returning text, behind a queue and a cache. Walk the whole
-stack again with the AI names attached, and show that the reader already
-understands it.
+Idea: no. Training is a process reading files, scheduled by an operating
+system, spread across machines with chapter seventeen's problems. A model that
+answers is a server behind a queue and a cache, streaming a chunked response.
 
-Ending: the reader can now explain what happens between pressing enter and
-seeing a page, at every layer, without hand waving.
+Ending: the reader can name every layer between pressing enter and seeing a
+page, which is what the introduction promised.
