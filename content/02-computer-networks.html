@@ -1,88 +1,62 @@
 <p class="kicker learn">Part two · the machines get connected</p>
 <h1><span class="num">02 ·</span> Computer networks</h1>
-<p class="hook">You have used a network every day of your life and called it the
-internet, or the Wi-Fi, without ever needing to say what it is. Chapter one
-ended with a process on one machine that needed to reach a process on another,
-and nothing inside the box could help. This chapter is about the thing that can
-cross from one box to the other, and why the design you use every day looks so
-strange until you know which problem each part of it was answering.</p>
-
-<h2 id="nothing-in-common">Two machines with nothing in common</h2>
-
-<p>At the end of the last chapter we had a process running on one machine and a
-need to get some bytes to a process on another one. Neither tool we had was any
-use. A memory address is a box number, and box number 4,096 on your laptop has
-nothing to do with box number 4,096 on mine. A file is on a disk, and neither
-machine can see the other's disk.</p>
-
-<p>So the two processes have nothing in common at all. Whatever gets from one to
-the other has to travel outside both of them, through something neither one
-owns. The rest of this chapter builds that something up, one concession at a
-time, and the first concession is the one everything else follows from.</p>
+<p class="hook">You have used a network every day of your life and called it the internet, or
+the Wi-Fi, without needing to say what it is. A process on your machine now
+needs to reach a process on someone else's, and nothing from the last chapter
+can help: a memory address is a box number that means nothing on another
+machine, and neither machine can see the other's disk. Whatever crosses between
+them has to travel outside both, through something neither one owns. This
+chapter builds that something, one concession at a time.</p>
 
 <h2 id="not-a-wire">Why you cannot just run a wire</h2>
 
-<p>Start with the obvious version. Run a wire between the two machines, agree
-that a high voltage means one and a low voltage means zero, and send the bytes.
-That works, and for two machines it is genuinely all you need. The trouble
-starts at three.</p>
+<p>Start with the obvious version. Run a wire between the two machines, agree that
+a high voltage means one and a low voltage means zero, and send the bytes. That
+works, and for two machines it is all you need. The trouble starts at three.</p>
 
-<p>Three machines that all want to talk to each other need three wires. Ten
-machines need forty five. A hundred machines need four thousand nine hundred and
-fifty, because every machine needs its own wire to every other one, which is
-<code>n</code> times <code>n - 1</code>, halved. The arithmetic is bad, but the
-physical version is worse. Your machine and mine are not in the same building. A
-dedicated wire between them would have to be dug along every road in between,
-and then dug again for the next pair.</p>
+<p>Three machines that all want to talk need three wires. Ten need forty five. A
+hundred need four thousand nine hundred and fifty, because every machine needs
+its own wire to every other one, which is <code>n</code> times <code>n - 1</code>, halved. The arithmetic
+is bad and the physical version is worse: your machine and mine are not in the
+same building, so a dedicated wire would have to be dug along every road between
+us, and then dug again for the next pair.</p>
 
-<p>So machines cannot each have their own wire. They have to share, which means
-some machines in the middle have to accept traffic that is not for them and pass
-it along. Every question in this chapter follows from that one concession.</p>
+<p>So machines have to share, which means some machines in the middle must accept
+traffic that is not for them and pass it along. Every question in this chapter
+follows from that one concession.</p>
 
 <h2 id="telephone">The telephone system had already solved this, wrongly</h2>
 
-<p>When computer people started worrying about this in the early 1960s, there
-was already a working global network for sharing links between many parties. The
-telephone system had been doing it for eighty years.</p>
+<p>There was already a working global network for sharing links between many
+parties, and it was eighty years old. The telephone system built a path and held
+it: when you placed a call, the exchange found a chain of physical links from
+your phone to the other one and reserved every link for you, and nobody else
+could touch them. This is <span class="term">circuit switching</span>, and for two people talking it is a
+good design, because the line is steady and the order of what you say is
+guaranteed by physics.</p>
 
-<p>Its method was to build a path and hold it. When you placed a call, the
-exchange found a chain of physical links from your phone to the other one and
-reserved every link in that chain for you. For as long as the call lasted, that
-path was yours. Nobody else could use those links, and your voice had them to
-itself. This is called <span class="term">circuit switching</span>, and for a
-conversation between two people it is a good design. The line is steady, it
-never breaks up, and the order of what you say is guaranteed by physics.</p>
+<p>It suits computers badly, for two reasons. Computer conversations are mostly
+silence, so a reserved path sits unused for almost all of a session while nobody
+else is allowed near it. And the path is fixed at the start, so if any single
+link in the chain fails, the call ends. In the early 1960s that second one was
+the central objection rather than an inconvenience, because the people funding
+this work wanted communications that would survive parts of a country being
+destroyed.</p>
 
-<p>It suits computers badly, for two reasons. The first is that computer
-conversations are mostly silence. A person at a terminal types a line, then
-reads the reply for twenty seconds, then types another. A reserved path sits
-unused for almost all of that, and nobody else is allowed near it. The second
-reason is that the path is fixed at the start. If any single link in the chain
-fails, the call ends. In 1960 that was not an inconvenience but the central
-objection, because the people funding this work in the United States wanted
-communications that would survive parts of the country being destroyed.</p>
+<h2 id="packets">Write the address on every piece</h2>
 
-<h2 id="packets">Chopping the message into packets</h2>
+<p>Two people arrived at the same answer separately, for those two different
+reasons. Paul Baran at RAND was solving survival, and Donald Davies at the
+National Physical Laboratory in England was solving the waste. Cut every message
+into small standard sized blocks and let each block find its own way across,
+reserving nothing. Davies gave the blocks the name that stuck: <span class="term">packets</span>.</p>
 
-<p>Two people solved this separately, for those two different reasons. Paul
-Baran, at RAND in the United States, published the survivability version in
-1964. Build a mesh with many redundant links, cut every message into small
-standard sized blocks, and let each block find its own way across. No path is
-reserved, so no single break can end a conversation. The traffic goes around the
-damage.</p>
-
-<p>Donald Davies, at the National Physical Laboratory in England, reached almost
-the same design in 1965 from the other direction. He was thinking about sharing
-one expensive line between many bursty users, which is the waste problem rather
-than the survival problem. He gave the small blocks the name that stuck. He
-called them <span class="term">packets</span>.</p>
-
-<p>The move that makes it work is small and worth stating on its own. Write the
-destination address on every packet. Once each packet carries its own address,
-nothing has to be arranged in advance. A machine in the middle receives a
-packet, reads the address, decides which of its links points roughly the right
-way, and passes it on. Then it forgets about it and handles the next one. A
-machine whose job is doing that is a <span class="term">router</span>.</p>
+<p>The move that makes it work is worth stating on its own. Write the destination
+address on every packet. Once each packet carries its own address, nothing has
+to be arranged in advance. A machine in the middle receives a packet, reads the
+address, decides which of its links points roughly the right way, passes it on,
+forgets about it, and handles the next one. A machine whose job is that is a
+<span class="term">router</span>.</p>
 
 <figure>
   <div class="dgm">{{ diagram:packet-switching }}</div>
@@ -90,31 +64,24 @@ machine whose job is doing that is a <span class="term">router</span>.</p>
 whatever route is free, so no single break can end the conversation</figcaption>
 </figure>
 
-<p>Because nothing is reserved, the links are shared from moment to moment. When
-your conversation is silent, the capacity you are not using is carrying somebody
-else's packets, without anyone arranging it. This is <span class="term">packet
-switching</span>, and it is the design the internet still runs on.</p>
-
-<p>The first real network built this way was the ARPANET, funded by the American
-defence research agency. Its first two machines were connected on the twenty
-ninth of October 1969, one at UCLA and one at the Stanford Research Institute.
-The first thing anyone tried to send was the word <code>LOGIN</code>. The far
-end crashed after the second letter, so the first message ever sent across the
-ancestor of the internet was <code>LO</code>. There were four machines on it by
-the end of that year.</p>
+<p>Because nothing is reserved, links are shared from moment to moment: when your
+conversation is silent, the capacity you are not using carries somebody else's
+packets without anyone arranging it. This is <span class="term">packet switching</span>, and it is what
+the internet still runs on. The first network built this way was the ARPANET,
+funded by the American defence research agency, whose first two machines were
+connected in 1969.</p>
 
 <h2 id="promise">What a network actually promises</h2>
 
-<p>Packet switching buys sharing and survival, and it is worth being exact about
-what it costs, because everything in the rest of this chapter is built to pay
-that cost back. If every packet finds its own way, then packets from the same
-message can take different routes. Different routes take different amounts of
-time, so they can arrive in a different order from the one they left in. A
-router with more traffic than it can forward throws packets away, so some do not
-arrive at all. Nothing is watching the message as a whole, because no machine in
-the middle knows the message exists.</p>
+<p>Packet switching buys sharing and survival, and the cost is worth stating
+exactly, because the rest of this chapter is built to pay it back. Packets from
+one message can take different routes, so they can arrive in a different order
+from the one they left in. A router handed more traffic than it can forward
+throws packets away, so some do not arrive at all. And nothing is watching the
+message as a whole, because no machine in the middle knows a message exists.</p>
 
-<p>Here is that, made small enough to look at.</p>
+<p>Here is that, small enough to look at. Two routers, seven packets, each
+addressed to <code>ada</code>, and a router that can only hold four packets at once.</p>
 
 <figure>
 {{ code:code/02-computer-networks/packets.py }}
@@ -124,72 +91,103 @@ the middle knows the message exists.</p>
 <figure>
   <div class="term-block"><div class="term-head">a run of packets.py</div>
 <pre><span class="prompt">$ python3 packets.py</span>
-<span class="out">sent     [0, 1, 2, 3, 4, 5, 6]
-arrived  [4, 2, 0, 1, 5]
+<span class="out">gate   held 4 of 7, dropped 3
+north  held 4 of 4, dropped 0
+
+sent     [0, 1, 2, 3, 4, 5, 6]
+arrived  [6, 5, 0, 4]
 
 in the order they turned up:
-   ges, it ot deliva network does ndelivers
+    packetsdeliversa networges, it
 
 sorted by number:
-   a network does not delivges, it delivers
+   a networges, it delivers packets
 
-never turned up: [3, 6]</span></pre></div>
+never turned up: [1, 2, 3]</span></pre></div>
 </figure>
 
-<p>Read the three outputs in order, because they are three different lessons.
-The first is what the receiving machine is actually handed. It is not a message.
-It is a heap of fragments in an order nobody chose, and reading them as they
-arrive produces nonsense. The second is what the numbers buy. Sorting by the
-number written on each packet puts the fragments back in the order they were
-written, without anyone in the middle having tracked anything. That number is
-the entire reason reassembly is possible.</p>
+<p>Read the outputs in order, because they are four different lessons. The first
+line is where loss comes from. <code>gate</code> did not fail and nothing was broken: seven
+packets arrived at a router that can hold four, so three were dropped on the
+floor. That is what congestion is, and it is the ordinary case rather than the
+exceptional one.</p>
 
-<p>The third is the part that cannot be fixed by sorting. Packets 3 and 6 are
-not late, they are gone, and the sorted text has a hole in it where packet 3
-should be. But look at what the receiver knows. It has 0, 1, 2, 4, 5 and it can
-see that 3 is missing, because the numbering told it what to expect. Knowing
-that something is missing is not the same as having it, and it is the thing you
-need before you can ask for it again.</p>
+<p>The second and third are what the receiving machine is handed and what it can do
+about it. Not a message, but a heap of fragments in an order nobody chose, which
+read as nonsense; sorting them by the number each one carries puts them back in
+the order they were written, without anyone in the middle having tracked
+anything.</p>
+
+<p>The fourth cannot be fixed by sorting. Packets 1, 2 and 3 are not late, they are
+gone, and the sorted text has a hole where they should be. But look at what the
+receiver knows: it holds 0, 4, 5 and 6, and it can name exactly which numbers
+are missing, because the numbering told it what to expect. Knowing something is
+missing is not the same as having it, and it is what you need before you can ask
+for it again.</p>
+
+<p>Notice also what the routers never had. Neither knew what the message said, that
+six other packets existed, or that a conversation was happening. Each read one
+address, picked one link, and forgot. That ignorance is not a simplification for
+the sake of the example, it is the design.</p>
+
+<h2 id="costs">The two things a network costs</h2>
+
+<p>Sharing is not the only price. A network charges you in two currencies, and
+confusing them is behind a great deal of bad engineering. Bandwidth is how many
+bytes per second you can push, and you can buy more of it. Latency is how long
+one packet takes to get there, and you cannot, because a packet cannot outrun
+light through fibre and it stops at every router on the way to be read and
+forwarded.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ ping -c 3 1.1.1.1</span>
+<span class="out">round-trip min/avg/max/stddev = 9.136/11.519/15.584/2.889 ms</span>
+<span class="prompt">$ ping -c 3 www.jpnic.net</span>
+<span class="out">round-trip min/avg/max/stddev = 164.350/175.992/196.687/14.672 ms</span></pre></div>
+</figure>
+
+<p>Eleven milliseconds to a machine in the same country, a hundred and seventy six
+to one in Japan and back. No amount of money changes the second number much,
+because most of it is distance. That is why a page that makes thirty small
+requests one after another feels slow no matter how fast the server is, and why
+so much of what the later chapters build is an attempt to make fewer round trips
+or to make them from somewhere closer.</p>
 
 <h2 id="who-fixes">Who fixes it, and where</h2>
 
-<p>By the early 1970s the ARPANET was working, and a second problem had appeared
-behind the first. There was now more than one network. There was a packet radio
-network, a satellite network, and several others, each with its own rules, its
-own maximum packet size, and its own ideas about reliability. They could not
-talk to each other.</p>
+<p>By the early 1970s there was more than one network, each with its own rules, its
+own maximum packet size and its own ideas about reliability, and they could not
+talk to each other. Vint Cerf and Bob Kahn published the answer in 1974, and its
+central move is a refusal: assume nothing about the networks underneath. Put a
+machine at the join between two of them to pass packets across, give every
+machine an address in one shared scheme that spans all of them, and let each
+network carry packets however it likes internally. That gives a network of
+networks, which is where the name internet comes from. Notice what that shared
+address does not do: it names a machine, not one of the dozens of programs
+running on it, and deciding which program a packet is meant for needs a second
+number that this design has not got.</p>
 
-<p>Vint Cerf and Bob Kahn published the answer in 1974, and its central move is
-a refusal. Assume nothing about the networks underneath. Do not require them to
-be reliable, or fast, or to agree on anything. Put a machine at the join between
-two networks to pass packets from one into the other, give every machine an
-address in one shared scheme that spans all of them, and let each network carry
-the packets however it likes internally. That gives a network of networks, which
-is where the name internet comes from.</p>
-
-<p>The middle stays ignorant. A router's whole job is to look at one packet,
-pick a link, and forward it. It does not know what conversation the packet
-belongs to, whether earlier packets arrived, or what any of it means. Everything
+<p>The middle stays ignorant, exactly as the two routers above were. Everything
 about ordering, loss and retransmission is dealt with only by the two machines
-at the ends. This is called the <span class="term">end to end principle</span>.
-It is why the middle of the internet has never had to be upgraded to understand
-the web, or video calls, or anything invented after it was built. The middle
-does not understand any of them. It moves packets.</p>
+at the ends. This is the <span class="term">end to end principle</span>, and it is why the middle of the
+internet has never had to be upgraded to understand the web, or video calls, or
+anything invented after it was built. The middle does not understand any of
+them. It moves packets.</p>
 
-<p>In 1978 the design was split into two pieces, because not every program wants
-the same promises. <span class="term">IP</span>, the Internet Protocol, is the
-modest half. It carries one packet towards an address. It may lose it, deliver
-it twice, or deliver it late, and it runs everywhere, including on every router
-in the middle. <span class="term">TCP</span>, the Transmission Control Protocol,
-is the demanding half, and it runs only on the two machines at the ends. It
-numbers the bytes it sends. The receiver sends back short notes saying how far
-it has got. Anything not acknowledged after a while is sent again, and anything
+<p>The design was then split in two, because not every program wants the same
+promises. <span class="term">IP</span>, the Internet Protocol, is the modest half: it carries one packet
+towards an address, may lose it, deliver it twice, or deliver it late, and it
+runs everywhere, including on every router in the middle. <span class="term">TCP</span>, the Transmission
+Control Protocol, is the demanding half, and it runs only on the two machines at
+the ends. It numbers the bytes it sends, the receiver sends back short notes
+saying how far it has got, anything not acknowledged is sent again, and anything
 arriving out of order is held until the gap in front of it is filled. What comes
 out the far side is an ordered, complete stream of bytes.</p>
 
-<p>That is the listing you just ran, made automatic and made continuous. The
-sorting is the sequence numbers. Noticing that packet 3 never arrived is what
-triggers the request to send it again.</p>
+<p>That is the listing you just ran, made automatic and continuous. The sorting is
+the sequence numbers. Noticing that packets 1, 2 and 3 never arrived is what
+triggers the request to send them again, which is the second exercise below.</p>
 
 <figure>
   <div class="dgm">{{ diagram:layers }}</div>
@@ -197,24 +195,21 @@ triggers the request to send it again.</p>
 upward, while knowing nothing about the layers above it</figcaption>
 </figure>
 
-<p>These pieces stack, and the stacking is deliberate. The bottom layer,
-Ethernet or Wi-Fi, moves a chunk of bytes to the next machine on the same local
-link. IP uses that to move a packet across many joined networks to an address.
-TCP uses that to give two programs an ordered, reliable stream. The payoff is
-replacement. Wi-Fi did not exist when IP was designed, and adding it changed
-nothing above the bottom layer. On the first of January 1983 the ARPANET
-switched over to TCP and IP in a single day, and the network that resulted is
-the one you are on now.</p>
+<p>These pieces stack, and the stacking is the point. The bottom layer, Ethernet or
+Wi-Fi, moves a chunk of bytes to the next machine on the same local link. IP
+uses that to move a packet across many joined networks to an address. TCP uses
+that to give two programs an ordered, reliable stream. The payoff is
+replacement: Wi-Fi did not exist when IP was designed, and adding it changed
+nothing above the bottom layer.</p>
 
 <h2 id="check">Check it yourself: count the machines in the middle</h2>
 
 <p>The claim that your packets pass through machines run by strangers is easy to
-say and easy to check. <code>traceroute</code> sends packets with a deliberately
-short lifespan. Each packet carries a count of how many machines it is allowed
-to pass through, every machine that forwards it lowers that count by one, and
-the machine that lowers it to zero throws the packet away and sends back a
-complaint. Send one packet allowed one hop, then one allowed two, and the
-complaints name the machines along the route in order.</p>
+check. <code>traceroute</code> sends packets with a deliberately short lifespan: each carries
+a count of how many machines it may pass through, every machine that forwards it
+lowers that count by one, and the one that lowers it to zero throws the packet
+away and sends back a complaint. Send a packet allowed one hop, then one allowed
+two, and the complaints name the machines along the route in order.</p>
 
 <div class="check">
   <div class="term-block"><div class="term-head">terminal</div>
@@ -229,11 +224,11 @@ complaints name the machines along the route in order.</p>
  7  172.66.147.243 (172.66.147.243)  10.049 ms</span></pre></div>
   <p>The names of the machines in the middle have been replaced with descriptions
 here, because the real ones name an internet provider and roughly where the
-author lives. Your own run will print the real names, which is itself worth
+author lives. Your own run prints the real names, which is itself worth
 noticing.</p>
   <p>There is no wire from this machine to that one. There are six machines in
 between, owned by at least three different companies, none of which has any
-relationship with the author or with the site being reached. Each one accepted a
+relationship with the author or with the site being reached. Each accepted a
 packet that was not addressed to it and passed it on, which is the concession
 from the start of this chapter, made concrete.</p>
   <div class="trouble">
@@ -245,32 +240,76 @@ obliged to stay the same.</p>
   </div>
 </div>
 
-<h2 id="limit">What the network still does not tell you</h2>
+<h2 id="exercises">Exercises</h2>
 
-<p>We now have what chapter one was missing. A process on this machine can hand
-bytes to a process on a machine somewhere else, in order, without losses, and
-without either of them owning any of the wire in between. What we do not have is
-any idea what the bytes mean.</p>
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>In <code>packets.py</code>, change <code>HOLD</code> from 4 to 2, so each router can hold two packets at
+once. Write down how many of the seven arrive, and which numbers, before running
+it.</p>
+<p class="ex-look">Two arrive. Halving what a router can hold did not halve the loss, it took it
+from three packets to five, because the packets that survive one router are the
+only ones that can reach the next. Small changes in capacity at one point
+produce large changes in what gets through, which is why congestion collapses
+rather than degrades.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>The receiver can see which numbers are missing. Use that. Write a loop that
+sends the message, works out what did not arrive, sends only those again, and
+repeats until it holds everything, counting the rounds. Print the reassembled
+message at the end.</p>
+<p class="ex-look">Two rounds, and the message comes out whole. You have just written
+retransmission, which is most of what TCP does on your behalf. Notice what it
+needed: numbers on the packets and a receiver that reports back. Notice also
+what it did not need: any change to the routers.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Real networks do not only lose packets, they sometimes deliver the same one
+twice, because a router forwarded it down two links or a retransmission crossed
+a late arrival. Change the network so that each packet has roughly a two in five
+chance of arriving twice, lose nothing at all, and reassemble with the same
+sorting as before.</p>
+<p class="ex-look">Every packet arrives, the check for gaps reports nothing missing, and the
+message is still wrong: <code>a networa network does not delivot deliver...</code>. Sorting
+is not enough. The receiver has to keep each number once and throw away the
+second copy, which is why TCP's sequence numbers do double duty, both ordering
+the stream and telling it what it has already seen.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>That <code>172.66.147.243</code> belongs to Cloudflare, a company that sits in front of a
+large part of the web, which chapter six meets by reading its headers. When a
+video call breaks up, you are watching <code>packets.py</code>: the sender did not stop, a
+router in the middle ran out of room. And the layering pays off in your browser
+right now. QUIC, the protocol under HTTP/3, replaces TCP with something built on
+the modest half instead, and it could be deployed at all only because the middle
+of the network never understood TCP in the first place.</p>
+</div>
+
+<h2 id="limit">Where this runs out</h2>
 
 <div class="limit">
   <span class="limit-label">where this runs out</span>
-  <p>The network moves numbers. It has no opinion about whether a run of 4,206
-bytes is a photograph, a price, a login attempt, or a poem. TCP delivers them
-faithfully and in order, and then the receiving program is holding 4,206 bytes
-and has to decide, on its own, what it has been given. Two programs that
-disagree about what the bytes mean will both work perfectly and understand
-nothing.</p>
-  <p>So a network on its own is not useful. What is useful is the agreements
-people build on top of it about what the bytes mean, and there have been many:
-mail, file transfer, news, chat.</p>
-  <p class="to">The web was one of these agreements, it arrived late, and there
-was no obvious reason for it to beat the ones already established. Why it did is
-chapter three.</p>
+  <p>A process on this machine can now hand bytes to a process on a machine somewhere
+else, in order and without losses, without either of them owning any of the wire
+in between. What neither has is any idea what the bytes mean. The network moves
+numbers and has no opinion about whether a run of 4,206 bytes is a photograph, a
+price, or a login attempt. TCP delivers them faithfully, and the receiving
+program is then holding 4,206 bytes and has to decide on its own what it has
+been given. Two programs that disagree about what the bytes mean will both work
+perfectly and understand nothing.</p>
+  <p>So a network on its own is not useful. What is useful is the agreements people
+build on top of it about what the bytes mean, and there have been many: mail,
+file transfer, news, chat.</p>
+  <p class="to">The web was one of these agreements, it arrived late, and there was no obvious
+reason for it to beat the ones already established. Why it did is the next
+chapter.</p>
 </div>
 
 <h2 id="resources">Watch and read alongside this chapter</h2>
 
-<p>These trace the same history and the same design from other angles, from the
-survivability argument to the packet's eye view of a router.</p>
+<p>These trace the same design from other angles, from the survivability argument
+to the packet's eye view of a router.</p>
 
 {{ resources }}
