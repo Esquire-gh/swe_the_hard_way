@@ -17,10 +17,12 @@ def response(status, body, kind="text/html", extra=()):
     return ("\r\n".join(lines) + "\r\n\r\n").encode() + body
 
 
+# BEGIN redirect
 def redirect(where):
     lines = [f"HTTP/1.1 303 See Other", f"Location: {where}",
              "Content-Length: 0", "Connection: close"]
     return ("\r\n".join(lines) + "\r\n\r\n").encode()
+# END redirect
 
 
 def escape(text):
@@ -39,6 +41,7 @@ def parse_fields(text):
     return fields
 
 
+# BEGIN read
 def read_request(conversation):
     """Read one whole request off the connection, headers and body."""
     data = conversation.recv(65536)
@@ -55,6 +58,7 @@ def read_request(conversation):
     while len(rest) < length:          # the body may not have all arrived yet
         rest += conversation.recv(65536)
     return head, rest[:length]
+# END read
 
 
 def page():

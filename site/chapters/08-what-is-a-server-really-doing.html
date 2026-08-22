@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · What is a server really doing? — swe the hard way</title>
+<meta name="description" content="A server is a program that never stops: wait, read, answer, close, wait again. What the waiting actually is.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part four · building the server</span><span class="here"><span class="hn">08</span><span class="ht">What is a server really doing?</span></span></span><span class="progress-label">08 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-what-programming-really-is.html" data-module="01-what-programming-really-is"><span class="n">01</span><span class="t">What programming really is</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-then-came-networks.html" data-module="02-then-came-networks"><span class="n">02</span><span class="t">Then came networks</span></a></li><li><a class="nav-item" href="03-and-then-the-web.html" data-module="03-and-then-the-web"><span class="n">03</span><span class="t">And then the web</span></a></li><li><a class="nav-item" href="04-a-website-is-a-file-on-someone-elses-computer.html" data-module="04-a-website-is-a-file-on-someone-elses-computer"><span class="n">04</span><span class="t">A website is a file on someone else&#x27;s computer</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses-are-just-text.html" data-module="06-requests-and-responses-are-just-text"><span class="n">06</span><span class="t">Requests and responses are just text</span></a></li><li><a class="nav-item" href="07-why-we-need-browsers.html" data-module="07-why-we-need-browsers"><span class="n">07</span><span class="t">Why we need browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item current" href="08-what-is-a-server-really-doing.html" data-module="08-what-is-a-server-really-doing" aria-current="page"><span class="n">08</span><span class="t">What is a server really doing?</span></a></li><li><a class="nav-item" href="09-what-a-socket-is.html" data-module="09-what-a-socket-is"><span class="n">09</span><span class="t">What a socket is</span></a></li><li><a class="nav-item" href="10-a-static-web-server-in-one-file.html" data-module="10-a-static-web-server-in-one-file"><span class="n">10</span><span class="t">A static web server in one file</span></a></li><li><a class="nav-item" href="11-when-the-page-is-different-for-every-visitor.html" data-module="11-when-the-page-is-different-for-every-visitor"><span class="n">11</span><span class="t">When the page is different for every visitor</span></a></li><li><a class="nav-item" href="12-two-things-called-a-server.html" data-module="12-two-things-called-a-server"><span class="n">12</span><span class="t">Two things called a server</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-can-you-handle-two-users-at-once.html" data-module="13-can-you-handle-two-users-at-once"><span class="n">13</span><span class="t">Can you handle two users at once?</span></a></li><li><a class="nav-item" href="14-where-the-data-lives.html" data-module="14-where-the-data-lives"><span class="n">14</span><span class="t">Where the data lives</span></a></li><li><a class="nav-item" href="15-can-you-handle-10000-users.html" data-module="15-can-you-handle-10000-users"><span class="n">15</span><span class="t">Can you handle 10,000 users?</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-more-than-one-machine.html" data-module="17-more-than-one-machine"><span class="n">17</span><span class="t">More than one machine</span></a></li><li><a class="nav-item" href="18-ai-systems-are-the-same-systems.html" data-module="18-ai-systems-are-the-same-systems"><span class="n">18</span><span class="t">AI systems are the same systems</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part four · building the server</p>
+<h1><span class="num">08 ·</span> What is a server really doing?</h1>
+<p class="hook">Chapter five said that a server's ordinary condition is doing nothing, and in
+chapter seven you talked to one that had been running for years. So what is it
+doing all day? Written out in ordinary words, a web server is six lines, and
+five of them you could write today. The sixth says wait, and it has no obvious
+implementation at all, because the processor in chapter one has no instruction
+that means pause here until a stranger somewhere in the world decides to
+connect. This chapter is about that line.</p>
+
+<h2 id="shape">The shape of every server ever written</h2>
+
+<p>Start with the whole thing, because it is short. A web server is a program that
+is started once and left running, and what it does for the rest of its life is
+this.</p>
+
+<div class="code"><pre>tell the operating system you want to be reachable
+forever:
+    wait until somebody connects
+    read the text they sent
+    work out what they are asking for
+    write the answer back
+    close the connection</pre></div>
+
+<p>That is not a simplification of a web server. That is a web server. The one you
+write in chapter ten has this shape, and so do the large ones that run most of
+the internet. What separates them is how much happens inside the line about
+working out what they are asking for, and how many of these loops are running at
+the same time, which is the question part five opens with. The words for the
+parts are worth having. A program that is started once and stays up is a <span class="term">long
+running process</span>. A server that has told the operating system it wants to be
+reachable, and is now waiting, is said to be <span class="term">listening</span>. The loop itself, one
+visitor in and one answer out and around again, is the <span class="term">accept loop</span>, and a single
+trip through it is what people mean by the <span class="term">request response cycle</span>.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 262" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">a web server, in six lines</text><rect x="40" y="44" width="400" height="26" rx="3" class="box"/><text x="52" y="61" class="lbl">tell the operating system you want to be reachable</text><text x="490" y="61" class="lbl sm mut">a request you cannot make yet</text><rect x="70" y="78" width="400" height="26" rx="3" class="box brk"/><text x="82" y="95" class="lbl">wait until somebody connects</text><text x="490" y="95" class="lbl sm brk">no instruction means this</text><rect x="70" y="112" width="400" height="26" rx="3" class="box learn"/><text x="82" y="129" class="lbl">read the text they sent</text><text x="490" y="129" class="lbl sm mut">you could write this today</text><rect x="70" y="146" width="400" height="26" rx="3" class="box learn"/><text x="82" y="163" class="lbl">work out what they are asking for</text><text x="490" y="163" class="lbl sm mut">chapter six, thirty lines</text><rect x="70" y="180" width="400" height="26" rx="3" class="box learn"/><text x="82" y="197" class="lbl">write the answer back</text><text x="490" y="197" class="lbl sm mut">you could write this today</text><rect x="70" y="214" width="400" height="26" rx="3" class="box learn"/><text x="82" y="231" class="lbl">close the connection</text><text x="490" y="231" class="lbl sm mut">ordinary</text><path d="M60,96 L48,96 L48,236 L60,236" class="flow mut"/><text x="46" y="252" class="lbl sm mut">forever</text><path d="M48,230 L48,100" class="flow mut" marker-end="url(#arw)"/></svg></div>
+  <figcaption>six lines, five of which you could write today; the server spends nearly all of
+its life on the second one</figcaption>
+</figure>
+
+<p>Look at the six lines and ask which of them you could write now. Reading text
+and writing text you have done since your first program. Working out what the
+request means is chapter six, and it came to thirty lines. Closing something
+when you have finished with it is ordinary. Telling the operating system that
+you want to be reachable is a request you do not yet know how to make, but you
+can at least see that it is a request. That leaves one line with no obvious
+implementation at all, and it is the second one.</p>
+
+<h2 id="waiting">What waiting means for a program</h2>
+
+<div class="puzzle">
+  <span class="puzzle-label">the puzzle</span>
+  <p>Chapter one said a process is a sequence of instructions being carried out one
+at a time by a processor, and a processor knows only a few dozen kinds of
+instruction: move this, add that, jump there. Chapter five said a server spends
+nearly all of its life waiting, and chapter seven showed one that answered
+within a few hundredths of a second of your request arriving.</p>
+  <p><strong>So which instruction is "wait"? And if the server is running no instructions
+while it waits, what noticed that you had arrived?</strong></p>
+</div>
+
+<p>There is no operation on any machine that means pause here until a stranger
+decides to connect. A processor has no idea what a stranger is. Something has to
+be happening during those hours of apparent idleness, and what it is turns out
+to be the subject of this chapter and the next.</p>
+
+<h2 id="two-ways">Two ways to wait, and only one of them is free</h2>
+
+<p>There are exactly two ways for a program to wait for something, and the
+difference between them matters more than it sounds.</p>
+
+<p>The first way is to keep asking. Look for the thing, and if it is not there,
+wait a moment and look again. The waiting program in chapter five did this: it
+listed a directory, found nothing, slept for fifty milliseconds, and listed it
+again, twenty times a second, all day. This is called <span class="term">polling</span>. It works, and it
+has two costs that pull against each other. The processor does work every time
+it looks, including on all the occasions when there is nothing there. And there
+is a delay between the moment something arrives and the moment the program
+notices, of up to one full gap. Shorten the gap to reduce the delay and you
+increase the waste. Lengthen it to reduce the waste and you increase the delay.
+There is no setting that is good, only settings that are wrong in different
+proportions.</p>
+
+<p>The second way is to hand the problem to the operating system. The program says
+what it is waiting for and then stops. The operating system takes the process
+off the schedule entirely, in the sense of chapter one, so it is no longer
+offered turns on a processor. When the thing arrives, the operating system puts
+the process back on the schedule and it carries on from the instruction after
+the one that stopped. Between those two moments the process runs no instructions
+at all. This is called <span class="term">blocking</span>, and a process waiting this way is described as
+blocked. That is what the <code>S</code> meant in chapter one's <code>ps</code> output, when the counting
+program was using no processor and still counting on time.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 188" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">ten seconds of waiting, two ways</text><text x="20" y="60" class="lbl b">polling</text><path d="M100,56 L620,56" class="flow mut"/><path d="M100,50 L100,62" class="flow brk"/><path d="M130,50 L130,62" class="flow brk"/><path d="M160,50 L160,62" class="flow brk"/><path d="M190,50 L190,62" class="flow brk"/><path d="M220,50 L220,62" class="flow brk"/><path d="M250,50 L250,62" class="flow brk"/><path d="M280,50 L280,62" class="flow brk"/><path d="M310,50 L310,62" class="flow brk"/><path d="M340,50 L340,62" class="flow brk"/><path d="M370,50 L370,62" class="flow brk"/><path d="M400,50 L400,62" class="flow brk"/><path d="M430,50 L430,62" class="flow brk"/><path d="M460,50 L460,62" class="flow brk"/><path d="M490,50 L490,62" class="flow brk"/><path d="M520,50 L520,62" class="flow brk"/><path d="M550,50 L550,62" class="flow brk"/><path d="M580,50 L580,62" class="flow brk"/><text x="100" y="80" class="lbl sm mut">look, nothing. look, nothing. look, nothing...</text><text x="640" y="60" class="lbl sm brk">1,632 looks</text><text x="20" y="124" class="lbl b">blocking</text><path d="M100,120 L500,120" class="flow learn"/><text x="100" y="144" class="lbl sm mut">stopped: no instructions run, no processor time spent</text><text x="640" y="124" class="lbl sm learn">1 look</text><path d="M500,36 L500,130" class="flow" stroke-dasharray="3 3"/><text x="500" y="32" class="lbl sm mid">the message arrives</text><path d="M500,120 L620,120" class="flow learn"/><text x="510" y="112" class="lbl sm learn">woken at once</text><text x="20" y="176" class="lbl sm mut">polling pays for every look and notices late; blocking pays nothing and is woken at once</text></svg></div>
+  <figcaption>polling pays a little, constantly, and notices late; blocking pays nothing and
+is woken the moment something arrives</figcaption>
+</figure>
+
+<p>The difference is not a small optimisation. Blocking costs nothing while waiting
+and notices instantly. Polling costs something continuously and always notices
+late. Why every program does not block, then, is the thing this chapter ends on.</p>
+
+<h2 id="measuring">Measuring the difference</h2>
+
+<p>We cannot wait on a network connection yet, because that is chapter nine. So
+wait on something we already understand. A <span class="term">named pipe</span> is a thing that looks like
+a file and has no disk behind it. One program writes into it, another reads out
+of it, and the bytes go straight from one to the other through memory. It
+appears in a directory listing with a <code>p</code> at the front, where an ordinary file has
+a dash.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ ls -l demo.pipe</span>
+<span class="out">prw-r--r--  1 you  staff  0 Aug 18 00:52 demo.pipe</span></pre></div>
+</figure>
+
+<p>The part that matters here is that opening one for reading does not return until
+somebody opens the other end for writing. It is a thing you can block on. Here
+are the two ways of waiting, doing the same job. First the one that keeps
+looking.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Wait for a message by asking over and over, and count what that costs.
+
+Run it with:            python3 polling.py
+Then in another window: python3 knock.py file
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> pathlib
+<span class="c-kw">import</span> time
+
+MESSAGE = pathlib.Path(__file__).parent / <span class="c-st">&quot;knock.txt&quot;</span>
+MESSAGE.unlink(missing_ok=<span class="c-kw">True</span>)
+
+print(<span class="c-st">&quot;watching for knock.txt&quot;</span>)
+looks = 0
+wall_started = time.perf_counter()
+cpu_started = time.process_time()
+
+<span class="c-kw">while</span> <span class="c-kw">not</span> MESSAGE.exists():
+    looks += 1
+    time.sleep(0.005)
+
+wall = time.perf_counter() - wall_started
+cpu = time.process_time() - cpu_started
+
+print(f<span class="c-st">&quot;message: {MESSAGE.read_text().strip()!r}&quot;</span>)
+print(f<span class="c-st">&quot;waited {wall:.1f} seconds of wall clock&quot;</span>)
+print(f<span class="c-st">&quot;looked {looks} times, and found nothing {looks - 1} of them&quot;</span>)
+print(f<span class="c-st">&quot;spent {cpu:.3f} seconds of processor time doing it&quot;</span>)
+MESSAGE.unlink()
+</pre></div>
+<figcaption>polling.py</figcaption>
+</figure>
+
+<p>Then the one that stops.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Wait for a message by asking the operating system to wake you.
+
+Run it with:            python3 blocking.py
+Then in another window: python3 knock.py pipe
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> os
+<span class="c-kw">import</span> pathlib
+<span class="c-kw">import</span> time
+
+PIPE = pathlib.Path(__file__).parent / <span class="c-st">&quot;knock.pipe&quot;</span>
+<span class="c-kw">if</span> <span class="c-kw">not</span> PIPE.exists():
+    os.mkfifo(PIPE)
+
+print(<span class="c-st">&quot;waiting on knock.pipe&quot;</span>)
+wall_started = time.perf_counter()
+cpu_started = time.process_time()
+
+<span class="c-cm"># This line does not come back until somebody writes to the other end.</span>
+<span class="c-kw">with</span> open(PIPE) <span class="c-kw">as</span> pipe:
+    message = pipe.read()
+
+wall = time.perf_counter() - wall_started
+cpu = time.process_time() - cpu_started
+
+print(f<span class="c-st">&quot;message: {message.strip()!r}&quot;</span>)
+print(f<span class="c-st">&quot;waited {wall:.1f} seconds of wall clock&quot;</span>)
+print(<span class="c-st">&quot;looked 1 time, and found something&quot;</span>)
+print(f<span class="c-st">&quot;spent {cpu:.3f} seconds of processor time doing it&quot;</span>)
+</pre></div>
+<figcaption>blocking.py</figcaption>
+</figure>
+
+<p><code>time.perf_counter</code> measures time passing in the world. <code>time.process_time</code> measures
+processor time given to this process, which is the number that matters here.
+Start one of them, count to ten, then knock from a second window with <code>knock.py</code>.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre><span class="prompt">$ python3 polling.py</span>
+<span class="out">watching for knock.txt
+message: 'hello from the other window'
+waited 10.0 seconds of wall clock
+looked 1632 times, and found nothing 1631 of them
+spent 0.046 seconds of processor time doing it</span></pre></div>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre><span class="prompt">$ python3 blocking.py</span>
+<span class="out">waiting on knock.pipe
+message: 'hello from the other window'
+waited 10.0 seconds of wall clock
+looked 1 time, and found something
+spent 0.000 seconds of processor time doing it</span></pre></div>
+</figure>
+
+<p>Both waited the same ten seconds and both got the message. One of them asked
+1,632 times and was wrong 1,631 times. The other asked once.</p>
+
+<p>The processor figures are the ones to sit with. Forty six thousandths of a
+second sounds like nothing, and for one program it is. Scale it the way a real
+machine would. Two hundred programs waiting like that would spend around nine
+seconds of processor time in every ten seconds of clock time, which is roughly
+one entire processor running flat out to discover that nothing has happened. The
+blocking version scales the other way. Two hundred of those cost two hundred
+times nothing. Then halve the sleep in the polling version and run it again. The
+count doubles, the cost doubles, and the program is no more useful than it was.</p>
+
+<h2 id="check">Check it yourself: look at the process while it waits</h2>
+
+<div class="check">
+  <p>Start <code>blocking.py</code> and leave it. In another window, ask the operating system what
+it thinks of that process, the way chapter one did.</p>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ ps -o pid,stat,%cpu,command -p 71243</span>
+<span class="out">  PID STAT  %CPU COMMAND
+71243 SN     0.0 python3 blocking.py</span></pre></div>
+  <p><code>S</code> and <code>0.0</code>. This is the same reading chapter one got from a program that was
+counting once a second, and it means the same thing. The operating system's own
+record says this process is not runnable. It is not being offered turns, it is
+not looking at anything, and it is not, in any sense the machine recognises,
+doing something. That would be surprising if blocking were a clever kind of fast
+polling. It is not. The process really has stopped, and the reason it wakes at
+the right moment has nothing to do with the process.</p>
+  <div class="trouble">
+    <b>if ps says no such process</b>
+    <p>The number is the process id <code>blocking.py</code> got on the author's machine. Yours is
+different; find it with <code>pgrep -f blocking.py</code>.</p>
+  </div>
+</div>
+
+<h2 id="limit">Why the program cannot do this on its own</h2>
+
+<p>We now know what the missing line in the server loop has to mean: stop this
+process, and start it again when somebody connects. There are two reasons a
+program cannot carry that out itself, and both come from chapter one.</p>
+
+<p>The first is that a stopped process is stopped. Somebody has to be running at
+the moment the connection arrives, in order to notice it and put the process
+back on the schedule. That somebody cannot be the process, because the whole
+point is that it is not running. Whoever does the waking is never the one
+asleep. The second is that the thing being waited for is a piece of hardware.
+The bytes arrive at a network card. The operating system owns the machine and
+hands out turns on the processor, and it owns the devices in the same way and
+for the same reason. A process cannot read the network card directly, any more
+than it can read another process's memory. If it could, every program on your
+laptop could read every other program's traffic.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>So the line has to become a request to the operating system, along the lines of:
+I want to be reachable on this port, wake me when somebody arrives, and take me
+off the schedule until then. A request like that has to give something back. The
+program needs to hold on to whatever arrives, read the visitor's text out of it,
+and write an answer into it, possibly for a long time and possibly while other
+things are going on. The bookkeeping the operating system keeps for a process
+already includes the list of files it has open, and the people who designed this
+noticed that a program which can read from and write to an open file would need
+to learn almost nothing to read from and write to a connection, if the
+connection were handed over in the same shape.</p>
+  <p class="to">That handle has a name, and chapter nine is about what it is and what the
+operating system is doing behind it.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>The operating system's side of waiting: how a process is taken off the schedule
+and put back, from the people who teach it.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=26QPDBe-NB8" target="_blank" rel="noopener">Operating systems (Crash Course #18)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">The scheduler this chapter leans on: how the operating system takes a waiting process off the processor and puts it back when something arrives.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=WkuKhLYtUHw" target="_blank" rel="noopener">Introduction to processes in Linux</a><span class="res-by">Chris Kanich · CS 361</span></div><p class="res-note">Kanich on process states, including the blocked one that ps reports as S.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="08-what-is-a-server-really-doing"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="07-why-we-need-browsers.html"><span class="dir">previous</span><span class="name">07 · Why we need browsers</span></a><a class="next" href="09-what-a-socket-is.html"><span class="dir">next</span><span class="name">09 · What a socket is</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

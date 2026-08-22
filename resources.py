@@ -156,6 +156,21 @@ BY_CHAPTER = {
         ("js-browser", "A longer talk on the same pipeline, for the parts this "
                        "chapter only names: parsing, layout and painting.", 0),
     ],
+    8: [
+        ("cc-os", "The scheduler this chapter leans on: how the operating "
+                  "system takes a waiting process off the processor and puts "
+                  "it back when something arrives.", 0),
+        ("k-processes", "Kanich on process states, including the blocked one "
+                        "that ps reports as S.", 0),
+    ],
+    9: [
+        ("k-file", "The file abstraction that sockets were fitted into, from "
+                   "the operating system's side.", 0),
+        ("k-fd", "What is actually behind a file descriptor, which is the "
+                 "table this chapter describes and cannot show you.", 0),
+        ("k-socket", "The socket, bind, listen, accept sequence, explained by "
+                     "someone who teaches it for a living.", 0),
+    ],
     10: [
         ("k-socket", "The socket calls this chapter uses, explained from the "
                      "operating system's side by someone who teaches them for a "
@@ -164,6 +179,18 @@ BY_CHAPTER = {
                   "exactly what this chapter has you do.", 0),
         ("cc-security", "Path traversal is one of the oldest of the mistakes "
                         "this chapter has you make and then fix.", 0),
+    ],
+    11: [
+        ("ud-clientserver", "A free course on the request side of this chapter: "
+                            "methods, headers, bodies and cookies, at a gentler "
+                            "pace.", 0),
+        ("cc-security", "Where cross site scripting and guessable session ids "
+                        "sit among the classic mistakes.", 0),
+    ],
+    12: [
+        ("lc-web2", "A developer's tour of what stands in front of what: web "
+                    "servers, application servers and the machines they run "
+                    "on.", 0),
     ],
 }
 

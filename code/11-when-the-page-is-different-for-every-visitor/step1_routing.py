@@ -19,6 +19,7 @@ def response(status, body, kind="text/html"):
     return head.encode() + body
 
 
+# BEGIN handle
 def handle(request):
     """Work out which piece of code answers this request."""
     first_line = request.split(b"\r\n")[0].decode()
@@ -31,6 +32,7 @@ def handle(request):
     if target == "/about":
         return response("200 OK", b"<h1>About</h1><p>A guestbook.</p>")
     return response("404 Not Found", b"<h1>404 not found</h1>")
+# END handle
 
 
 listening = socket.socket()

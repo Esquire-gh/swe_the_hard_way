@@ -1,0 +1,326 @@
+<p class="kicker learn">Part four · building the server</p>
+<h1><span class="num">11 ·</span> When the page is different for every visitor</h1>
+<p class="hook">Every site you actually use knows who you are. It greets you, shows you your
+messages and not somebody else's, and takes what you type. The server from
+chapter ten can do none of that, because it reads a file and the file does not
+change. Making a page different for every visitor is one line in the server:
+call a function instead of reading a file. This chapter is everything that
+happens after that one line, written out in full, because it is the part a
+framework makes disappear and the part this course exists to show you.</p>
+
+<h2 id="static-dynamic">One line, and then a pile</h2>
+
+<p>A page that is read off a disk and sent unchanged is a <span class="term">static</span> page, and for the
+first few years that was the whole web. A page that is produced by running code
+at the moment of asking is a <span class="term">dynamic</span> page, and every site that greets you by
+name is made of them. The difference in the server is exactly one line. Instead
+of reading a file and sending it, call a function and send whatever it returns.
+The program that runs the function is doing a different job from the one in
+chapter ten, and chapter twelve gives that job its name. Nothing in what follows
+is hard. There is a great deal of it, and the pile is the point.</p>
+
+<h2 id="routing">Step one: deciding which code answers</h2>
+
+<p>With files, the request path was a filename. With code, the path has to select a
+piece of code, which means writing down the correspondence yourself. Choosing
+which code answers which path is called <span class="term">routing</span>.</p>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step1_routing.py#handle }}
+<figcaption>step1_routing.py, the part that decides</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/about</span>
+<span class="out">200</span>
+<span class="prompt">$ curl -s http://127.0.0.1:8000/nope</span>
+<span class="out">&lt;h1&gt;404 not found&lt;/h1&gt;</span>
+<span class="prompt">$ curl -s -X POST http://127.0.0.1:8000/</span>
+<span class="out">&lt;h1&gt;405 not allowed&lt;/h1&gt;</span></pre></div>
+</figure>
+
+<p>Note what had to be decided rather than discovered. The method has to be
+checked, because chapter six gave the client several, and a <code>POST</code> to a page that
+only reads is a different failure from a page that does not exist. A path that
+matches nothing needs a <code>404</code>, a path that exists but rejects the method needs a
+<code>405</code>, and if you do not write both then one of them silently becomes the other.
+This is a chain of <code>if</code> statements, it is thirty five lines, and it is fine. Hold
+on to the feeling that it is fine.</p>
+
+<h2 id="query">Step two: reading what the visitor typed into the address</h2>
+
+<p>The address bar can carry more than a path. Everything after a question mark is
+a list of fields, written as <code>name=value</code> joined by <code>&amp;</code>, and it is the oldest
+way for a visitor to send something. That part of the address is the <span class="term">query
+string</span>.</p>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step2_query.py#split }}
+<figcaption>step2_query.py, separating the path from the fields</figcaption>
+</figure>
+
+<p><code>unquote_plus</code> comes from the standard library and turns <code>%20</code> and <code>+</code> back into
+spaces, because the field encoding cannot contain a space, an ampersand or an
+equals sign without disguising it first. Even here, in the middle of doing
+everything by hand, a library is doing a job you would otherwise have to write.
+Now a page can use the fields.</p>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step2_query.py#hello }}
+<figcaption>step2_query.py, two versions of the same page</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s 'http://127.0.0.1:8000/hello?name=Ada'</span>
+<span class="out">&lt;h1&gt;Hello, Ada&lt;/h1&gt;</span>
+<span class="prompt">$ curl -s 'http://127.0.0.1:8000/hello?name=Ada+Lovelace%21'</span>
+<span class="out">&lt;h1&gt;Hello, Ada Lovelace!&lt;/h1&gt;</span></pre></div>
+</figure>
+
+<p>Then somebody who is not you asks for a page.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s 'http://127.0.0.1:8000/hello?name=%3Cscript%3Ealert(1)%3C/script%3E'</span>
+<span class="out">&lt;h1&gt;Hello, &lt;script&gt;alert(1)&lt;/script&gt;&lt;/h1&gt;</span></pre></div>
+</figure>
+
+<p>The visitor supplied part of the page rather than part of the text. A browser
+receiving that runs the script, because there is nothing in the bytes to suggest
+it was not meant to be there. Send somebody a link with that in it and the
+script runs in their browser, on your site, with whatever access their session
+has. The name for this is <span class="term">cross site scripting</span>, and it is the path traversal
+from chapter ten wearing different clothes. Text arrived from a stranger and was
+used as though you had written it. The fix is to turn the characters that mean
+something in HTML into the codes that mean the characters.</p>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step2_query.py#escape }}
+<figcaption>step2_query.py, the fix</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s 'http://127.0.0.1:8000/hello-escaped?name=%3Cscript%3Ealert(1)%3C/script%3E'</span>
+<span class="out">&lt;h1&gt;Hello, &amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;&lt;/h1&gt;</span></pre></div>
+</figure>
+
+<p>Read that fix again and notice its shape, because the shape is the problem.
+<code>escape</code> has to be called at every single place where anything from outside is put
+into a page. Not most places. Every place. The one you forget is the bug, it
+will not show up in testing because you will type your own name into the form,
+and the file is now fifty two lines.</p>
+
+<h2 id="form">Step three: accepting something and keeping it</h2>
+
+<p>A guestbook needs a form, and a form needs a method other than <code>GET</code>, because <code>GET</code>
+puts the fields in the address where they get bookmarked, logged and shared.
+Three separate pieces of work arrive at once here, and each one looks small.</p>
+
+<p>The first is reading the body at all. Chapter six made the point that a stream
+has no message boundaries and that the length is stated in a header. Chapter ten
+ignored that and took one bufferful. Once there are bodies, ignoring it stops
+being survivable.</p>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step3_form.py#read }}
+<figcaption>step3_form.py, reading a whole request</figcaption>
+</figure>
+
+<p>The second is that a form body is encoded exactly like a query string, so the
+field parser from step two is needed again, in a second place, for a different
+reason. The third is what to do after the visitor has posted something. The
+obvious answer is to return the updated page. The correct answer is to send a
+redirect.</p>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step3_form.py#redirect }}
+<figcaption>step3_form.py, the redirect</figcaption>
+</figure>
+
+<figure>
+  <div class="dgm">{{ diagram:post-redirect-get }}</div>
+  <figcaption>the browser remembers the last request that produced a page; after a 303 that
+request is a harmless GET</figcaption>
+</figure>
+
+<p>The reason is that a browser remembers the request that produced the page it is
+showing. If a <code>POST</code> produced it, then reloading repeats the <code>POST</code> and signs the
+guestbook again, and so does the back button. Answering with a <code>303</code> makes the
+browser fetch the page with a fresh <code>GET</code>, and that is the request it remembers.
+This pattern is called <span class="term">post redirect get</span>, and every person who has not done it
+has shipped a form that duplicates entries.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -i -X POST -d 'message=Ada was here' http://127.0.0.1:8000/messages</span>
+<span class="out">HTTP/1.1 303 See Other
+Location: /
+Content-Length: 0
+Connection: close</span>
+<span class="prompt">$ curl -s http://127.0.0.1:8000/</span>
+<span class="out">&lt;!doctype html&gt;
+&lt;h1&gt;Guestbook&lt;/h1&gt;
+&lt;ul&gt;&lt;li&gt;Ada was here&lt;/li&gt;&lt;li&gt;&amp;lt;b&amp;gt;Grace&amp;lt;/b&amp;gt; too&lt;/li&gt;&lt;/ul&gt;</span></pre></div>
+</figure>
+
+<p>The escaping is being remembered, this time. Seventy three lines.</p>
+
+<h2 id="session">Step four: knowing who is on the other end</h2>
+
+<p>Now the part that most people find genuinely surprising the first time. The
+protocol from chapter six has no notion of a visitor. Every request is complete
+on its own, arrives on its own connection, and carries no relationship to any
+request before it. The server has no memory of you between one request and the
+next, and cannot have, because there is nowhere for that memory to live in the
+message. This property has a name, and HTTP is described as <span class="term">stateless</span>.</p>
+
+<p>So being logged in has to be built out of nothing. The method the web settled on
+is to have the server hand the visitor a piece of text and have the browser send
+it back on every subsequent request. That piece of text is a <span class="term">cookie</span>.</p>
+
+<figure>
+  <div class="dgm">{{ diagram:cookie-session }}</div>
+  <figcaption>the server hands out a random token and keeps the name itself; the browser sends
+the token back with every later request</figcaption>
+</figure>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step4_session.py#login }}
+<figcaption>step4_session.py, handing out a cookie</figcaption>
+</figure>
+
+<p>Reading it back requires pulling apart a header with its own separate format,
+which is a third parser in the same file.</p>
+
+<figure>
+{{ code:code/11-when-the-page-is-different-for-every-visitor/step4_session.py#cookies }}
+<figcaption>step4_session.py, reading the cookie back</figcaption>
+</figure>
+
+<p>The cookie holds a random number and nothing else. The name lives in a
+dictionary on the server, and the cookie is only the key to it. That arrangement
+is a <span class="term">session</span>, and doing it the other way, putting the name in the cookie, means
+any visitor can edit the cookie and become anybody. <code>secrets.token_hex</code> is used
+rather than anything simpler because the token is the only thing standing
+between a stranger and somebody else's account. A guessable session id is an
+account anybody can take. <code>HttpOnly</code> tells the browser not to let scripts on the
+page read the cookie, which limits the damage from the mistake in step two.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ curl -s -c jar http://127.0.0.1:8000/</span>
+<span class="out">&lt;h1&gt;Guestbook&lt;/h1&gt;
+&lt;p&gt;Say who you are before signing.&lt;/p&gt;</span>
+<span class="prompt">$ curl -s -i -c jar -b jar -X POST -d 'name=Ada' http://127.0.0.1:8000/login</span>
+<span class="out">HTTP/1.1 303 See Other
+Location: /
+Set-Cookie: session=3776b04677b9c301d403fc533b4177df; Path=/; HttpOnly</span>
+<span class="prompt">$ curl -s -b jar -X POST -d 'message=first!' http://127.0.0.1:8000/messages</span>
+<span class="prompt">$ curl -s -b jar http://127.0.0.1:8000/</span>
+<span class="out">&lt;h1&gt;Guestbook&lt;/h1&gt;
+&lt;p&gt;Signed in as Ada.&lt;/p&gt;
+&lt;ul&gt;&lt;li&gt;Ada: first!&lt;/li&gt;&lt;/ul&gt;</span>
+<span class="prompt">$ curl -s http://127.0.0.1:8000/</span>
+<span class="out">&lt;h1&gt;Guestbook&lt;/h1&gt;
+&lt;p&gt;Say who you are before signing.&lt;/p&gt;</span></pre></div>
+</figure>
+
+<p>Two visitors, one server, two different pages. That is the thing chapter ten
+could not do, and it took a hundred and three lines to get here.</p>
+
+<h2 id="check">Check it yourself: read the file you now have</h2>
+
+<div class="check">
+  <p>Open <code>step4_session.py</code> and read it from the top, without skipping. Count how much
+of it is about a guestbook. There is a list of messages, a dictionary of
+sessions, two functions that produce pages, and about fifteen lines inside
+<code>handle</code> that decide what to do. Call that a third of the file, being generous.</p>
+  <p>Everything else is machinery, and none of it is specific to this program: the
+response builder, the redirect builder, the escaper, the field parser, the
+header parser, the cookie parser, the request reader that counts bytes against
+<code>Content-Length</code>, the socket setup, the accept loop, and the close.</p>
+  <p>Now imagine the next page. Not a hard one. A page that shows one message by
+number, at <code>/messages/3</code>. The chain of <code>if</code> statements cannot express it, because
+the number is part of the path, so the routing has to grow a way to match
+patterns and pull pieces out. That is a new subsystem, and it will be written
+badly the first time. Then imagine the twentieth page.</p>
+</div>
+
+<h2 id="still-wrong">The things that are still wrong</h2>
+
+<p>The file works, and a fair description of it is that it is a hundred lines of
+machinery holding thirty lines of guestbook. That would be tolerable if the
+machinery were finished. It is not, and here is what is still missing from it.
+Start with the worst one, because it takes one line to demonstrate. Send the
+server something that is not a request.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal two</div>
+<pre><span class="prompt">$ printf 'not a request at all\r\n\r\n' | nc 127.0.0.1 8000</span></pre></div>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal one</div>
+<pre class="out">listening on http://127.0.0.1:8000
+Traceback (most recent call last):
+  File "step4_session.py", line 136, in &lt;module&gt;
+    conversation.sendall(handle(*read_request(conversation)))
+  File "step4_session.py", line 97, in handle
+    method, target, _ = head.split(b"\r\n")[0].decode().split(" ")
+ValueError: too many values to unpack (expected 3)</pre></div>
+</figure>
+
+<p>The server is gone. Five words that are not a request line, and the process that
+was serving everybody has exited, taking the guestbook and every session with
+it. Chapter five said that a server which stops working because somebody sent it
+something unexpected is a server any stranger can turn off, and this is that
+server. The right answer was a <code>400</code>, which chapter six listed and which this code
+never sends.</p>
+
+<p>Nothing limits the size of a body. A visitor who claims a <code>Content-Length</code> of four
+billion will have the <code>while</code> loop in <code>read_request</code> cheerfully try to collect it,
+and the process will run out of memory. That is one line to send and a whole
+server to take down. Nothing handles a request that never finishes arriving.
+Open a connection, send half a header, and go for lunch, and the server waits,
+because chapter eight's blocking is doing exactly what it was asked. Escaping is
+a rule in your head, and there is nothing in the design that stops you
+forgetting it once. Every page builds HTML by pasting strings together, and the
+moment a page has a loop, a condition and a heading, that becomes hard to read
+and easy to break. There is no logging, so when something is wrong you have no
+way of knowing what was asked for. Anything the process is holding disappears
+when it stops: sign the guestbook, press control C, and the guestbook is empty,
+and the sessions go too. And the whole thing still answers one visitor at a
+time.</p>
+
+<p>Every one of those has a standard answer, every standard answer is a known
+amount of work, and none of it has anything to do with the guestbook. It is
+worth stating exactly what the complaint is, because it is not that this was
+difficult. It was not difficult. It was tedious, it is easy to get subtly wrong,
+and it is identical in every web application anybody has ever written. Chapter
+sixteen is where that observation turns into something you can install.</p>
+
+<h2 id="limit">Two programs, one word</h2>
+
+<p>You now have two programs. One reads files off a disk and sends them back, and
+one runs your code to produce the answer, and they are doing different jobs.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>Both of them are called a server. So is the laptop they are running on, and so
+is the machine in a rack that will eventually run them for real. One word is
+carrying at least three meanings, and most writing about this subject uses it
+without saying which, which makes that writing harder to read than it needs to
+be.</p>
+  <p class="to">Sorting the word out takes five minutes and one small program, and it is chapter
+twelve.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>The request side of this chapter as a course, and where the two mistakes you
+made on purpose sit among the classics.</p>
+
+{{ resources }}

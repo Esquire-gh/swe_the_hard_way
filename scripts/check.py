@@ -59,7 +59,7 @@ PROPER = {
 TITLE_HEADINGS = {"Software Engineering the Hard Way"}
 
 TAG = re.compile(r"<[^>]+>")
-TOKEN = re.compile(r"\{\{.*?\}\}")
+TOKEN = re.compile(r"\{\{[^}]*\}\}")
 HEADING = re.compile(r"<h([1-3])[^>]*>(.*?)</h\1>", re.S)
 HREF = re.compile(r'(?:href|src)="([^"]+)"')
 CODE_TOKEN = re.compile(r"\{\{\s*code:([^#}\s]+)")

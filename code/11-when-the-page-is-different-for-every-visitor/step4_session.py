@@ -48,6 +48,7 @@ def headers_of(head):
     return found
 
 
+# BEGIN cookies
 def cookies_of(headers):
     found = {}
     for pair in headers.get("cookie", "").split(";"):
@@ -55,6 +56,7 @@ def cookies_of(headers):
         if name:
             found[name] = value
     return found
+# END cookies
 
 
 def read_request(conversation):
@@ -100,6 +102,7 @@ def handle(head, body):
     if method == "GET" and path == "/":
         return response("200 OK", guestbook_page(who) if who else sign_in_page())
 
+# BEGIN login
     if method == "POST" and path == "/login":
         name = parse_fields(body.decode()).get("name", "").strip()
         if not name:
@@ -107,6 +110,7 @@ def handle(head, body):
         token = secrets.token_hex(16)
         sessions[token] = name
         return redirect("/", [f"Set-Cookie: session={token}; Path=/; HttpOnly"])
+# END login
 
     if method == "POST" and path == "/messages":
         if not who:

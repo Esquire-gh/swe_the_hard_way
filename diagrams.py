@@ -454,3 +454,205 @@ def three_jobs(_=None) -> str:
         b.append(_t(x + 100, base + 35, sub, "lbl sm mut mid"))
     b.append(_line(30, base, 690, base, "flow mut", arrow=False))
     return _svg(720, 248, "".join(b), 600)
+
+
+# --------------------------------------------------------------------------
+# chapter eight: the loop, and the two ways to wait
+# --------------------------------------------------------------------------
+
+@diagram("server-loop")
+def server_loop(_=None) -> str:
+    b = [_t(20, 24, "a web server, in six lines", "lbl b")]
+    rows = [
+        ("tell the operating system you want to be reachable", "a request you cannot make yet", "box"),
+        ("wait until somebody connects", "no instruction means this", "box brk"),
+        ("read the text they sent", "you could write this today", "box learn"),
+        ("work out what they are asking for", "chapter six, thirty lines", "box learn"),
+        ("write the answer back", "you could write this today", "box learn"),
+        ("close the connection", "ordinary", "box learn"),
+    ]
+    for i, (text, note, cls) in enumerate(rows):
+        y = 44 + i * 34
+        x = 40 if i == 0 else 70
+        b.append(_box(x, y, 400, 26, cls))
+        b.append(_t(x + 12, y + 17, text, "lbl"))
+        b.append(_t(490, y + 17, note, "lbl sm brk" if "brk" in cls else "lbl sm mut"))
+    # the forever loop: a bracket down the left of rows 1..5 with an arrow back up
+    b.append('<path d="M60,96 L48,96 L48,236 L60,236" class="flow mut"/>')
+    b.append(_t(46, 252, "forever", "lbl sm mut"))
+    b.append(_line(48, 230, 48, 100, "flow mut"))
+    return _svg(720, 262, "".join(b), 640)
+
+
+@diagram("polling-vs-blocking")
+def polling_vs_blocking(_=None) -> str:
+    b = [_t(20, 24, "ten seconds of waiting, two ways", "lbl b")]
+    # polling row
+    b.append(_t(20, 60, "polling", "lbl b"))
+    b.append(_line(100, 56, 620, 56, "flow mut", arrow=False))
+    for i in range(17):
+        x = 100 + i * 30
+        b.append(_line(x, 50, x, 62, "flow brk", arrow=False))
+    b.append(_t(100, 80, "look, nothing. look, nothing. look, nothing...", "lbl sm mut"))
+    b.append(_t(640, 60, "1,632 looks", "lbl sm brk"))
+    # blocking row
+    b.append(_t(20, 124, "blocking", "lbl b"))
+    b.append(_line(100, 120, 500, 120, "flow learn", arrow=False))
+    b.append(_t(100, 144, "stopped: no instructions run, no processor time spent", "lbl sm mut"))
+    b.append(_t(640, 124, "1 look", "lbl sm learn"))
+    # the arrival
+    b.append('<path d="M500,36 L500,130" class="flow" stroke-dasharray="3 3"/>')
+    b.append(_t(500, 32, "the message arrives", "lbl sm mid"))
+    b.append(_line(500, 120, 620, 120, "flow learn", arrow=False))
+    b.append(_t(510, 112, "woken at once", "lbl sm learn"))
+    b.append(_t(20, 176, "polling pays for every look and notices late; blocking "
+                         "pays nothing and is woken at once", "lbl sm mut"))
+    return _svg(720, 188, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter nine: the calls, and how conversations are told apart
+# --------------------------------------------------------------------------
+
+@diagram("socket-lifecycle")
+def socket_lifecycle(_=None) -> str:
+    b = [_t(20, 24, "the server's calls and the client's, and where they meet", "lbl b")]
+    b.append(_t(150, 52, "server", "lbl b mid"))
+    srv = [("socket", "a descriptor, attached to nothing"),
+           ("bind", "claim a port on this machine"),
+           ("listen", "this side answers"),
+           ("accept", "block until somebody arrives")]
+    for i, (name, sub) in enumerate(srv):
+        y = 64 + i * 44
+        cls = "box learn" if name == "accept" else "box"
+        b.append(_labelled_box(60, y, 180, 34, name, "", cls))
+        b.append(_t(250, y + 21 if i < 3 else y + 8, sub, "lbl sm mut"))
+        if i < 3:
+            b.append(_line(150, y + 34, 150, y + 44, "flow mut", arrow=False))
+    b.append(_line(150, 230, 150, 250))
+    b.append(_labelled_box(60, 250, 180, 34, "read, write, close", "", "box learn"))
+    b.append(_t(250, 271, "a new descriptor, this visitor only", "lbl sm mut"))
+    b.append('<path d="M40,267 L30,267 L30,213 L58,213" class="flow mut" marker-end="url(#arw)"/>')
+    b.append(_t(20, 300, "back to accept", "lbl sm mut"))
+    b.append(_t(610, 52, "client", "lbl b mid"))
+    for name, y in [("socket", 108), ("connect", 196), ("write, read, close", 250)]:
+        b.append(_labelled_box(520, y, 180, 34, name, "", "box"))
+    b.append(_line(610, 142, 610, 196, "flow mut", arrow=False))
+    b.append(_line(610, 230, 610, 250, "flow mut", arrow=False))
+    b.append(_line(520, 218, 240, 218, "flow learn"))
+    b.append(_t(380, 232, "the connection", "lbl sm mid learn"))
+    return _svg(720, 312, "".join(b), 640)
+
+
+@diagram("four-tuple")
+def four_tuple(_=None) -> str:
+    b = [_t(20, 24, "three conversations with one port, told apart by the other end", "lbl b")]
+    b.append(_labelled_box(460, 90, 220, 60, "188.184.67.127 : 80", "the server's end, the same for all", "box learn"))
+    rows = [(56, "fd 3", "192.168.1.182 : 59381"),
+            (112, "fd 6", "192.168.1.182 : 59382"),
+            (168, "fd 7", "192.168.1.182 : 59383")]
+    for y, fd, addr in rows:
+        b.append(_labelled_box(80, y, 220, 36, addr, "", "box"))
+        b.append(_t(70, y + 22, fd, "lbl sm mut end"))
+        b.append(_line(300, y + 18, 460, 120, "flow"))
+    b.append(_t(20, 232, "four numbers, unique as a group, decide which socket a packet "
+                         "belongs to", "lbl sm mut"))
+    return _svg(720, 244, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter ten: the path names a file
+# --------------------------------------------------------------------------
+
+@diagram("path-mapping")
+def path_mapping(_=None) -> str:
+    b = [_t(20, 24, "a static web server: the request path, joined onto one folder", "lbl b")]
+    b.append(_t(20, 52, "site/  (the document root)", "lbl b"))
+    files = ["index.html", "about.html", "style.css"]
+    for i, f in enumerate(files):
+        b.append(_t(40, 72 + i * 18, f, "lbl sm mut"))
+    rows = [
+        (60, "GET /about.html", "site/about.html", "200, the file's bytes", "box learn", "flow learn"),
+        (104, "GET /", "site/index.html", "200, a folder means index.html", "box learn", "flow learn"),
+        (148, "GET /missing.html", "site/missing.html", "404, there is no such file", "box brk", "flow brk"),
+    ]
+    for y, req, path, result, cls, fcls in rows:
+        b.append(_box(250, y, 160, 30, "box"))
+        b.append(_t(330, y + 19, req, "lbl mid"))
+        b.append(_line(410, y + 15, 450, y + 15, fcls))
+        b.append(_box(450, y, 150, 30, cls))
+        b.append(_t(525, y + 19, path, "lbl sm mid"))
+        b.append(_t(610, y + 19, result, "lbl sm brk" if "brk" in cls else "lbl sm learn"))
+    b.append(_t(20, 206, "the path is joined onto the folder; what is there is sent, and what is not is a 404", "lbl sm mut"))
+    return _svg(840, 218, "".join(b), 600)
+
+
+# --------------------------------------------------------------------------
+# chapter eleven: the redirect, and the cookie
+# --------------------------------------------------------------------------
+
+@diagram("post-redirect-get")
+def post_redirect_get(_=None) -> str:
+    b = [_t(20, 24, "post, then redirect, then get", "lbl b")]
+    b.append(_t(160, 52, "browser", "lbl b mid"))
+    b.append(_t(560, 52, "server", "lbl b mid"))
+    b.append(_line(160, 60, 160, 220, "flow mut", arrow=False))
+    b.append(_line(560, 60, 560, 220, "flow mut", arrow=False))
+    b.append(_line(166, 84, 554, 84))
+    b.append(_t(360, 78, "POST /messages  message=Ada was here", "lbl sm mid"))
+    b.append(_line(554, 120, 166, 120, "flow learn"))
+    b.append(_t(360, 114, "303 See Other  Location: /", "lbl sm mid learn"))
+    b.append(_line(166, 156, 554, 156))
+    b.append(_t(360, 150, "GET /", "lbl sm mid"))
+    b.append(_line(554, 192, 166, 192, "flow learn"))
+    b.append(_t(360, 186, "200 OK  the page, with the new entry", "lbl sm mid learn"))
+    b.append(_t(20, 240, "after the 303 the browser's last request is GET /, so reload "
+                         "and back are harmless", "lbl sm mut"))
+    return _svg(720, 252, "".join(b), 640)
+
+
+@diagram("cookie-session")
+def cookie_session(_=None) -> str:
+    b = [_t(20, 24, "a session: the name stays on the server, and the browser carries only a key to it", "lbl b")]
+    b.append(_t(160, 52, "browser", "lbl b mid"))
+    b.append(_t(560, 52, "server", "lbl b mid"))
+    b.append(_line(160, 60, 160, 250, "flow mut", arrow=False))
+    b.append(_line(560, 60, 560, 250, "flow mut", arrow=False))
+    b.append(_line(166, 84, 554, 84))
+    b.append(_t(360, 78, "POST /login  name=Ada", "lbl sm mid"))
+    b.append(_box(580, 92, 130, 34, "box learn"))
+    b.append(_t(645, 106, "sessions[3776b0...]", "lbl sm mid"))
+    b.append(_t(645, 120, "= \"Ada\"", "lbl sm mid"))
+    b.append(_line(554, 136, 166, 136, "flow learn"))
+    b.append(_t(360, 130, "303  Set-Cookie: session=3776b0...", "lbl sm mid learn"))
+    b.append(_box(20, 144, 120, 30, "box"))
+    b.append(_t(80, 163, "cookie jar", "lbl sm mid"))
+    b.append(_line(166, 196, 554, 196))
+    b.append(_t(360, 190, "GET /  Cookie: session=3776b0...", "lbl sm mid"))
+    b.append(_line(554, 232, 166, 232, "flow learn"))
+    b.append(_t(360, 226, "200  Signed in as Ada", "lbl sm mid learn"))
+    b.append(_t(20, 272, "nothing links two requests except a token the browser sends back", "lbl sm mut"))
+    return _svg(720, 284, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter twelve: what usually stands in front of what
+# --------------------------------------------------------------------------
+
+@diagram("web-vs-app-server")
+def web_vs_app_server(_=None) -> str:
+    b = [_t(20, 24, "two programs called a server, and where each one sits", "lbl b")]
+    b.append(_labelled_box(30, 70, 130, 60, "browsers", "many, from anywhere", "box"))
+    b.append(_labelled_box(230, 70, 200, 60, "web server", "nginx or Apache", "box"))
+    b.append(_labelled_box(500, 70, 190, 60, "application server", "your code runs here", "box learn"))
+    b.append(_line(160, 100, 230, 100))
+    b.append(_t(195, 92, "HTTP", "lbl sm mid mut"))
+    b.append(_line(430, 100, 500, 100))
+    b.append(_t(465, 92, "the rest", "lbl sm mid mut"))
+    b.append(_t(330, 156, "files, encryption, connections; answers /style.css itself", "lbl sm mid mut"))
+    b.append(_t(595, 156, "answers /messages", "lbl sm mid learn"))
+    b.append('<path d="M330,136 L330,142" class="flow mut"/>')
+    b.append('<path d="M595,136 L595,142" class="flow mut"/>')
+    b.append(_t(20, 192, "a rack in a building is a third thing with the same name; "
+                         "the laptop this runs on today is a fourth", "lbl sm mut"))
+    return _svg(720, 204, "".join(b), 620)

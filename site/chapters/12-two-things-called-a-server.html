@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 · Two things called a server — swe the hard way</title>
+<meta name="description" content="A machine and a program share the word, and so do the file server and the application server you just wrote.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part four · building the server</span><span class="here"><span class="hn">12</span><span class="ht">Two things called a server</span></span></span><span class="progress-label">12 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-what-programming-really-is.html" data-module="01-what-programming-really-is"><span class="n">01</span><span class="t">What programming really is</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-then-came-networks.html" data-module="02-then-came-networks"><span class="n">02</span><span class="t">Then came networks</span></a></li><li><a class="nav-item" href="03-and-then-the-web.html" data-module="03-and-then-the-web"><span class="n">03</span><span class="t">And then the web</span></a></li><li><a class="nav-item" href="04-a-website-is-a-file-on-someone-elses-computer.html" data-module="04-a-website-is-a-file-on-someone-elses-computer"><span class="n">04</span><span class="t">A website is a file on someone else&#x27;s computer</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses-are-just-text.html" data-module="06-requests-and-responses-are-just-text"><span class="n">06</span><span class="t">Requests and responses are just text</span></a></li><li><a class="nav-item" href="07-why-we-need-browsers.html" data-module="07-why-we-need-browsers"><span class="n">07</span><span class="t">Why we need browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-what-is-a-server-really-doing.html" data-module="08-what-is-a-server-really-doing"><span class="n">08</span><span class="t">What is a server really doing?</span></a></li><li><a class="nav-item" href="09-what-a-socket-is.html" data-module="09-what-a-socket-is"><span class="n">09</span><span class="t">What a socket is</span></a></li><li><a class="nav-item" href="10-a-static-web-server-in-one-file.html" data-module="10-a-static-web-server-in-one-file"><span class="n">10</span><span class="t">A static web server in one file</span></a></li><li><a class="nav-item" href="11-when-the-page-is-different-for-every-visitor.html" data-module="11-when-the-page-is-different-for-every-visitor"><span class="n">11</span><span class="t">When the page is different for every visitor</span></a></li><li><a class="nav-item current" href="12-two-things-called-a-server.html" data-module="12-two-things-called-a-server" aria-current="page"><span class="n">12</span><span class="t">Two things called a server</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-can-you-handle-two-users-at-once.html" data-module="13-can-you-handle-two-users-at-once"><span class="n">13</span><span class="t">Can you handle two users at once?</span></a></li><li><a class="nav-item" href="14-where-the-data-lives.html" data-module="14-where-the-data-lives"><span class="n">14</span><span class="t">Where the data lives</span></a></li><li><a class="nav-item" href="15-can-you-handle-10000-users.html" data-module="15-can-you-handle-10000-users"><span class="n">15</span><span class="t">Can you handle 10,000 users?</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-more-than-one-machine.html" data-module="17-more-than-one-machine"><span class="n">17</span><span class="t">More than one machine</span></a></li><li><a class="nav-item" href="18-ai-systems-are-the-same-systems.html" data-module="18-ai-systems-are-the-same-systems"><span class="n">18</span><span class="t">AI systems are the same systems</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part four · building the server</p>
+<h1><span class="num">12 ·</span> Two things called a server</h1>
+<p class="hook">You now have two programs, and the same word is used for both. The one from
+chapter ten reads files off a disk and sends them back. The one from chapter
+eleven runs your code to produce the answer. You are also sitting at a laptop,
+which is answering HTTP requests, and which nobody would call a server. The word
+is doing at least three jobs, and mixing them up makes most writing about this
+subject harder to read than it needs to be. This chapter sorts the word out, and
+it takes five minutes.</p>
+
+<h2 id="two-meanings">The two things the word means</h2>
+
+<p>A <span class="term">server</span> in the sense chapter five defined is a program. It waits, it accepts
+connections, it answers, and it goes back to waiting. That is a role a process
+plays, and any machine can run one. <code>server_safe.py</code> is a server in this sense,
+and so is <code>step4_session.py</code>.</p>
+
+<p>A <span class="term">server</span> in the other sense is a physical computer, and specifically one built
+for running programs like that continuously. It usually has no screen or
+keyboard, it is shaped to slide into a rack, it has more memory and more
+processors than a desktop, often two power supplies in case one fails, memory
+that can detect and correct its own errors, and some way to be restarted by
+somebody who is not in the building.</p>
+
+<p>The two meanings share a word for a boring historical reason. For a long time,
+if you were running server programs, you bought a machine specifically to do it,
+and nothing else ran on that machine. Naming the box after its job was
+reasonable, because the box had one job.</p>
+
+<h2 id="why-it-matters">Why keeping them apart matters now</h2>
+
+<p>That one to one relationship is gone in both directions, and both directions are
+worth seeing. One machine runs many servers. Chapter five had you list the
+programs on your own laptop in the waiting state, and there were more than you
+expected. Here is that list again while chapter ten's server is running.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ lsof -nP -iTCP -sTCP:LISTEN</span>
+<span class="out">COMMAND     PID    NAME
+com.docke   52512  *:8000 (LISTEN)
+python3.1   77974  127.0.0.1:8000 (LISTEN)</span></pre></div>
+</figure>
+
+<p>Two programs, one machine, and the machine is a laptop. The operating system's
+list does not distinguish your twenty lines from anything else on it, because
+there is nothing to distinguish. And one server runs on many machines. The thing
+people call "the Wikipedia server" is a large number of computers in several
+countries, and chapter four already showed you one name resolving to several
+addresses. Chapter seventeen is about what that costs.</p>
+
+<p>The machine may also not be a machine. When you rent a server today you are
+usually given a <span class="term">virtual machine</span>, which is a computer implemented in software on
+top of a real one, convinced it has hardware of its own. One physical box runs
+several of them, belonging to different customers who have never met. A
+<span class="term">container</span> is a lighter arrangement again, and it is not a machine at all: it is
+ordinary processes on the host, as described in chapter one, given a restricted
+view of the filesystem and the network so they behave as though they were alone.
+Chapter fifteen is where those earn their place, so this is only enough to stop
+the words being frightening.</p>
+
+<p>The practical value of separating the two meanings shows up when something
+breaks. "The server is down" can mean the building lost power, or that the
+machine is fine and your process exited four minutes ago, which you watched
+happen at the end of chapter eleven. Those have nothing in common except the
+sentence.</p>
+
+<h2 id="web-vs-app">The other split: web server and application server</h2>
+
+<p>There is a second overloading inside the software meaning, and you have now
+written one of each. <code>server_safe.py</code> reads files off a disk and sends them back.
+A program whose job is that, speaking HTTP and serving documents, is what people
+mean by a <span class="term">web server</span> in the narrow sense. Nginx and Apache are the two everybody
+has heard of, and they are the same idea as your file server with thirty years
+of work on top. <code>step4_session.py</code> stops reading files and runs your code to
+produce the answer. That is a different job, and the name for a program that
+runs your code is an <span class="term">application server</span>. The FastAPI program in chapter sixteen
+is one.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 204" role="img" style="min-width:620px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">two programs called a server, and where each one sits</text><rect x="30" y="70" width="130" height="60" rx="3" class="box"/><text x="95.0" y="98.0" class="lbl b mid">browsers</text><text x="95.0" y="113.0" class="lbl sm mut mid">many, from anywhere</text><rect x="230" y="70" width="200" height="60" rx="3" class="box"/><text x="330.0" y="98.0" class="lbl b mid">web server</text><text x="330.0" y="113.0" class="lbl sm mut mid">nginx or Apache</text><rect x="500" y="70" width="190" height="60" rx="3" class="box learn"/><text x="595.0" y="98.0" class="lbl b mid">application server</text><text x="595.0" y="113.0" class="lbl sm mut mid">your code runs here</text><path d="M160,100 L230,100" class="flow" marker-end="url(#arw)"/><text x="195" y="92" class="lbl sm mid mut">HTTP</text><path d="M430,100 L500,100" class="flow" marker-end="url(#arw)"/><text x="465" y="92" class="lbl sm mid mut">the rest</text><text x="330" y="156" class="lbl sm mid mut">files, encryption, connections; answers /style.css itself</text><text x="595" y="156" class="lbl sm mid learn">answers /messages</text><path d="M330,136 L330,142" class="flow mut"/><path d="M595,136 L595,142" class="flow mut"/><text x="20" y="192" class="lbl sm mut">a rack in a building is a third thing with the same name; the laptop this runs on today is a fourth</text></svg></div>
+  <figcaption>in production both are usually present: the web server in front holds
+connections and serves what never changes, and passes the rest to the
+application server behind it</figcaption>
+</figure>
+
+<p>In production both are usually present at once. Nginx sits in front, holding the
+connections, handling encryption, and serving the files that never change. It
+passes everything else to the application server behind it, which runs the code.
+They are split because they are good at different things, and because the front
+one can go on answering while the back one is restarted. Keep the question
+"which server" available. When a piece of writing says the server does
+something, it is usually worth knowing whether the thing being described is a
+rack, a program serving files, or a program running application code.</p>
+
+<h2 id="check">Check it yourself: one machine, many servers, one port each</h2>
+
+<div class="check">
+  <p>The claim that a machine can hold any number of servers, but that a port can
+hold one, is checkable in fifteen lines.</p>
+  <figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;One machine can hold many servers. One port can hold one.
+
+Run it with: python3 two_at_one_port.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> socket
+
+
+<span class="c-kw">def</span> <span class="c-fn">claim</span>(port):
+    <span class="c-st">&quot;&quot;&quot;Try to become the program that answers on this port.&quot;&quot;&quot;</span>
+    listening = socket.socket()
+    listening.bind((<span class="c-st">&quot;127.0.0.1&quot;</span>, port))
+    listening.listen(5)
+    <span class="c-kw">return</span> listening
+
+
+first = claim(8200)
+print(<span class="c-st">&quot;claimed port 8200&quot;</span>)
+
+second = claim(8201)
+print(<span class="c-st">&quot;claimed port 8201 as well, on the same machine&quot;</span>)
+
+<span class="c-kw">try</span>:
+    claim(8200)
+<span class="c-kw">except</span> OSError <span class="c-kw">as</span> refused:
+    print(f<span class="c-st">&quot;asking for port 8200 again: {refused.strerror}&quot;</span>)
+
+first.close()
+second.close()
+</pre></div>
+  <figcaption>two_at_one_port.py</figcaption>
+  </figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 two_at_one_port.py</span>
+<span class="out">claimed port 8200
+claimed port 8201 as well, on the same machine
+asking for port 8200 again: Address already in use</span></pre></div>
+  <p>One process here is holding two ports, and a machine could hold thousands. The
+third attempt is refused, and the refusal comes from the operating system rather
+than from any agreement between programs. Chapter nine explained why: the port
+is how the operating system decides which waiting program an arriving connection
+belongs to, so allowing two claims on one number would leave it with a question
+it could not answer.</p>
+  <div class="trouble">
+    <b>if it fails on the first call instead of the third</b>
+    <p>One of those numbers is already taken on your machine. That is the same message
+telling you the same thing, and picking a different number fixes it. Ports being
+occupied by things you forgot you installed is a normal part of this work.</p>
+  </div>
+</div>
+
+<h2 id="limit">Naming things does not add capability</h2>
+
+<p>The words are sorted out, which is worth something, and the programs are exactly
+as capable as they were.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>In particular, both of them still answer one visitor at a time. The loop accepts
+a conversation, deals with it from start to finish, and only then goes back to
+<code>accept</code>. With small pages on your own laptop nobody can tell. The first time a
+request takes a while, everybody behind it finds out.</p>
+  <p class="to">Part five opens with the question every server eventually has to answer: can you
+handle two users at once? That is chapter thirteen.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>A developer's tour of the machines and programs the word covers, and what is
+usually standing in front of what.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=FTAPjr7vgxE" target="_blank" rel="noopener">How the Internet works for developers, part 2: servers and scaling</a><span class="res-by">LearnCode.academy</span></div><p class="res-note">A developer&#x27;s tour of what stands in front of what: web servers, application servers and the machines they run on.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="12-two-things-called-a-server"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="11-when-the-page-is-different-for-every-visitor.html"><span class="dir">previous</span><span class="name">11 · When the page is different for every visitor</span></a><a class="next" href="13-can-you-handle-two-users-at-once.html"><span class="dir">next</span><span class="name">13 · Can you handle two users at once?</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

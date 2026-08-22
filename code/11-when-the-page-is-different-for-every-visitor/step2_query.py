@@ -24,6 +24,7 @@ def response(status, body, kind="text/html"):
     return head.encode() + body
 
 
+# BEGIN split
 def split_target(target):
     """Separate the path from the fields written after the question mark."""
     path, _, query = target.partition("?")
@@ -34,12 +35,15 @@ def split_target(target):
         name, _, value = pair.partition("=")
         fields[unquote_plus(name)] = unquote_plus(value)
     return path, fields
+# END split
 
 
+# BEGIN escape
 def escape(text):
     """Make text safe to place inside a page."""
     return (text.replace("&", "&amp;").replace("<", "&lt;")
                 .replace(">", "&gt;").replace('"', "&quot;"))
+# END escape
 
 
 def handle(request):
@@ -49,12 +53,14 @@ def handle(request):
 
     if method != "GET":
         return response("405 Method Not Allowed", b"<h1>405 not allowed</h1>")
+# BEGIN hello
     if path == "/hello":
         name = fields.get("name", "stranger")
         return response("200 OK", f"<h1>Hello, {name}</h1>".encode())
     if path == "/hello-escaped":
         name = escape(fields.get("name", "stranger"))
         return response("200 OK", f"<h1>Hello, {name}</h1>".encode())
+# END hello
     return response("404 Not Found", b"<h1>404 not found</h1>")
 
 

@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import textwrap
 from html import escape
 from pathlib import Path
 
@@ -105,7 +106,7 @@ def inline_code(spec: str) -> str:
             b = next(i for i, l in enumerate(lines) if f"END {mark}" in l)
         except StopIteration:
             raise MissingToken(f"{path_part}: no BEGIN/END {mark} markers")
-        src = "\n".join(lines[a + 1:b]).strip("\n")
+        src = textwrap.dedent("\n".join(lines[a + 1:b])).strip("\n")
     body = highlight_python(src) if path.suffix == ".py" else escape(src)
     return f'<div class="code"><pre>{body}</pre></div>'
 
