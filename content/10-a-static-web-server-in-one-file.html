@@ -47,7 +47,7 @@ minutes from now and find baffling.</p>
 <h2 id="twenty-lines">A web server in twenty lines</h2>
 
 <figure>
-{{ code:code/10-a-web-server-in-one-file/server_one.py }}
+{{ code:code/10-a-static-web-server-in-one-file/server_one.py }}
 <figcaption>server_one.py</figcaption>
 </figure>
 
@@ -113,7 +113,7 @@ the file, write it back, close, and around again for the next one</figcaption>
 below contains a bug on purpose. The next section is about the bug.</p>
 
 <figure>
-{{ code:code/10-a-web-server-in-one-file/server_files.py }}
+{{ code:code/10-a-static-web-server-in-one-file/server_files.py }}
 <figcaption>server_files.py, with a deliberate bug in it</figcaption>
 </figure>
 
@@ -185,7 +185,7 @@ because the line that causes it looks completely reasonable.</p>
 anything that is not inside the directory you meant to serve.</p>
 
 <figure>
-{{ code:code/10-a-web-server-in-one-file/server_safe.py#answer }}
+{{ code:code/10-a-static-web-server-in-one-file/server_safe.py#answer }}
 <figcaption>server_safe.py, the corrected answer()</figcaption>
 </figure>
 
@@ -244,6 +244,13 @@ was here before. That is chapter twelve.</p>
   <p>It forgets everything. When you press control C, everything the program knew
 is gone, because it was in memory belonging to a process, as chapter one
 described. That is chapter fifteen.</p>
+  <p>It reads one buffer of 65,536 bytes and hopes the whole request arrived.
+Chapter six was explicit that a stream has no message boundaries, and this code
+ignores that, so a request split across two packets will be handled wrongly.
+Chapter eleven fixes it, because that is where bodies start arriving.</p>
+  <p>None of that makes it a toy. Every one of those limits was a limit real
+servers had, and the order in which they were fixed is roughly the order of the
+rest of this course.</p>
   <p class="to">Before any of that, there is a smaller thing to sort out. You have
 written a server, and you are sitting at a laptop, and the same word is being
 used for two different objects. That confusion is chapter eleven.</p>

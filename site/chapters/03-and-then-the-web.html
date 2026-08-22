@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · And then the web — swe the hard way</title>
+<meta name="description" content="The internet moves bytes; the web is one agreement about what they mean. Why it arrived late and won anyway.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part two · the machines get connected</span><span class="here"><span class="hn">03</span><span class="ht">And then the web</span></span></span><span class="progress-label">03 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-what-programming-really-is.html" data-module="01-what-programming-really-is"><span class="n">01</span><span class="t">What programming really is</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-then-came-networks.html" data-module="02-then-came-networks"><span class="n">02</span><span class="t">Then came networks</span></a></li><li><a class="nav-item current" href="03-and-then-the-web.html" data-module="03-and-then-the-web" aria-current="page"><span class="n">03</span><span class="t">And then the web</span></a></li><li><a class="nav-item" href="04-a-website-is-a-file-on-someone-elses-computer.html" data-module="04-a-website-is-a-file-on-someone-elses-computer"><span class="n">04</span><span class="t">A website is a file on someone else&#x27;s computer</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses-are-just-text.html" data-module="06-requests-and-responses-are-just-text"><span class="n">06</span><span class="t">Requests and responses are just text</span></a></li><li><a class="nav-item" href="07-why-we-need-browsers.html" data-module="07-why-we-need-browsers"><span class="n">07</span><span class="t">Why we need browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-what-is-a-server-really-doing.html" data-module="08-what-is-a-server-really-doing"><span class="n">08</span><span class="t">What is a server really doing?</span></a></li><li><a class="nav-item" href="09-what-a-socket-is.html" data-module="09-what-a-socket-is"><span class="n">09</span><span class="t">What a socket is</span></a></li><li><a class="nav-item" href="10-a-static-web-server-in-one-file.html" data-module="10-a-static-web-server-in-one-file"><span class="n">10</span><span class="t">A static web server in one file</span></a></li><li><a class="nav-item" href="11-when-the-page-is-different-for-every-visitor.html" data-module="11-when-the-page-is-different-for-every-visitor"><span class="n">11</span><span class="t">When the page is different for every visitor</span></a></li><li><a class="nav-item" href="12-two-things-called-a-server.html" data-module="12-two-things-called-a-server"><span class="n">12</span><span class="t">Two things called a server</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-can-you-handle-two-users-at-once.html" data-module="13-can-you-handle-two-users-at-once"><span class="n">13</span><span class="t">Can you handle two users at once?</span></a></li><li><a class="nav-item" href="14-where-the-data-lives.html" data-module="14-where-the-data-lives"><span class="n">14</span><span class="t">Where the data lives</span></a></li><li><a class="nav-item" href="15-can-you-handle-10000-users.html" data-module="15-can-you-handle-10000-users"><span class="n">15</span><span class="t">Can you handle 10,000 users?</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-more-than-one-machine.html" data-module="17-more-than-one-machine"><span class="n">17</span><span class="t">More than one machine</span></a></li><li><a class="nav-item" href="18-ai-systems-are-the-same-systems.html" data-module="18-ai-systems-are-the-same-systems"><span class="n">18</span><span class="t">AI systems are the same systems</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part two · the machines get connected</p>
+<h1><span class="num">03 ·</span> And then the web</h1>
+<p class="hook">Most people use the internet and the web to mean the same thing, and for
+everyday purposes nobody minds. Here the difference is the whole chapter. The
+internet moves bytes and has no idea what they mean. The web is one agreement
+about what some of those bytes mean, one of many that were tried, and it arrived
+late, with no advantage anybody could see at the time. This chapter is about
+what it had that the others did not.</p>
+
+<h2 id="not-the-web">The internet is not the web</h2>
+
+<p>Chapter two finished with a stream of bytes arriving reliably and in order, and
+with the receiving program having no idea what they were. TCP delivers 4,206
+bytes and expresses no view about whether they are a photograph, a price, or a
+poem. Two programs that disagree about the meaning will both work correctly and
+understand nothing. That is the internet: the machines, the addresses, and the
+promise that bytes you send will arrive. It was running for twenty years before
+the web existed, and it would carry on running if the web disappeared tomorrow.</p>
+
+<p>What makes a bare network useful is an agreement, made in advance, about what
+the bytes will mean. An agreement between two programs about what to send, in
+what order, and what it signifies is called a <span class="term">protocol</span>. TCP is one, and its
+subject is delivery. The interesting ones sit on top of it, and their subject is
+whatever people wanted to do. Many were built. The web was a late one, it had no
+advantage anybody could see at the time, and for its first few years it was not
+even the most popular. So the question of this chapter is what it had that the
+others did not.</p>
+
+<h2 id="before">What people built before the web</h2>
+
+<p>Electronic mail across a network arrived in 1971, when Ray Tomlinson sent a
+message between two machines on the ARPANET and picked the <code>@</code> sign to separate
+the person from the machine they were on. It worked, it spread, and it is still
+here. But mail is addressed to a person and lands in their box. There is no way
+to write something once and let anyone who is interested come and read it.</p>
+
+<p>File transfer arrived the same year, and it fixes exactly that. You put a file
+on a machine, and other people connect to that machine and take a copy. For
+years this was how software and documents were shared. What it lacks is any way
+to get around. You have to already know which machine, then find your way to the
+right directory, then know the filename, and nothing inside one file can tell
+you about another.</p>
+
+<p>Usenet arrived around 1980 and carried discussion rather than documents. Gopher
+arrived in 1991 from the University of Minnesota, and it came closest of all:
+menus of documents you could walk down into, arranged in a hierarchy across many
+machines. For a couple of years it was more widely used than the web.</p>
+
+<p>Look at what all of them share. In every one, a document is a dead end. You can
+be sent to a document, or pick one off a menu, but once you are reading it, the
+document cannot point anywhere. Whatever structure exists lives outside the
+documents, in a directory listing or a menu that somebody has to maintain.</p>
+
+<h2 id="links">The idea of a link was forty years old already</h2>
+
+<p>Text that points at other text was not a new thought. Vannevar Bush described a
+machine in 1945 that would let a researcher build trails between documents and
+follow them later. Ted Nelson gave the idea its name in 1965 and called it
+<span class="term">hypertext</span>. Doug Engelbart demonstrated a working system with linked documents in
+1968, along with the mouse and shared editing. By the late 1980s there were
+hypertext systems people used every day, and Apple's HyperCard shipped with
+every Macintosh from 1987.</p>
+
+<p>They worked well, and they had one property in common that turns out to be the
+whole story. Their links were guaranteed. The system knew about every link, and
+it would not let you point at something that was not there. If a document moved,
+the links to it were updated, and if it was deleted, the links to it went too.
+That guarantee is a good idea, and it is what everyone assumed a serious system
+had to provide. It also puts a hard ceiling on how far the system can spread,
+because keeping every link honest means something has to know about every
+document and every link at once. That is workable on one machine. It is not
+workable across machines owned by people who have never met.</p>
+
+<h2 id="cern">What CERN needed, and what Tim Berners-Lee gave up</h2>
+
+<p>The problem that produced the web was not a grand vision. It was an
+administrative mess at a physics laboratory. CERN in the late 1980s had
+thousands of scientists from dozens of institutions, most of them visiting
+rather than permanent. They brought incompatible computers running incompatible
+operating systems and wrote documents in incompatible formats. People left
+constantly and their knowledge left with them. Tim Berners-Lee, working there as
+a software engineer, wrote a proposal in March 1989 that began by pointing out
+that information at CERN kept getting lost.</p>
+
+<p>His design has four decisions in it, and each one is a refusal to do something
+the established systems did.</p>
+
+<p>The first is that links are allowed to break. A link is a one way pointer that
+names a document, and nothing checks that the document exists until somebody
+follows it. Nobody maintains a registry. When the target has moved, following
+the link fails, and failing is an ordinary outcome rather than an error in the
+system. This is where <code>404 not found</code> comes from, and it is the single decision
+that let the thing span machines nobody coordinated.</p>
+
+<p>The second is that anyone may publish without asking. There is no central list
+of documents to be added to and no authority to apply to. You put a file on a
+machine, run a program that hands it out, and it is on the web. The third is
+that anyone may link without asking. Pointing at somebody's document requires no
+permission and no cooperation from them, because a link is only a name written
+inside your document. The fourth is that the format describes the document, not
+the screen. A page says that a piece of text is a heading, and each machine
+decides for itself what a heading should look like. Given a room full of
+incompatible computers, that was not a nicety. It was the only way the same
+document could be readable on all of them.</p>
+
+<p>Then in April 1993 CERN put the whole thing into the public domain. Anybody
+could implement it, sell it, or build on it, for nothing, forever. That same
+year the University of Minnesota announced it would charge licence fees for
+running a Gopher server. Gopher had been ahead. Within about two years it was
+finished. The web did not win on elegance. It won because it asked nobody for
+permission and cost nothing, and it could do that because Berners-Lee gave up
+the guarantee that everyone else thought was essential.</p>
+
+<h2 id="library">A library that lets its links break</h2>
+
+<p>Hypertext with everything else stripped away is small enough to build. Here is a
+library of documents where any line beginning with an arrow names another
+document, and nothing anywhere checks that the named document exists. The
+documents are in <code>code/03-and-then-the-web/library/</code>, and this is the first one.</p>
+
+<figure>
+<div class="code"><pre>A library of four documents, three of which exist.
+
+Any line beginning with an arrow names another document in this library.
+Nothing anywhere checks that the named document is really there.
+
+-&gt; networks
+-&gt; packets
+-&gt; the-one-that-moved
+</pre></div>
+<figcaption>library/welcome.txt</figcaption>
+</figure>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 252" role="img" style="min-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">four documents, three of which exist; every arrow is one link</text><rect x="40" y="100" width="130" height="44" rx="3" class="box learn"/><text x="105.0" y="120.0" class="lbl b mid">welcome</text><text x="105.0" y="135.0" class="lbl sm mut mid">start here</text><rect x="300" y="46" width="130" height="44" rx="3" class="box"/><text x="365.0" y="72.0" class="lbl b mid">networks</text><rect x="300" y="154" width="130" height="44" rx="3" class="box"/><text x="365.0" y="180.0" class="lbl b mid">packets</text><rect x="540" y="100" width="150" height="44" rx="3" class="box brk" stroke-dasharray="5 4"/><text x="615" y="118" class="lbl sm b mid brk">the-one-that-moved</text><text x="615" y="133" class="lbl sm mut mid">no such document</text><path d="M170,114 L300,72" class="flow" marker-end="url(#arw)"/><path d="M170,130 L300,172" class="flow" marker-end="url(#arw)"/><path d="M105,144 L105,222 L615,222 L615,144" class="flow brk" marker-end="url(#arw)"/><text x="360" y="240" class="lbl sm mut mid">one link points at nothing, and nothing noticed when it was written</text><path d="M352,90 L352,154" class="flow" marker-end="url(#arw)"/><path d="M378,154 L378,90" class="flow" marker-end="url(#arw)"/><text x="392" y="126" class="lbl sm mut">one link each way</text></svg></div>
+  <figcaption>the structure lives inside the documents, every link points one way, and one of
+them points at nothing</figcaption>
+</figure>
+
+<p>The program that walks the library starts at <code>welcome</code>, reads every document it is
+pointed at, and keeps going until there is nothing left to follow.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Walk a small library of documents by following the links inside them.
+
+Run it with: python3 follow.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> pathlib
+
+LIBRARY = pathlib.Path(__file__).parent / <span class="c-st">&quot;library&quot;</span>
+START = <span class="c-st">&quot;welcome&quot;</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">read</span>(name):
+    <span class="c-st">&quot;&quot;&quot;The text of a document, or None if there is no such document.&quot;&quot;&quot;</span>
+    path = LIBRARY / f<span class="c-st">&quot;{name}.txt&quot;</span>
+    <span class="c-kw">return</span> path.read_text() <span class="c-kw">if</span> path.exists() <span class="c-kw">else</span> <span class="c-kw">None</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">links_in</span>(text):
+    <span class="c-st">&quot;&quot;&quot;Every line of a document that names another document.&quot;&quot;&quot;</span>
+    <span class="c-kw">return</span> [line[3:].strip() <span class="c-kw">for</span> line <span class="c-kw">in</span> text.splitlines() <span class="c-kw">if</span> line.startswith(<span class="c-st">&quot;-&gt; &quot;</span>)]
+
+
+to_visit = [START]
+seen = set()
+missing = []
+
+<span class="c-kw">while</span> to_visit:
+    name = to_visit.pop(0)
+    <span class="c-kw">if</span> name <span class="c-kw">in</span> seen:
+        <span class="c-kw">continue</span>
+    seen.add(name)
+
+    text = read(name)
+    <span class="c-kw">if</span> text <span class="c-kw">is</span> <span class="c-kw">None</span>:
+        missing.append(name)
+        print(f<span class="c-st">&quot;[{name}] there is no document with this name&quot;</span>)
+        <span class="c-kw">continue</span>
+
+    print(f<span class="c-st">&quot;[{name}] {text.splitlines()[0]}&quot;</span>)
+    <span class="c-kw">for</span> target <span class="c-kw">in</span> links_in(text):
+        print(f<span class="c-st">&quot;          points at {target}&quot;</span>)
+        to_visit.append(target)
+
+print(f<span class="c-st">&quot;\ndocuments read: {len(seen) - len(missing)}&quot;</span>)
+print(f<span class="c-st">&quot;links that point at nothing: {missing}&quot;</span>)
+</pre></div>
+<figcaption>follow.py</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 follow.py</span>
+<span class="out">[welcome] A library of four documents, three of which exist.
+          points at networks
+          points at packets
+          points at the-one-that-moved
+[networks] A network moves bytes between machines and has no opinion about them.
+          points at packets
+[packets] A packet is a small block of bytes with a destination written on it.
+          points at networks
+[the-one-that-moved] there is no document with this name
+
+documents read: 3
+links that point at nothing: ['the-one-that-moved']</span></pre></div>
+</figure>
+
+<p>Three things in thirty lines, and all three are the web. The structure is inside
+the documents. There is no index and no menu, and the only way to know that
+<code>welcome</code> leads to <code>networks</code> is to read <code>welcome</code>. Adding a document to this library
+means writing a file and having something point at it, and nobody has to be
+told.</p>
+
+<p>Links go one way. <code>networks</code> points at <code>packets</code> and <code>packets</code> points back, but those
+are two separate one way links that happen to face each other. Nothing about the
+first creates the second, and <code>packets</code> has no way of knowing who points at it,
+which is why finding out who links to a page is a whole industry rather than a
+query.</p>
+
+<p>A broken link is a result, not a crash. <code>the-one-that-moved</code> is missing, and the
+walk carries on and finishes. To make the guarantee the older systems made,
+every one of these files would have to be registered somewhere, and creating a
+file would stop being a private act.</p>
+
+<h2 id="check">Check it yourself: take a document away</h2>
+
+<div class="check">
+  <p>Move one of the documents out of the library and run the walk again.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ mv library/packets.txt library/packets.txt.away</span>
+<span class="prompt">$ python3 follow.py</span>
+<span class="out">[welcome] A library of four documents, three of which exist.
+          points at networks
+          points at packets
+          points at the-one-that-moved
+[networks] A network moves bytes between machines and has no opinion about them.
+          points at packets
+[packets] there is no document with this name
+[the-one-that-moved] there is no document with this name
+
+documents read: 2
+links that point at nothing: ['packets', 'the-one-that-moved']</span></pre></div>
+  <p>Nothing else in the library noticed. <code>welcome</code> still reads correctly and still
+lists three links, one of which now fails. No file had to be edited, no index
+had to be rebuilt, and the walk still ran to the end. That is the trade written
+out in full: in exchange for accepting that some fraction of links will be dead
+at any moment, publishing and linking become things you can do alone. The web is
+the largest thing humans have built out of that one exchange.</p>
+  <p>Put the file back with <code>mv library/packets.txt.away library/packets.txt</code> when you
+have looked.</p>
+</div>
+
+<h2 id="limit">What a name has to name</h2>
+
+<p>There is a gap in the library, and it is doing a lot of quiet work. When a
+document says <code>-&gt; packets</code>, the program turns that into a filename in a folder
+on this machine. That is fine here, because there is only one machine and one
+folder. On the web there is no such folder.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>The document being pointed at might be on a machine in another country, owned by
+a stranger, and the pointer has to work anyway. So a name on the web has to
+carry more than a filename. It has to be enough to find one particular machine
+out of every machine on earth, then ask that specific machine for one particular
+file, and it has to do that from a document written years ago by somebody who
+has never heard of you.</p>
+  <p class="to">Which raises the question this chapter has been avoiding. When you point at a
+page, where is that page actually sitting, and how does anything find the
+machine it is sitting on? That is chapter four.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>Two tours of the same ground: the web as an idea that arrived late, and the
+decisions that let it spread.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=guvsH5OFizE" target="_blank" rel="noopener">The world wide web (Crash Course #30)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">Crash Course tells the same story in ten minutes: hypertext, the link, and a web that arrived after the internet and won by asking nobody for permission.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=U6hkOAnFJxM" target="_blank" rel="noopener">Web development (CS50 Understanding Technology)</a><span class="res-by">CS50</span></div><p class="res-note">A gentler, longer walk through what the web is, for anyone who wants the history told twice before moving on.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="03-and-then-the-web"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="02-then-came-networks.html"><span class="dir">previous</span><span class="name">02 · Then came networks</span></a><a class="next" href="04-a-website-is-a-file-on-someone-elses-computer.html"><span class="dir">next</span><span class="name">04 · A website is a file on someone else&#x27;s computer</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

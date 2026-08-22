@@ -117,6 +117,45 @@ BY_CHAPTER = {
         ("cs50-internet", "A gentler tour of the same ground if the history "
                           "moved fast.", 0),
     ],
+    3: [
+        ("cc-web", "Crash Course tells the same story in ten minutes: hypertext, "
+                   "the link, and a web that arrived after the internet and won "
+                   "by asking nobody for permission.", 0),
+        ("cs50-web", "A gentler, longer walk through what the web is, for anyone "
+                     "who wants the history told twice before moving on.", 0),
+    ],
+    4: [
+        ("cc-internet", "Addresses, routing and DNS in ten minutes, with pictures "
+                        "of the packets this chapter describes.", 0),
+        ("k-net2", "Kanich on why the internet is split into layers and names, "
+                   "which is the design this chapter's delegation walk shows "
+                   "running.", 0),
+        ("ud-networking", "A free short course on exactly the networking a web "
+                          "developer needs: addresses, DNS, ports and what "
+                          "traceroute is telling you.", 0),
+    ],
+    5: [
+        ("ud-clientserver", "A free course that spends several hours on nothing "
+                            "but the two roles this chapter names.", 0),
+        ("ac-web", "The request and response picture from the browser's side, "
+                   "which is the half this chapter only gestures at.", 341),
+        ("lc-web1", "The same roles drawn quickly for developers, useful as a "
+                    "second telling before chapter six.", 0),
+    ],
+    6: [
+        ("k-www", "Kanich reads HTTP the way this chapter does, as text a "
+                  "systems programmer can type by hand.", 0),
+        ("cp-unicode", "The agreement underneath this one: how bytes came to "
+                       "mean letters, and why that was harder than it sounds.", 0),
+        ("m-binary", "How the same bytes become text, sound or pictures "
+                     "depending only on what the reader agreed they mean.", 0),
+    ],
+    7: [
+        ("az-browser", "The second job in this chapter, drawing the page, shown "
+                       "step by step from bytes to pixels.", 0),
+        ("js-browser", "A longer talk on the same pipeline, for the parts this "
+                       "chapter only names: parsing, layout and painting.", 0),
+    ],
     10: [
         ("k-socket", "The socket calls this chapter uses, explained from the "
                      "operating system's side by someone who teaches them for a "

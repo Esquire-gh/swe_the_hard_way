@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · A website is a file on someone else&#x27;s computer — swe the hard way</title>
+<meta name="description" content="Where a page physically lives, how machines are found by address, and how a name people remember becomes one.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part two · the machines get connected</span><span class="here"><span class="hn">04</span><span class="ht">A website is a file on someone else&#x27;s computer</span></span></span><span class="progress-label">04 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-what-programming-really-is.html" data-module="01-what-programming-really-is"><span class="n">01</span><span class="t">What programming really is</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-then-came-networks.html" data-module="02-then-came-networks"><span class="n">02</span><span class="t">Then came networks</span></a></li><li><a class="nav-item" href="03-and-then-the-web.html" data-module="03-and-then-the-web"><span class="n">03</span><span class="t">And then the web</span></a></li><li><a class="nav-item current" href="04-a-website-is-a-file-on-someone-elses-computer.html" data-module="04-a-website-is-a-file-on-someone-elses-computer" aria-current="page"><span class="n">04</span><span class="t">A website is a file on someone else&#x27;s computer</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses-are-just-text.html" data-module="06-requests-and-responses-are-just-text"><span class="n">06</span><span class="t">Requests and responses are just text</span></a></li><li><a class="nav-item" href="07-why-we-need-browsers.html" data-module="07-why-we-need-browsers"><span class="n">07</span><span class="t">Why we need browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-what-is-a-server-really-doing.html" data-module="08-what-is-a-server-really-doing"><span class="n">08</span><span class="t">What is a server really doing?</span></a></li><li><a class="nav-item" href="09-what-a-socket-is.html" data-module="09-what-a-socket-is"><span class="n">09</span><span class="t">What a socket is</span></a></li><li><a class="nav-item" href="10-a-static-web-server-in-one-file.html" data-module="10-a-static-web-server-in-one-file"><span class="n">10</span><span class="t">A static web server in one file</span></a></li><li><a class="nav-item" href="11-when-the-page-is-different-for-every-visitor.html" data-module="11-when-the-page-is-different-for-every-visitor"><span class="n">11</span><span class="t">When the page is different for every visitor</span></a></li><li><a class="nav-item" href="12-two-things-called-a-server.html" data-module="12-two-things-called-a-server"><span class="n">12</span><span class="t">Two things called a server</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item" href="13-can-you-handle-two-users-at-once.html" data-module="13-can-you-handle-two-users-at-once"><span class="n">13</span><span class="t">Can you handle two users at once?</span></a></li><li><a class="nav-item" href="14-where-the-data-lives.html" data-module="14-where-the-data-lives"><span class="n">14</span><span class="t">Where the data lives</span></a></li><li><a class="nav-item" href="15-can-you-handle-10000-users.html" data-module="15-can-you-handle-10000-users"><span class="n">15</span><span class="t">Can you handle 10,000 users?</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-more-than-one-machine.html" data-module="17-more-than-one-machine"><span class="n">17</span><span class="t">More than one machine</span></a></li><li><a class="nav-item" href="18-ai-systems-are-the-same-systems.html" data-module="18-ai-systems-are-the-same-systems"><span class="n">18</span><span class="t">AI systems are the same systems</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker learn">Part two · the machines get connected</p>
+<h1><span class="num">04 ·</span> A website is a file on someone else's computer</h1>
+<p class="hook">The word website sounds like a place. It is not a place. Somewhere there is a
+computer, probably in a rented rack in a building with good air conditioning,
+running an operating system and processes exactly like the ones in chapter one,
+and on its disk there is a file. When you visit a page, a program on that
+machine reads that file and sends the bytes back to you. That is the whole of
+it. The two hard parts of that sentence, finding the machine and naming the
+file, are this chapter.</p>
+
+<h2 id="two-questions">A web address is two questions in one</h2>
+
+<p>The library in chapter three turned <code>-&gt; packets</code> into a filename in a folder,
+and that worked because there was one machine and one folder. The web has
+neither. A link written years ago by a stranger has to find one particular
+machine among all the machines on earth, and then get one particular file off
+it. So take an address apart and see what it carries.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 176" role="img" style="min-width:600px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">one address, three parts, two questions</text><rect x="40" y="44" width="130" height="40" rx="3" class="box"/><text x="105.0" y="69" class="lbl b mid">https://</text><path d="M105.0,84 L105.0,104" class="flow mut"/><text x="105.0" y="120" class="lbl b mid">scheme</text><text x="105.0" y="136" class="lbl sm mut mid">which rules to speak</text><rect x="170" y="44" width="210" height="40" rx="3" class="box learn"/><text x="275.0" y="69" class="lbl b mid">example.com</text><path d="M275.0,84 L275.0,104" class="flow mut"/><text x="275.0" y="120" class="lbl b mid">host</text><text x="275.0" y="136" class="lbl sm mut mid">which machine to ask</text><rect x="380" y="44" width="190" height="40" rx="3" class="box"/><text x="475.0" y="69" class="lbl b mid">/about.html</text><path d="M475.0,84 L475.0,104" class="flow mut"/><text x="475.0" y="120" class="lbl b mid">path</text><text x="475.0" y="136" class="lbl sm mut mid">what to ask it for</text><text x="20" y="164" class="lbl sm mut">the host is the hard part: it has to become a number that routers can move packets toward</text></svg></div>
+  <figcaption>scheme, host and path: which rules, which machine, and what to ask it for</figcaption>
+</figure>
+
+<p>The <span class="term">scheme</span> says which set of rules to use for the conversation. <code>https</code> means the
+rules described in chapter six, with the conversation encrypted. The <span class="term">host</span> says
+which machine to have the conversation with, and it is the part that has to be
+turned into something the network can route to. The <span class="term">path</span> says what to ask that
+machine for once you are connected. It looks like a filename in a folder because
+in 1991 that is exactly what it was: the program on the far machine took the
+path, added it to the end of a directory name, and read that file off the disk.
+Much of the web stopped working that way long ago, and chapter eleven is about
+when and why, but the shape of the name never changed. The whole thing, scheme
+and host and path together, is a <span class="term">URL</span>, a uniform resource locator, which is a
+formal way of saying an address that works from anywhere.</p>
+
+<p>Two questions, then, and the second one is somebody else's problem until the
+first is solved. Which machine?</p>
+
+<h2 id="numbers">Every machine on the network needs a number</h2>
+
+<p>Routers forward packets by looking at the destination written on them, which
+means every machine reachable on the internet needs a number that is not shared
+with any other. That number is its <span class="term">IP address</span>. The old and still common form is
+four numbers between 0 and 255 with dots between them, like <code>208.80.154.224</code>. That
+is thirty two bits in total, which allows about 4.3 billion machines. When these
+were being handed out in the 1980s that seemed generous, because nobody had put
+one for every telephone on the list. They ran out. The newer form is a hundred
+and twenty eight bits, written as groups of hexadecimal digits separated by
+colons, like <code>2620:0:861:ed1a::1</code>, and most machines now have both.</p>
+
+<p>The part worth understanding is not the format but how anything can route to
+them, because there are billions of machines and no router could hold a list of
+them all. Addresses are not handed out one at a time. They are handed out in
+contiguous blocks, and a router keeps a table of blocks rather than machines.
+Its table says something closer to "anything starting 208.80.152 goes out of
+link three", and it holds around a million such ranges instead of billions of
+addresses. A packet arrives, the router finds the most specific range that
+contains the destination, and sends it that way. That is how the machine at hop
+three of the traceroute in chapter two could forward a packet toward a machine
+it had never heard of.</p>
+
+<h2 id="private">The address on your own machine is probably not public</h2>
+
+<p>Look again at the first hop of that traceroute. It was <code>192.168.1.1</code>. Some ranges
+are set aside as private, including everything starting <code>192.168</code>, everything
+starting <code>10.</code>, and a block in the middle of <code>172</code>. They are not unique, they mean
+nothing on the public internet, and routers on the internet will not forward
+packets addressed to them. Your laptop almost certainly has one right now, and
+so does mine, and they may well be the same number.</p>
+
+<p>What makes this work is that the box your internet arrives through has one real
+public address, and everything in the building shares it. When your laptop sends
+a packet out, that box rewrites the sender's address to be its own public one,
+writes down the swap, and undoes it when a reply comes back. This is called
+<span class="term">network address translation</span>, and it is the reason 4.3 billion addresses have
+lasted this long.</p>
+
+<div class="callout">
+  <p>There is a consequence worth carrying forward, because it will save confusion
+later. This arrangement works in one direction. Your machine can start a
+conversation with anything on the internet, and nothing on the internet can
+start one with your machine, because there is no address that reaches it. When
+you write a working web server in chapter ten and none of your friends can visit
+it, this is why. Writing a server and putting it somewhere the world can reach
+are two separate jobs, and only the first one is about programming.</p>
+</div>
+
+<h2 id="names">Nobody can remember numbers, and numbers move</h2>
+
+<p>Numbers are correct and unusable. People cannot remember them, and worse, they
+change. A site moves to a different machine, or to twelve machines in different
+countries, and every link ever written to it should keep working. So there has
+to be a layer that turns a name into a number, and the first version was exactly
+what you would guess. There was one file listing every name on the network and
+the address it belonged to. It was maintained at Stanford Research Institute,
+and every machine on the ARPANET downloaded a fresh copy from time to time.</p>
+
+<p>It failed for the reason chapter three has already made familiar. One central
+thing that everybody has to coordinate with does not survive growth. The file
+got large, it was out of date the moment it was copied, and adding a machine
+meant writing to someone and waiting. The replacement, designed in 1983, splits
+the names up and hands out authority over the pieces. It is called the <span class="term">Domain
+Name System</span>, DNS, and it is worth reading a name backwards to see the shape.</p>
+
+<figure>
+  <div class="dgm"><svg viewBox="0 0 720 264" role="img" style="min-width:620px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">en.wikipedia.org, read backwards: each level knows only who to ask next</text><rect x="20" y="64" width="120" height="164" rx="3" class="box learn"/><text x="80.0" y="144.0" class="lbl b mid">resolver</text><text x="80.0" y="159.0" class="lbl sm mut mid">asks for you</text><rect x="440" y="64" width="240" height="44" rx="3" class="box"/><text x="560.0" y="90.0" class="lbl b mid">root servers</text><path d="M140,76 L440,76" class="flow" marker-end="url(#arw)"/><text x="290" y="71" class="lbl sm mid">who runs org?</text><path d="M440,98 L140,98" class="flow mut" marker-end="url(#arw)"/><text x="290" y="111" class="lbl sm mut mid">ask the org servers</text><rect x="440" y="124" width="240" height="44" rx="3" class="box"/><text x="560.0" y="150.0" class="lbl b mid">org servers</text><path d="M140,136 L440,136" class="flow" marker-end="url(#arw)"/><text x="290" y="131" class="lbl sm mid">who runs wikipedia.org?</text><path d="M440,158 L140,158" class="flow mut" marker-end="url(#arw)"/><text x="290" y="171" class="lbl sm mut mid">ask wikimedia&#x27;s servers</text><rect x="440" y="184" width="240" height="44" rx="3" class="box learn"/><text x="560.0" y="210.0" class="lbl b mid">wikimedia&#x27;s servers</text><path d="M140,196 L440,196" class="flow" marker-end="url(#arw)"/><text x="290" y="191" class="lbl sm mid">en.wikipedia.org?</text><path d="M440,218 L140,218" class="flow learn" marker-end="url(#arw)"/><text x="290" y="231" class="lbl sm mid learn">208.80.154.224</text><text x="20" y="252" class="lbl sm mut">the answer is kept for its time to live, so the next thousand lookups never leave the resolver</text></svg></div>
+  <figcaption>nobody holds the whole list; each level knows one thing, who to ask next</figcaption>
+</figure>
+
+<p>In <code>en.wikipedia.org</code>, the last part is <code>org</code>. A small set of machines called the
+root servers know nothing about wikipedia, but they do know which machines are
+responsible for <code>org</code>. Those machines know nothing about the <code>en</code> part, but they
+know which machines are responsible for <code>wikipedia.org</code>. Those machines, run by
+the people who run wikipedia, know the address of <code>en.wikipedia.org</code>. Nobody holds
+the whole list. Adding a name inside <code>wikipedia.org</code> requires telling nobody
+outside wikipedia, in the same way that adding a document to the library in
+chapter three required telling nobody at all.</p>
+
+<p>Your own machine does not walk that chain. It asks one machine, called a
+<span class="term">resolver</span>, usually run by your internet provider, and the resolver does the
+walking and then remembers the answer for a stated number of seconds. That
+period is called the <span class="term">time to live</span>, and it is why the first lookup of a name is
+slow and the next thousand are instant.</p>
+
+<p>One last thing about this, and it is the point of putting the chapter here. All
+of that is programs on machines sending each other messages over the network
+from chapter two. The root servers are computers running processes as described
+in chapter one. There is no separate magic layer. It is the same story again,
+one level up.</p>
+
+<h2 id="lookup">Looking a name up</h2>
+
+<p>Python can ask the operating system to do a lookup, and the operating system
+asks the resolver.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Turn names people can remember into addresses machines can use.
+
+Run it with:   python3 lookup.py
+Or with names: python3 lookup.py wikipedia.org localhost
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> socket
+<span class="c-kw">import</span> sys
+
+NAMES = [<span class="c-st">&quot;example.com&quot;</span>, <span class="c-st">&quot;wikipedia.org&quot;</span>, <span class="c-st">&quot;localhost&quot;</span>, <span class="c-st">&quot;no-such-name.example&quot;</span>]
+
+
+<span class="c-kw">def</span> <span class="c-fn">addresses_for</span>(name):
+    <span class="c-st">&quot;&quot;&quot;Every address this name resolves to, without duplicates.&quot;&quot;&quot;</span>
+    found = socket.getaddrinfo(name, 80, proto=socket.IPPROTO_TCP)
+    <span class="c-kw">return</span> sorted({result[4][0] <span class="c-kw">for</span> result <span class="c-kw">in</span> found})
+
+
+<span class="c-kw">for</span> name <span class="c-kw">in</span> sys.argv[1:] <span class="c-kw">or</span> NAMES:
+    <span class="c-kw">try</span>:
+        found = addresses_for(name)
+    <span class="c-kw">except</span> socket.gaierror <span class="c-kw">as</span> problem:
+        print(f<span class="c-st">&quot;{name:&lt;22} no answer: {problem.strerror}&quot;</span>)
+        <span class="c-kw">continue</span>
+    print(f<span class="c-st">&quot;{name:&lt;22} {&#x27;, &#x27;.join(found)}&quot;</span>)
+</pre></div>
+<figcaption>lookup.py</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 lookup.py</span>
+<span class="out">example.com            104.20.23.154, 172.66.147.243, 2606:4700:10::6814:179a, 2606:4700:10::ac42:93f3
+wikipedia.org          208.80.154.224, 2620:0:861:ed1a::1
+localhost              127.0.0.1, ::1
+no-such-name.example   no answer: nodename nor servname provided, or not known</span></pre></div>
+</figure>
+
+<p>Your addresses for the first two will differ from these, and may differ from
+each other on consecutive runs, and that is the first lesson in the output. One
+name is not one machine. <code>example.com</code> came back with four addresses here, two of
+the old kind and two of the new. A busy site answers with several, and often
+with different ones depending on where you are asking from, so that you are sent
+to a machine near you. The name is a name for a service, and the service can be
+as many machines as it likes.</p>
+
+<p><code>localhost</code> is a special name that every machine has, and it points at itself.
+Packets sent to <code>127.0.0.1</code> never reach a network card at all; the operating
+system loops them straight back into itself. Everything from chapter eight
+onward is tested against that address, because it means you can run both sides
+of a conversation on one laptop.</p>
+
+<p>The last line fails, and it fails the way a broken link failed in chapter three.
+A name that resolves to nothing is an ordinary answer, handled and reported,
+rather than a fault in the system.</p>
+
+<h2 id="check">Check it yourself: watch the question get handed down</h2>
+
+<div class="check">
+  <p>The claim that no single machine knows the whole list is the one worth checking.
+<code>dig</code> will show you the chain being walked one step at a time.</p>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ dig +trace +nodnssec wikipedia.org A</span>
+<span class="out">.                   56789   IN  NS  a.root-servers.net.
+.                   56789   IN  NS  b.root-servers.net.
+                    ... eleven more ...
+org.                172800  IN  NS  a0.org.afilias-nst.info.
+org.                172800  IN  NS  b2.org.afilias-nst.org.
+                    ... four more ...
+wikipedia.org.      3600    IN  NS  ns0.wikimedia.org.
+wikipedia.org.      3600    IN  NS  ns1.wikimedia.org.
+wikipedia.org.      3600    IN  NS  ns2.wikimedia.org.
+wikipedia.org.      180     IN  A   208.80.154.224</span></pre></div>
+  <p>Read it as three questions and an answer. The first block is the root servers,
+and every one of them declined to answer the question. There are thirteen names,
+<code>a</code> through <code>m</code>, and each name is really many machines in many countries answering
+to the same address. What they returned is not an address for wikipedia. It is a
+list of who to ask about <code>org</code>. The second block is the same move again: the <code>org</code>
+servers do not know wikipedia's address either, but they know who is responsible
+for <code>wikipedia.org</code>. The third block is wikimedia's own machines, and only there
+does an address appear.</p>
+  <p>The numbers in the second column are the times to live, in seconds. The
+delegation for <code>org</code> is good for 172,800 seconds, which is two days, because who
+runs <code>org</code> almost never changes. The address itself is good for 180 seconds,
+because they may want to move it at short notice. That single number is how a
+site changes machines without anybody editing a link. Ask for the plain answer
+twice with <code>dig wikipedia.org</code> and watch the reported query time collapse on the
+second attempt. That is the resolver's memory doing its job.</p>
+  <div class="trouble">
+    <b>if dig is not on your machine</b>
+    <p><code>host wikipedia.org</code> or <code>nslookup wikipedia.org</code> will give you the answer without
+the journey.</p>
+  </div>
+</div>
+
+<h2 id="limit">Who asks, and who answers</h2>
+
+<p>We can now find the machine, and we have a path naming what we want from it. A
+name became an address, an address is something routers can move packets toward,
+and chapter two gave us an ordered stream of bytes between two programs once
+they are connected.</p>
+
+<div class="limit">
+  <span class="limit-label">where this runs out</span>
+  <p>What we still have no account of is the conversation itself. Two programs, one
+of which has the file and one of which wants it. Something has to happen between
+them, and every part of it is undecided. Which one speaks first. Whether one of
+them was already running before the other appeared, or whether they started
+together. Whether the machine with the file is doing anything at all when nobody
+is asking.</p>
+  <p class="to">Those questions have names, and the names come with a model so established it is
+rarely explained. Before looking at what the two programs say to each other,
+chapter five is exact about who they are.</p>
+</div>
+
+<h2 id="resources">Watch and read alongside this chapter</h2>
+
+<p>Addresses, routing and names, from a ten minute overview to a whole free course
+on the networking a web developer actually needs.</p>
+
+<div class="resources"><ul class="res-list"><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=AEaKrq3SpW8" target="_blank" rel="noopener">The Internet (Crash Course #29)</a><span class="res-by">Crash Course CS</span></div><p class="res-note">Addresses, routing and DNS in ten minutes, with pictures of the packets this chapter describes.</p></li><li><div class="res-head"><span class="res-kind video">video</span><a class="res-title" href="https://www.youtube.com/watch?v=Fzdx222mBng" target="_blank" rel="noopener">Making the Internet work by breaking it into smaller problems</a><span class="res-by">Chris Kanich · CS 361</span></div><p class="res-note">Kanich on why the internet is split into layers and names, which is the design this chapter&#x27;s delegation walk shows running.</p></li><li><div class="res-head"><span class="res-kind course">course</span><a class="res-title" href="https://www.udacity.com/course/networking-for-web-developers--ud256" target="_blank" rel="noopener">Networking for web developers</a><span class="res-by">Udacity (free)</span></div><p class="res-note">A free short course on exactly the networking a web developer needs: addresses, DNS, ports and what traceroute is telling you.</p></li></ul></div>
+<button class="done-toggle" type="button" aria-pressed="false" data-module="04-a-website-is-a-file-on-someone-elses-computer"><span class="box"></span><span class="label">mark this chapter complete</span></button><nav class="modnav"><a class="prev" href="03-and-then-the-web.html"><span class="dir">previous</span><span class="name">03 · And then the web</span></a><a class="next" href="05-clients-and-servers.html"><span class="dir">next</span><span class="name">05 · Clients and servers</span></a></nav></main></div></div><script src="../assets/site.js"></script>
+</body>
+</html>

@@ -79,7 +79,7 @@ def journey_map(_=None) -> str:
         ("Part two", "the machines get connected", "packets, addresses, names"),
         ("Part three", "the conversation", "client and server, request and response as text"),
         ("Part four", "building the server", "sockets, one file, frameworks, many at once"),
-        ("Part five", "everything on top", "data, scale, many machines, and AI"),
+        ("Part five", "more users, more machines", "two users, the data, ten thousand, frameworks, machines, AI"),
     ]
     w, h = 720, 60 + len(rows) * 62
     body = [_t(24, 34, "pressing enter", "lbl b learn"),
@@ -266,3 +266,191 @@ def path_traversal(_=None) -> str:
                             "resolve the real path and refuse anything not inside site/.",
                   "lbl sm mut"))
     return _svg(w, h, "".join(body), min_width=620)
+
+
+# --------------------------------------------------------------------------
+# chapter three: a library whose links are allowed to break
+# --------------------------------------------------------------------------
+
+@diagram("hypertext-library")
+def hypertext_library(_=None) -> str:
+    b = [_t(20, 24, "four documents, three of which exist; every arrow is one link", "lbl b")]
+    b.append(_labelled_box(40, 100, 130, 44, "welcome", "start here", "box learn"))
+    b.append(_labelled_box(300, 46, 130, 44, "networks", "", "box"))
+    b.append(_labelled_box(300, 154, 130, 44, "packets", "", "box"))
+    b.append('<rect x="540" y="100" width="150" height="44" rx="3" class="box brk" '
+             'stroke-dasharray="5 4"/>')
+    b.append(_t(615, 118, "the-one-that-moved", "lbl sm b mid brk"))
+    b.append(_t(615, 133, "no such document", "lbl sm mut mid"))
+    b.append(_line(170, 114, 300, 72))
+    b.append(_line(170, 130, 300, 172))
+    b.append('<path d="M105,144 L105,222 L615,222 L615,144" class="flow brk" '
+             'marker-end="url(#arw)"/>')
+    b.append(_t(360, 240, "one link points at nothing, and nothing noticed "
+                          "when it was written", "lbl sm mut mid"))
+    b.append(_line(352, 90, 352, 154))
+    b.append(_line(378, 154, 378, 90))
+    b.append(_t(392, 126, "one link each way", "lbl sm mut"))
+    return _svg(720, 252, "".join(b), 600)
+
+
+# --------------------------------------------------------------------------
+# chapter four: what an address carries, and who answers a name
+# --------------------------------------------------------------------------
+
+@diagram("url-anatomy")
+def url_anatomy(_=None) -> str:
+    b = [_t(20, 24, "one address, three parts, two questions", "lbl b")]
+    parts = [
+        (40, 130, "https://", "scheme", "which rules to speak", "box"),
+        (170, 210, "example.com", "host", "which machine to ask", "box learn"),
+        (380, 190, "/about.html", "path", "what to ask it for", "box"),
+    ]
+    for x, w, text, name, sub, cls in parts:
+        cx = x + w / 2
+        b.append(_box(x, 44, w, 40, cls))
+        b.append(_t(cx, 69, text, "lbl b mid"))
+        b.append(_line(cx, 84, cx, 104, "flow mut", arrow=False))
+        b.append(_t(cx, 120, name, "lbl b mid"))
+        b.append(_t(cx, 136, sub, "lbl sm mut mid"))
+    b.append(_t(20, 164, "the host is the hard part: it has to become a number "
+                         "that routers can move packets toward", "lbl sm mut"))
+    return _svg(720, 176, "".join(b), 600)
+
+
+@diagram("dns-delegation")
+def dns_delegation(_=None) -> str:
+    b = [_t(20, 24, "en.wikipedia.org, read backwards: each level knows only "
+                    "who to ask next", "lbl b")]
+    b.append(_labelled_box(20, 64, 120, 164, "resolver", "asks for you", "box learn"))
+    rows = [
+        (64, "root servers", "who runs org?", "ask the org servers"),
+        (124, "org servers", "who runs wikipedia.org?", "ask wikimedia's servers"),
+        (184, "wikimedia's servers", "en.wikipedia.org?", "208.80.154.224"),
+    ]
+    for i, (y, who, q, a) in enumerate(rows):
+        last = i == len(rows) - 1
+        b.append(_labelled_box(440, y, 240, 44, who, "", "box learn" if last else "box"))
+        b.append(_line(140, y + 12, 440, y + 12))
+        b.append(_t(290, y + 7, q, "lbl sm mid"))
+        b.append(_line(440, y + 34, 140, y + 34, "flow learn" if last else "flow mut"))
+        b.append(_t(290, y + 47, a, "lbl sm mid learn" if last else "lbl sm mut mid"))
+    b.append(_t(20, 252, "the answer is kept for its time to live, so the next "
+                         "thousand lookups never leave the resolver", "lbl sm mut"))
+    return _svg(720, 264, "".join(b), 620)
+
+
+# --------------------------------------------------------------------------
+# chapter five: who was there first
+# --------------------------------------------------------------------------
+
+@diagram("client-server")
+def client_server(_=None) -> str:
+    b = [_t(20, 24, "two programs, one conversation, and who was there first", "lbl b")]
+    b.append(_line(40, 76, 40, 224, "flow mut"))
+    b.append(_t(48, 228, "time", "lbl sm mut"))
+    b.append(_t(520, 52, "server", "lbl b mid"))
+    b.append(_t(520, 66, "already running", "lbl sm mut mid"))
+    b.append(_line(520, 72, 520, 236, "flow learn", arrow=False))
+    b.append(_t(532, 94, "waiting, and it costs nothing", "lbl sm mut"))
+    b.append(_t(200, 52, "client", "lbl b mid"))
+    b.append(_t(200, 66, "starts because it wants something", "lbl sm mut mid"))
+    b.append(_line(200, 100, 200, 180, "flow", arrow=False))
+    b.append(_line(206, 118, 514, 118))
+    b.append(_t(360, 112, "request: the client speaks first", "lbl sm mid"))
+    b.append(_line(514, 160, 206, 160, "flow learn"))
+    b.append(_t(360, 176, "response", "lbl sm mid learn"))
+    b.append(_t(200, 196, "exits", "lbl sm mut mid"))
+    b.append(_t(532, 206, "waiting for the next one", "lbl sm mut"))
+    b.append(_t(20, 254, "whoever sent the first arrow is the client; the role "
+                         "belongs to the conversation, not the machine", "lbl sm mut"))
+    return _svg(720, 266, "".join(b), 600)
+
+
+# --------------------------------------------------------------------------
+# chapter six: the shape of a message, and where the stream has no edges
+# --------------------------------------------------------------------------
+
+@diagram("http-anatomy")
+def http_anatomy(_=None) -> str:
+    b = [_t(20, 24, "a request and a response, line by line", "lbl b")]
+    cols = [
+        (20, "request", [
+            ("GET /about.html HTTP/1.1", "request line", "lbl b"),
+            ("Host: example.com", "header", "lbl"),
+            ("Accept: text/html", "header", "lbl"),
+            ("", "blank line: headers end", "lbl"),
+            ("(no body: a GET has nothing to send)", "", "lbl sm mut"),
+        ]),
+        (370, "response", [
+            ("HTTP/1.1 200 OK", "status line", "lbl b"),
+            ("Content-Type: text/html", "header", "lbl"),
+            ("Content-Length: 559", "how long the body is", "lbl"),
+            ("", "blank line: headers end", "lbl"),
+            ("<!doctype html><html>...", "body, 559 bytes", "lbl"),
+        ]),
+    ]
+    for x, title, lines in cols:
+        b.append(_t(x, 52, title, "lbl b"))
+        b.append(_box(x, 60, 330, 132, "box"))
+        for i, (text, note, cls) in enumerate(lines):
+            y = 84 + i * 24
+            if text:
+                b.append(_t(x + 12, y, text, cls))
+            else:
+                b.append(_line(x + 12, y - 4, x + 120, y - 4, "flow brk", arrow=False))
+            if note:
+                b.append(_t(x + 318, y, note, "lbl sm mut end"))
+    b.append(_t(20, 216, "the same shape both ways: a first line, headers, a "
+                         "blank line, and sometimes a body", "lbl sm mut"))
+    return _svg(720, 228, "".join(b), 640)
+
+
+@diagram("stream-boundaries")
+def stream_boundaries(_=None) -> str:
+    b = [_t(20, 24, "two requests arrive back to back on one connection", "lbl b")]
+    segs = [
+        (200, "request A: headers", "box learn"),
+        (30, "", "box sunk"),
+        (110, "body A", "box learn"),
+        (200, "request B: headers", "box"),
+        (30, "", "box sunk"),
+        (110, "body B", "box"),
+    ]
+    x = 20
+    edges = []
+    for w, label, cls in segs:
+        b.append(_box(x, 64, w, 36, cls, rx=0))
+        if label:
+            b.append(_t(x + w / 2, 86, label, "lbl sm b mid"))
+        x += w
+        edges.append(x)
+    b.append(_t(35, 56, "bytes, in order, with no edges of their own", "lbl sm mut"))
+    b.append(_line(235, 100, 235, 118, "flow", arrow=False))
+    b.append(_t(235, 132, "a blank line ends the headers", "lbl sm mid"))
+    b.append(_line(360, 100, 360, 150, "flow learn", arrow=False))
+    b.append(_t(360, 164, "Content-Length: 11 says where the body ends", "lbl sm mid learn"))
+    b.append('<path d="M360,44 L360,64" class="flow brk"/>')
+    b.append(_t(372, 48, "nothing in the stream marks this edge", "lbl sm brk"))
+    return _svg(720, 176, "".join(b), 640)
+
+
+# --------------------------------------------------------------------------
+# chapter seven: the three jobs a browser does, by size
+# --------------------------------------------------------------------------
+
+@diagram("three-jobs")
+def three_jobs(_=None) -> str:
+    b = [_t(20, 24, "what a browser does, drawn to scale", "lbl b")]
+    jobs = [
+        (40, 28, "speak the protocol", "one line with nc", "box learn"),
+        (260, 96, "draw the page", "serious engineering", "box"),
+        (480, 164, "agree about broken pages", "the largest of the three", "box brk"),
+    ]
+    base = 204
+    for x, h, title, sub, cls in jobs:
+        b.append(_box(x, base - h, 200, h, cls))
+        b.append(_t(x + 100, base + 20, title, "lbl b mid"))
+        b.append(_t(x + 100, base + 35, sub, "lbl sm mut mid"))
+    b.append(_line(30, base, 690, base, "flow mut", arrow=False))
+    return _svg(720, 248, "".join(b), 600)
