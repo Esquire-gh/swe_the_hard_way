@@ -27,7 +27,7 @@ it, so nothing can drift.
 described in `STYLE.md` and four tokens that the build replaces:
 
     {{ code:code/<slug>/f.py }}        the whole file, highlighted
-    {{ code:code/<slug>/f.py#MARK }}   the slice between BEGIN MARK and END MARK
+    {{ code:code/<slug>/f.py#MARK }}   the slice between BEGIN and END MARK
     {{ diagram:name }}                     an inline SVG from diagrams.py
     {{ resources }}                        this chapter's cards from resources.py
 
