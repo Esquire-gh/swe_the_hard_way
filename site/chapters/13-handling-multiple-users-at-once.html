@@ -10,16 +10,18 @@
 <body>
 <header class="masthead"><div class="masthead-inner"><a class="brand" href="../index.html"><b>swe the hard way</b></a><span class="crumb numbered"><span class="part">part five · more users, more machines</span><span class="here"><span class="hn">13</span><span class="ht">Handling multiple users at once</span></span></span><span class="progress-label">13 / 18</span><button class="nav-toggle" type="button" aria-expanded="false" aria-controls="sitenav-panel">menu</button></div></header><div class="wrap"><div class="layout"><div class="rail" id="sitenav-panel"><nav class="sitenav" aria-label="the chapters"><a class="nav-home" href="../index.html"><span class="n">00</span><span class="t">Introduction</span></a><p class="nav-part">Part one · one computer</p><ul class="nav-list"><li><a class="nav-item" href="01-computers-programs-and-programming.html" data-module="01-computers-programs-and-programming"><span class="n">01</span><span class="t">Computers, programs, and programming</span></a></li></ul><p class="nav-part">Part two · the machines get connected</p><ul class="nav-list"><li><a class="nav-item" href="02-computer-networks.html" data-module="02-computer-networks"><span class="n">02</span><span class="t">Computer networks</span></a></li><li><a class="nav-item" href="03-the-web.html" data-module="03-the-web"><span class="n">03</span><span class="t">The web</span></a></li><li><a class="nav-item" href="04-what-is-a-website.html" data-module="04-what-is-a-website"><span class="n">04</span><span class="t">What is a website?</span></a></li></ul><p class="nav-part">Part three · the conversation</p><ul class="nav-list"><li><a class="nav-item" href="05-clients-and-servers.html" data-module="05-clients-and-servers"><span class="n">05</span><span class="t">Clients and servers</span></a></li><li><a class="nav-item" href="06-requests-and-responses.html" data-module="06-requests-and-responses"><span class="n">06</span><span class="t">Requests and responses</span></a></li><li><a class="nav-item" href="07-web-browsers.html" data-module="07-web-browsers"><span class="n">07</span><span class="t">Web browsers</span></a></li></ul><p class="nav-part">Part four · building the server</p><ul class="nav-list"><li><a class="nav-item" href="08-web-servers.html" data-module="08-web-servers"><span class="n">08</span><span class="t">Web servers</span></a></li><li><a class="nav-item" href="09-socket-programming.html" data-module="09-socket-programming"><span class="n">09</span><span class="t">Socket programming and the Linux socket API</span></a></li><li><a class="nav-item" href="10-building-a-static-web-server.html" data-module="10-building-a-static-web-server"><span class="n">10</span><span class="t">Building a static web server</span></a></li><li><a class="nav-item" href="11-building-a-dynamic-web-server.html" data-module="11-building-a-dynamic-web-server"><span class="n">11</span><span class="t">Building a dynamic web server</span></a></li><li><a class="nav-item" href="12-servers-as-hardware-and-software.html" data-module="12-servers-as-hardware-and-software"><span class="n">12</span><span class="t">Servers as hardware and software</span></a></li></ul><p class="nav-part">Part five · more users, more machines</p><ul class="nav-list"><li><a class="nav-item current" href="13-handling-multiple-users-at-once.html" data-module="13-handling-multiple-users-at-once" aria-current="page"><span class="n">13</span><span class="t">Handling multiple users at once</span></a></li><li><a class="nav-item" href="14-introducing-databases.html" data-module="14-introducing-databases"><span class="n">14</span><span class="t">Introducing databases</span></a></li><li><a class="nav-item" href="15-scaling-web-applications.html" data-module="15-scaling-web-applications"><span class="n">15</span><span class="t">Scaling web applications</span></a></li><li><a class="nav-item" href="16-introducing-web-frameworks.html" data-module="16-introducing-web-frameworks"><span class="n">16</span><span class="t">Introducing web frameworks</span></a></li><li><a class="nav-item" href="17-introduction-to-distributed-systems.html" data-module="17-introduction-to-distributed-systems"><span class="n">17</span><span class="t">Introduction to distributed systems</span></a></li><li><a class="nav-item" href="18-ai-systems-are-still-software.html" data-module="18-ai-systems-are-still-software"><span class="n">18</span><span class="t">AI systems are still software</span></a></li></ul><a class="nav-appendix" href="../further-watching.html"><span class="n">··</span><span class="t">Further watching</span></a></nav></div><main class="col"><p class="kicker brk">Part five · more users, more machines</p>
 <h1><span class="num">13 ·</span> Handling multiple users at once</h1>
-<p class="hook">Chapter ten's server answers one visitor at a time, and chapter ten said so and
-moved on. With small local files nobody notices. Put one slow page in it and
-everybody behind that page stops. So here is the question every server
-eventually has to answer: can you handle two users at once? The answer is yes,
-in six lines, and those six lines introduce the only kind of bug in this course
-that appears only sometimes.</p>
+<p class="hook">Every server you have written answers one visitor at a time. With small local
+files nobody notices. Put one slow page in front of them and everybody behind it
+stops. So here is the question every server eventually has to answer: can you
+handle two users at once? The answer is yes, and the title promises more than
+one
+way. This chapter builds the first, measures what it costs, meets the bug it
+lets in, and then names the other two.</p>
 
 <h2 id="watching">Watching it break</h2>
 
-<p>Here is the chapter ten server with one page that takes a moment to produce.</p>
+<p>Here is the server from chapter ten with one page that takes a moment to
+produce.</p>
 
 <figure>
 <div class="code"><pre><span class="c-st">&quot;&quot;&quot;The chapter 10 loop, with one page that takes a moment to produce.
@@ -64,11 +66,11 @@ print(<span class="c-st">&quot;listening on http://127.0.0.1:8200&quot;</span>)
 <figcaption>one_at_a_time.py</figcaption>
 </figure>
 
-<p>The <code>sleep</code> is standing in for something real: a large file being read off a disk,
-a wait for another machine to answer, or the database query that arrives in
-chapter fourteen. The point is that it is time during which this request cannot
-be finished. Ask for the slow page, wait a third of a second, and then ask for
-the fast one from another window.</p>
+<p>The <code>sleep</code> stands in for something real: a large file being read off a disk, a
+wait for another machine, or the database query that arrives in chapter
+fourteen.
+It is time during which this request cannot be finished. Ask for the slow page,
+wait a third of a second, and then ask for the fast one from another window.</p>
 
 <figure>
   <div class="term-block"><div class="term-head">terminal two</div>
@@ -84,7 +86,7 @@ somebody else's two seconds. It did no work of its own worth measuring. Read the
 loop and the reason is unavoidable. Between <code>accept</code> and the next <code>accept</code> sits
 everything: reading, handling, writing and closing. The second visitor cannot be
 accepted until the first is finished, because the line that accepts them is at
-the top of a loop the program has not reached.</p>
+the top of a loop the program has not come back round to.</p>
 
 <figure>
   <div class="dgm"><svg viewBox="0 0 720 244" role="img" style="min-width:640px" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L6,3 L0,6 z" fill="context-stroke"/></marker></defs><text x="20" y="24" class="lbl b">a slow visitor and a fast one, two ways</text><text x="20" y="60" class="lbl b">one loop</text><rect x="120" y="46" width="400" height="22" rx="2" class="box brk"/><text x="320" y="61" class="lbl sm mid">slow page, 2 s</text><rect x="520" y="46" width="40" height="22" rx="2" class="box"/><text x="540" y="61" class="lbl sm mid">fast</text><path d="M240,80 L520,80" class="flow brk" marker-end="url(#arw)"/><text x="380" y="94" class="lbl sm mid brk">the fast visitor waits 1.7 s for somebody else&#x27;s page</text><text x="20" y="140" class="lbl b">a thread each</text><rect x="120" y="126" width="400" height="22" rx="2" class="box"/><text x="320" y="141" class="lbl sm mid">slow page, 2 s</text><rect x="240" y="154" width="40" height="22" rx="2" class="box learn"/><text x="260" y="169" class="lbl sm mid">fast</text><text x="290" y="169" class="lbl sm learn">answered in 0.0006 s, while the slow one is still asleep</text><path d="M120,200 L640,200" class="flow mut" marker-end="url(#arw)"/><text x="648" y="204" class="lbl sm mut">time</text><text x="20" y="232" class="lbl sm mut">the loop only goes back to accept when it has finished; a thread per visitor lets accept run again at once</text></svg></div>
@@ -92,34 +94,102 @@ the top of a loop the program has not reached.</p>
 one take its time without holding the fast one</figcaption>
 </figure>
 
-<p>The queue from <code>listen(5)</code> does not rescue this, and it is worth being clear about
-what it does instead. The operating system completes the connection on your
-program's behalf and holds it. So the second visitor's browser connects
-successfully and then sits there, which looks to them like a blank page rather
-than an error. When the queue fills, further visitors are refused outright. The
-queue converts one failure into another one.</p>
+<p>The queue you handed to <code>listen</code> does not rescue this, and it helps to see exactly
+what it does instead. The operating system completes a few connections on your
+behalf and holds them, so a waiting visitor's browser connects and then sits
+there, which looks like a blank page rather than an error. When that queue
+fills,
+the rest are turned away. Give a server a small queue, never call <code>accept</code>, and
+send eight visitors at it.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;What listen(2) actually does when nobody is calling accept.
+
+The queue you hand to listen is not a rescue. It holds a few connections
+the operating system has completed on your behalf, and once it is full,
+new visitors are turned away. This server never calls accept, so the queue
+fills at once, and eight visitors knock. Watch which get in and which do
+not.
+
+Run it with:  python3 backlog.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> socket
+<span class="c-kw">import</span> threading
+<span class="c-kw">import</span> time
+
+server = socket.socket()
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind((<span class="c-st">&quot;127.0.0.1&quot;</span>, 8299))
+server.listen(2)          <span class="c-cm"># room for a couple, and the server never accepts</span>
+
+results = {}
+
+
+<span class="c-kw">def</span> <span class="c-fn">knock</span>(number):
+    client = socket.socket()
+    client.settimeout(1.0)
+    start = time.monotonic()
+    <span class="c-kw">try</span>:
+        client.connect((<span class="c-st">&quot;127.0.0.1&quot;</span>, 8299))
+        waited = time.monotonic() - start
+        results[number] = f<span class="c-st">&quot;connected in {waited:.2f}s, now waiting&quot;</span>
+    <span class="c-kw">except</span> socket.timeout:
+        waited = time.monotonic() - start
+        results[number] = f<span class="c-st">&quot;gave up after {waited:.2f}s, queue full&quot;</span>
+    <span class="c-kw">except</span> OSError <span class="c-kw">as</span> why:
+        results[number] = f<span class="c-st">&quot;refused: {why}&quot;</span>
+    time.sleep(2.0)
+    client.close()
+
+
+visitors = [threading.Thread(target=knock, args=(n,)) <span class="c-kw">for</span> n <span class="c-kw">in</span> range(8)]
+<span class="c-kw">for</span> visitor <span class="c-kw">in</span> visitors:
+    visitor.start()
+    time.sleep(0.02)
+<span class="c-kw">for</span> visitor <span class="c-kw">in</span> visitors:
+    visitor.join()
+
+<span class="c-kw">for</span> number <span class="c-kw">in</span> range(8):
+    print(f<span class="c-st">&quot;visitor {number}: {results.get(number, &#x27;?&#x27;)}&quot;</span>)
+server.close()
+</pre></div>
+<figcaption>backlog.py, a queue of two and nobody serving it</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 backlog.py</span>
+<span class="out">visitor 0: connected in 0.00s, now waiting
+visitor 1: connected in 0.00s, now waiting
+visitor 2: gave up after 1.00s, queue full
+visitor 3: gave up after 1.00s, queue full
+visitor 4: gave up after 1.00s, queue full
+visitor 5: gave up after 1.00s, queue full
+visitor 6: gave up after 1.00s, queue full
+visitor 7: gave up after 1.00s, queue full</span></pre></div>
+</figure>
+
+<p>Two get in and wait; the other six are refused. The queue converts one failure,
+a slow answer, into another, no answer at all. It buys a little time for a
+burst,
+and nothing more. The real fix is to stop making people wait for each other.</p>
 
 <h2 id="thread">A second place in the same program</h2>
 
 <p>Chapter one described a process as memory, some bookkeeping, and the address of
 the next instruction to carry out. The last of those is the interesting one
-here, because there is nothing that says a process may only have one. A <span class="term">thread</span>
-is a second such place, inside the same process. It has its own idea of where it
-has got to and its own working area for the function calls it is inside.
-Everything else it shares: the same memory, the same variables, the same open
-files, the same descriptors from chapter nine.</p>
+here,
+because nothing says a process may have only one. A <span class="term">thread</span> is a second such
+place, inside the same process, with its own idea of where it has got to and its
+own working area for the calls it is inside. Everything else it shares: the same
+memory, the same variables, the same open descriptors from chapter nine.</p>
 
-<p>The operating system schedules threads exactly as chapter one described for
-processes, giving each one turns and switching between them thousands of times a
+<p>The operating system schedules threads the way chapter one described for
+processes, giving each turns and switching between them thousands of times a
 second. Making a thread is much cheaper than making a process, because none of
-the memory has to be set up again. It is not free. Each thread needs its own
-working area, usually somewhere between a hundred kilobytes and a megabyte, and
-that number decides how many you can have.</p>
-
-<h2 id="threaded">The same server, one thread per visitor</h2>
-
-<p>The change to the server is small. Take the body of the loop, put it in a
-function, and start a thread that runs it.</p>
+the memory has to be set up again. The change to the server is small: take the
+body of the loop, put it in a function, and start a thread that runs it.</p>
 
 <figure>
 <div class="code"><pre><span class="c-kw">def</span> <span class="c-fn">serve</span>(connection):
@@ -135,7 +205,7 @@ function, and start a thread that runs it.</p>
 </figure>
 
 <p>The loop now does one thing: accept somebody and hand them to a thread. It
-returns to <code>accept</code> immediately, so the next visitor waits for the length of one
+returns to <code>accept</code> at once, so the next visitor waits for the length of one
 <code>accept</code> call rather than the length of somebody else's request.</p>
 
 <figure>
@@ -148,15 +218,82 @@ returns to <code>accept</code> immediately, so the next visitor waits for the le
 </figure>
 
 <p>One and seven tenths of a second down to six ten thousandths. <code>daemon=True</code> says
-these threads should not keep the program alive, so control C still stops it.
-Without it, a server with an open connection refuses to exit and you will be
-looking for the reason.</p>
+these threads should not keep the program alive, so control C still stops it;
+without it, a server with an open connection refuses to exit and you go looking
+for the reason.</p>
 
-<p>Notice what else changed. How many things happen at once is no longer your
-decision. It is the visitors' decision. Ten thousand visitors is ten thousand
-threads, at a megabyte each, and the machine is finished long before that.
-Getting past that limit was a well known problem in the early 2000s, and the
-answer to it is named at the end of this chapter and used in chapter sixteen.</p>
+<h2 id="cost">What a thread costs</h2>
+
+<p>How many things happen at once is no longer your decision. It is the visitors'
+decision, and that makes the cost of a thread the ceiling on your server. It is
+worth measuring rather than guessing. This starts a thousand threads that do
+nothing but sleep, and reports the memory the process grew by.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;What a thread actually costs, measured on this machine.
+
+The threaded server starts one thread per visitor, so the number of
+visitors you can hold is decided by what a thread costs. This starts a
+thousand threads that do nothing but sleep, and measures the memory the
+process grew by. The reserved stack for each thread is larger than this,
+often near a megabyte, but reserved is not the same as used.
+
+Run it with:  python3 thread_cost.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> resource
+<span class="c-kw">import</span> sys
+<span class="c-kw">import</span> threading
+<span class="c-kw">import</span> time
+
+HOW_MANY = 1000
+
+
+<span class="c-kw">def</span> <span class="c-fn">resident_mb</span>():
+    peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    <span class="c-cm"># macOS reports bytes here; Linux reports kilobytes.</span>
+    <span class="c-kw">return</span> peak / 1_000_000 <span class="c-kw">if</span> sys.platform == <span class="c-st">&quot;darwin&quot;</span> <span class="c-kw">else</span> peak / 1000
+
+
+before = resident_mb()
+gate = threading.Event()
+threads = [threading.Thread(target=gate.wait) <span class="c-kw">for</span> _ <span class="c-kw">in</span> range(HOW_MANY)]
+<span class="c-kw">for</span> thread <span class="c-kw">in</span> threads:
+    thread.start()
+time.sleep(1.0)
+after = resident_mb()
+
+print(f<span class="c-st">&quot;{HOW_MANY} sleeping threads&quot;</span>)
+print(f<span class="c-st">&quot;    memory before   {before:6.1f} MB&quot;</span>)
+print(f<span class="c-st">&quot;    memory after    {after:6.1f} MB&quot;</span>)
+each = (after - before) * 1000 / HOW_MANY
+print(f<span class="c-st">&quot;    each thread     {each:6.1f} KB resident&quot;</span>)
+
+gate.set()
+<span class="c-kw">for</span> thread <span class="c-kw">in</span> threads:
+    thread.join()
+</pre></div>
+<figcaption>thread_cost.py</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 thread_cost.py</span>
+<span class="out">1000 sleeping threads
+    memory before      9.4 MB
+    memory after      45.9 MB
+    each thread       36.5 KB resident</span></pre></div>
+</figure>
+
+<p>A thread is cheap, but not free, and it is cheaper here than the usual figure
+you
+will read. Each thread reserves a stack, often close to a megabyte, but reserved
+memory is not used memory until it is touched, and a sleeping thread touches
+almost none of it. Even so, the arithmetic decides the ceiling. Ten thousand
+visitors is ten thousand threads, and at real work rather than sleep the
+reserved
+stacks start to matter, so the machine gives out well before the numbers a busy
+site sees. The two ways past that ceiling are named at the end of this chapter.</p>
 
 <h2 id="race">The bug you just made possible</h2>
 
@@ -164,8 +301,8 @@ answer to it is named at the end of this chapter and used in chapter sixteen.</p
 difficulty. Chapter eleven's guestbook kept its messages in a list and its
 sessions in a dictionary. With one thread, only one piece of code ever touched
 them. With a thread per visitor, several pieces of code touch them at the same
-instant, and none of them knows about the others. The classic failure is any
-sequence that reads a value, works something out, and writes it back.</p>
+instant, and none knows about the others. The classic failure is any sequence
+that reads a value, works something out, and writes it back.</p>
 
 <figure>
 <div class="code"><pre><span class="c-st">&quot;&quot;&quot;Four threads adding to the same number, with and without a lock.
@@ -225,10 +362,11 @@ with a lock                wanted   20000   got   20000</span></pre></div>
   <span class="puzzle-label">the puzzle</span>
   <p>The first line is wrong code producing the right answer. Four threads read and
 wrote a shared number four hundred thousand times with nothing protecting it,
-and the total came out exactly right. Anybody testing this would ship it. The
-second line is the same code with one added instruction that does no arithmetic
-at all, and three quarters of the additions vanished.</p>
-  <p><strong>Nothing about the logic changed between those two lines. What did?</strong></p>
+and
+the total came out exactly right. Anybody testing this would ship it. The second
+line is the same code with one added instruction that does no arithmetic at all,
+and three quarters of the additions vanished.</p>
+  <p><strong>What is different between those two lines?</strong></p>
 </div>
 
 <figure>
@@ -237,57 +375,118 @@ at all, and three quarters of the additions vanished.</p>
 gone and nothing reported it</figcaption>
 </figure>
 
-<p>What changed is when the scheduler from chapter one chose to take a turn away.
-The added instruction makes the operating system more likely to switch threads
-between the read and the write, so two threads read the same value, each add one
-to it, and each write back the same result. One addition is lost, and that is
-not something your program controls, observes, or can reproduce on demand. This
-is a <span class="term">race condition</span>, and it is the shape of every concurrency bug. It is present
-the whole time and it appears only when the timing is unlucky, which on a quiet
+<p>The added instruction is <code>time.sleep(0)</code>, which does no arithmetic and offers the
+scheduler a chance to switch threads at that exact spot. So two threads read the
+same value, each add one, and each write back the same result. One addition is
+lost, and that is not something your program controls, observes, or can
+reproduce
+on demand. This is a <span class="term">race condition</span>, the shape of every concurrency bug: present
+the whole time, appearing only when the timing is unlucky, which on a quiet
 machine may be never and under load may be constantly.</p>
 
-<p>The third line is the fix. A <span class="term">lock</span> is an object that only one thread can hold. A
-thread that asks for a held lock blocks in the sense of chapter eight, using no
+<p>The third line is the fix. A <span class="term">lock</span> is an object only one thread can hold. A
+thread
+that asks for a held lock blocks in the sense of chapter eight, using no
 processor, until the holder gives it back. Wrap the read and the write together
-and no other thread can get between them. Locks are not free and they are not
-safe by default. Everything inside a lock happens one at a time again, so a lock
-around too much work removes the benefit of having threads at all. And if one
-thread holds lock A and wants lock B while another holds B and wants A, both
-wait forever. That is a <span class="term">deadlock</span>, and the usual defence is a rule that every
-thread takes locks in the same order.</p>
+and no other thread can get between them. Locks are neither free nor safe by
+default. Everything inside a lock happens one at a time again, so a lock around
+too much work removes the point of having threads. And if one thread holds lock
+A
+and wants B while another holds B and wants A, both wait forever. That is a
+<span class="term">deadlock</span>, and the usual defence is a rule that every thread takes locks in the
+same order. You provoke both of those in the exercises.</p>
 
-<h2 id="gil">What Python's threads actually do</h2>
+<h2 id="gil">One paragraph about Python's threads</h2>
 
-<p>There is something specific to Python here, and leaving it out would give you a
-wrong picture. In the usual Python, only one thread runs Python instructions at
-a time. There is a single lock inside the interpreter, the <span class="term">global interpreter
-lock</span>, and a thread must hold it to execute Python. So four threads doing
-arithmetic take about as long as one thread doing four times as much, and
-chapter one's measurement of copies of a program getting real parallelism does
-not apply to threads inside one Python process.</p>
+<p>One thing is specific to Python and leaving it out would mislead you. In the
+usual Python, only one thread runs Python instructions at a time, held back by a
+single lock inside the interpreter called the <span class="term">global interpreter lock</span>. So
+threads do not give you more arithmetic per second. They still help, because a
+web server does not spend its time on arithmetic; it spends it waiting, for the
+network, for a disk, and in chapter fourteen for a database, and a thread that
+is
+waiting releases that lock so the others run. That interpreter lock is also why
+the first line of <code>race.py</code> came out right: it makes single small operations safe
+by accident, and says nothing about a sequence of them. Most other languages
+never had one, and there the first line would be wrong too, so code that depends
+on it is correct for a reason you did not choose.</p>
 
-<p>That sounds like it should make this chapter pointless. It does not, for a
-reason that is worth understanding rather than memorising. A web server does not
-spend its time doing arithmetic. It spends its time waiting, for the network,
-for a disk, and in chapter fourteen for a database. A thread that is blocked
-releases that interpreter lock, so the other threads run while it waits. Threads
-help precisely where a server actually spends its life, which is why the
-measurement above showed the improvement it did.</p>
+<h2 id="three-answers">The three answers the title promised</h2>
 
-<p>The interpreter lock is also why the first line of <code>race.py</code> came out right. It
-makes individual small operations safe by accident. It says nothing at all about
-a sequence of them, and read then write is a sequence. Recent versions of Python
-can be built without this lock, and most other languages never had one, and in
-those the first line would be wrong too. Writing code that depends on it is
-writing code that is correct for reasons you did not choose.</p>
+<p>A thread per visitor is the first and most direct way to serve more than one,
+and
+it has the ceiling you just measured. There are two more, and neither is exotic.</p>
 
-<p>One more word belongs here, because it is the answer to the ten thousand threads
-problem and you will meet it in chapter sixteen. Instead of a thread per
-visitor, have one thread hold every connection, ask the operating system which
-of them have something ready right now, and do a small piece of work on each in
-turn. That is an <span class="term">event loop</span>. It avoids the memory cost of thousands of threads
-and reaches very large numbers of connections, and the price is that any piece
-of work which blocks stops everything, because there is only one thread to stop.</p>
+<p>The first is to stop letting visitors decide how many threads exist. Keep a
+fixed
+number, a <span class="term">thread pool</span>, and hand each new connection to whichever one is free;
+when they are all busy, the rest wait. The count is yours, so the memory is
+bounded no matter how many people arrive. The second is to use processes instead
+of threads, which sidesteps the interpreter lock entirely because each has its
+own, at the price of not sharing memory. In practice you rarely write either by
+hand: they are the two numbers you pass a program in chapter sixteen.</p>
+
+<p>The third is different in kind. Instead of many places in the program, have one
+thread hold every connection, ask the operating system which of them have
+something ready right now, and do a small piece of work on each in turn. That is
+an <span class="term">event loop</span>, and it is fifteen lines with the standard library's
+<code>selectors</code>.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;One thread holding every connection, with no threads at all.
+
+Instead of a thread per visitor, one thread asks the operating system
+which connections have something ready right now, and does a small piece
+of work on each. This is the third answer the title promises. It reaches
+huge numbers of connections on one thread, and its weakness is the mirror
+of its strength: any slow piece of work stops everything, because there is
+only one thread to stop.
+
+Run it with:  python3 event_loop.py
+Then visit:   http://127.0.0.1:8200/
+Stop it with control C.
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> selectors
+<span class="c-kw">import</span> socket
+
+selector = selectors.DefaultSelector()
+server = socket.socket()
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind((<span class="c-st">&quot;127.0.0.1&quot;</span>, 8200))
+server.listen(128)
+server.setblocking(<span class="c-kw">False</span>)
+selector.register(server, selectors.EVENT_READ, data=<span class="c-st">&quot;server&quot;</span>)
+
+BODY = b<span class="c-st">&quot;served by one thread, no threads\n&quot;</span>
+REPLY = (b<span class="c-st">&quot;HTTP/1.1 200 OK\r\nContent-Length: %d\r\n&quot;</span>
+         b<span class="c-st">&quot;Connection: close\r\n\r\n&quot;</span> % len(BODY)) + BODY
+
+print(<span class="c-st">&quot;listening on http://127.0.0.1:8200, one thread&quot;</span>)
+<span class="c-kw">while</span> <span class="c-kw">True</span>:
+    <span class="c-kw">for</span> key, _ <span class="c-kw">in</span> selector.select():          <span class="c-cm"># ready connections only</span>
+        <span class="c-kw">if</span> key.data == <span class="c-st">&quot;server&quot;</span>:
+            connection, _ = server.accept()   <span class="c-cm"># a new visitor</span>
+            connection.setblocking(<span class="c-kw">False</span>)
+            selector.register(connection, selectors.EVENT_READ, data=<span class="c-st">&quot;client&quot;</span>)
+        <span class="c-kw">else</span>:
+            connection = key.fileobj
+            connection.recv(65536)            <span class="c-cm"># the request, ignored here</span>
+            connection.sendall(REPLY)
+            selector.unregister(connection)
+            connection.close()
+</pre></div>
+<figcaption>event_loop.py, every connection on one thread</figcaption>
+</figure>
+
+<p>There are no threads here, so there is no race and no lock, and the memory does
+not grow with the number of visitors. The price is the mirror of the gain: any
+piece of work that blocks stops everything, because there is only one thread to
+stop. A single slow database call with no special handling would freeze every
+connection at once. Getting the speed of the event loop without that trap is
+what
+the <code>async</code> machinery in chapter sixteen exists to do, and now you know what it is
+standing on.</p>
 
 <h2 id="check">Check it yourself: take the sharing away</h2>
 
@@ -304,23 +503,78 @@ with a lock                wanted    5000   got    5000</span></pre></div>
 One thread cannot interleave with itself. The bug was never in the addition.</p>
 </div>
 
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p><code>count_server.py</code> has a page at <code>/count</code> that reads a number, adds one, and writes
+it back, with no lock. <code>hammer.py</code> sends four hundred requests to it, twenty at a
+time. Predict the final count before you run them together.</p>
+<p class="ex-look">It comes out short, around 384 on one run here and a different number on the
+next,
+because requests that ran at the same instant read the same value and wrote the
+same value back. This is <code>race.py</code> with the threads created for you by real
+visitors instead of a <code>for</code> loop, which is the only difference that matters: the
+bug you saw in a toy is the bug in the guestbook, unchanged.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Fix it, then measure the fix. Uncomment the two lock lines in
+<code>count_server.py</code> so <code>/count</code> comes out at 400 every time. Then, while the lock is
+in place, send two requests to <code>/slow</code> at once and time the second one.</p>
+<p class="ex-look">The second <code>/slow</code> finishes in about half a second, its own work, not a whole
+second, so the two ran at the same time even with the lock in place. The lock
+wraps only the counter's read and write, and <code>/slow</code> never touches it, so <code>/slow</code>
+pays nothing. That is the whole craft of locking: hold it around the shared
+thing
+and nothing else, so the parts that do not share stay parallel. A lock around
+the
+entire request handler would have made this server one-at-a-time again, with
+extra steps.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Make the deadlock the chapter only described. Two locks, two threads: have one
+take them in one order and the other in the opposite order, each pausing between
+the two grabs. Then fix it by making both take them in the same order.
+<code>deadlock.py</code> is the answer to check against.</p>
+<p class="ex-look">Opposite orders hang forever: each thread holds the lock the other needs and
+neither will let go. Same order always finishes, because a thread that cannot
+get
+the first lock is only waiting, holding nothing, so the other can complete and
+release. There is no clever detection here and rarely is in practice; the fix is
+the discipline of a fixed order, which is why real code keeps its locks few and
+their order written down.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>The first two answers are two flags. <code>gunicorn --workers 4 --threads 8</code> starts
+four processes, each with a pool of eight threads, which is this chapter's
+processes and thread pool as one command, and the numbers are yours to set from
+what you measured. The event loop is what <code>uvicorn</code> runs under an <code>async</code>
+framework. And the race has an answer that is not a lock at all: when the shared
+counter lives in Redis rather than in your process, <code>INCR</code> does the read, the add
+and the write as one step nobody can interleave, which is the lock done for you,
+on the far side of a socket, for every server at once.</p>
+</div>
+
 <h2 id="limit">What threads cannot fix</h2>
 
 <p>The server now serves as many people as the machine can hold, and it is worse
-off in one respect than it was an hour ago.</p>
+off
+in one respect than it was an hour ago.</p>
 
 <div class="limit">
   <span class="limit-label">where this runs out</span>
   <p>Everything it knows still lives in the memory of one process, and chapter one
 said what happens to that when the process ends. Stop the server and the
 guestbook is empty and everyone is logged out. What this chapter added is that
-the same data is now being touched by many threads at once, so keeping it
-correct depends on getting a lock right at every place it is used, forever,
-including in code written next year by somebody who has not read this chapter.</p>
-  <p class="to">Two problems, and one answer to both. The data needs to live somewhere that
-outlives the process, and that place needs to already know what to do when
-several people touch the same thing at the same moment. Neither of those is
-something to build yourself, and the reasons why are chapter fourteen.</p>
+the same data is now touched by many threads at once, so keeping it correct
+depends on getting a lock right at every place it is used, forever, including in
+code written next year by somebody who has not read this chapter.</p>
+  <p class="to">The data needs to live somewhere that outlives the process, and that place needs
+to already know what to do when several people touch the same thing at the same
+moment. Neither is something to build yourself, and the reasons why are chapter
+fourteen.</p>
 </div>
 
 <h2 id="resources">Watch and read alongside this chapter</h2>
