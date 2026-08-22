@@ -3,10 +3,11 @@
 Run it with: python3 machine.py
 """
 
-# Eight numbered boxes. This is the whole memory of this machine.
+# Eight numbered boxes. This is the whole memory of this machine, and the
+# printing below shows the first two, which are the only ones this program uses.
 memory = [0] * 8
 
-# The program. Every line is one instruction, and there are five of them.
+# The program. Every line is one instruction, and there are six of them.
 program = [
     ("set", 0, 3),       # box 0 holds the number we are counting down
     ("set", 1, -1),      # box 1 holds the amount we add each time
