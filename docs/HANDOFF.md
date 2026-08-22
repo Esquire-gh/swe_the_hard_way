@@ -29,7 +29,7 @@ described in `STYLE.md` and four tokens that the build replaces:
     {{ code:code/<slug>/f.py }}        the whole file, highlighted
     {{ code:code/<slug>/f.py#MARK }}   the slice between BEGIN and END MARK
     {{ diagram:name }}                     an inline SVG from diagrams.py
-    {{ resources }}                        this chapter's cards from resources.py
+    {{ resources }}                        the chapter's cards from resources.py
 
 `build.py` wraps each body in the shared shell (masthead, sidebar, previous
 and next, progress toggle, copy buttons), resolves the tokens, and writes
