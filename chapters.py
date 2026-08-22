@@ -164,8 +164,18 @@ CHAPTERS = [
              breaks=""),
 ]
 
+# The closing walk: not one of the eighteen chapters, but a page in the flow
+# after the last one, parallel to the further-watching appendix. It carries no
+# number and no code, and it re-walks the whole stack in one line. num=19 only
+# so the previous/next chain resolves; it is never displayed.
+CLOSING = Chapter(19, "a-single-request-end-to-end",
+                  "A single request, end to end", 0,
+                  "One request followed from a typed address to a drawn page, "
+                  "with nothing left as something that just happens.")
+
 BY_NUM = {c.num: c for c in CHAPTERS}
 BY_NUM[0] = FRONT
+BY_NUM[CLOSING.num] = CLOSING
 BY_SLUG = {c.slug: c for c in CHAPTERS}
 
 

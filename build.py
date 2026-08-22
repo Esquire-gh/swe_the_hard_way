@@ -35,7 +35,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO))
 
-from chapters import CHAPTERS, FRONT, BY_NUM, PART_TITLES, part_chapters  # noqa: E402
+from chapters import (CHAPTERS, FRONT, CLOSING, BY_NUM, PART_TITLES,  # noqa: E402
+                      part_chapters)
 import diagrams  # noqa: E402
 import resources  # noqa: E402
 
@@ -124,6 +125,12 @@ def table_of_contents() -> str:
                 f'<span class="n">{c.nn}</span>'
                 f'<span class="t">{escape(c.title)}</span>'
                 f'<span class="d">{escape(c.desc)}</span></a></li>')
+    out.append('<li class="toc-part">the closing walk</li>')
+    out.append(
+        f'<li><a class="toc-coda" href="chapters/{CLOSING.slug}.html">'
+        f'<span class="n">··</span>'
+        f'<span class="t">{escape(CLOSING.title)}</span>'
+        f'<span class="d">{escape(CLOSING.desc)}</span></a></li>')
     out.append("</ul>")
     return "".join(out)
 
@@ -221,6 +228,11 @@ def sitenav(chap, *, depth: int, page: str = "") -> str:
                 f'<span class="n">{c.nn}</span>'
                 f'<span class="t">{escape(c.title)}</span></a></li>')
         out.append("</ul>")
+    cur_close = " current" if page == "closing" else ""
+    out.append(
+        f'<a class="nav-appendix{cur_close}" href="{base}{CLOSING.slug}.html">'
+        f'<span class="n">··</span>'
+        f'<span class="t">{escape(CLOSING.title)}</span></a>')
     cur_fw = " current" if page == "further-watching" else ""
     out.append(
         f'<a class="nav-appendix{cur_fw}" href="{fw}"><span class="n">··</span>'
@@ -233,6 +245,8 @@ def masthead(chap, *, depth: int, page: str = "") -> str:
     home = "index.html" if depth == 0 else "../index.html"
     if page == "further-watching":
         num, here, part = "", "Further watching", "appendix"
+    elif page == "closing":
+        num, here, part = "", CLOSING.title, "the closing walk"
     elif chap.num == 0:
         num, here, part = "00", "Introduction", "the whole stack"
     else:
@@ -262,14 +276,21 @@ def chapnav(chap, *, depth: int = 1) -> str:
     out = ['<nav class="modnav">']
     if prev_c is not None:
         href = "../index.html" if prev_c.num == 0 else f"{prev_c.slug}.html"
-        label = "Introduction" if prev_c.num == 0 else f"{prev_c.nn} · {prev_c.title}"
+        if prev_c.num == 0:
+            label = "Introduction"
+        elif prev_c is CLOSING:
+            label = prev_c.title
+        else:
+            label = f"{prev_c.nn} · {prev_c.title}"
         out.append(f'<a class="prev" href="{href}"><span class="dir">previous</span>'
                    f'<span class="name">{escape(label)}</span></a>')
     if next_c is not None:
         href = f"{base}{next_c.slug}.html"
+        name = (escape(next_c.title) if next_c is CLOSING
+                else f"{next_c.nn} · {escape(next_c.title)}")
         out.append(f'<a class="next" href="{href}">'
                    f'<span class="dir">{"begin" if chap.num == 0 else "next"}</span>'
-                   f'<span class="name">{next_c.nn} · {escape(next_c.title)}</span></a>')
+                   f'<span class="name">{name}</span></a>')
     else:
         fw = "further-watching.html" if depth == 0 else "../further-watching.html"
         out.append(f'<a class="next" href="{fw}"><span class="dir">appendix</span>'
@@ -290,6 +311,9 @@ def render_page(chap, body: str, *, depth: int, page: str = "",
     if page == "further-watching":
         title = "Further watching — swe the hard way"
         desc = "Every outside video and course, mapped to its chapter."
+    elif page == "closing":
+        title = f"{CLOSING.title} — swe the hard way"
+        desc = escape(CLOSING.desc)
     elif chap.num == 0:
         title = "Software Engineering the Hard Way"
         desc = escape(chap.desc)
@@ -380,6 +404,20 @@ def build(check_only: bool = False) -> int:
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(html)
             written += 1
+
+    # the closing walk: a page in the flow after chapter eighteen
+    src = CONTENT / f"{CLOSING.slug}.html"
+    if src.exists():
+        body, probs = substitute(src.read_text(), num=CLOSING.num,
+                                 where=f"{CLOSING.slug}.html")
+        problems += probs
+        html = render_page(CLOSING, body, depth=1, page="closing",
+                           show_toggle=False)
+        if not check_only:
+            (SITE / "chapters" / f"{CLOSING.slug}.html").write_text(html)
+            written += 1
+    else:
+        missing.append(CLOSING.slug)
 
     # further-watching appendix
     if not check_only:

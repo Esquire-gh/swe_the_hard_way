@@ -115,7 +115,14 @@
     });
     var counter = document.querySelector('[data-progress-count]');
     if (counter) {
-      counter.textContent = n + ' / ' + links.length + ' complete';
+      if (links.length) {
+        counter.textContent = n + ' / ' + links.length + ' complete';
+      } else {
+        /* pages without a table of contents (the closing walk, the appendix)
+           keep the total from their static text and show the stored count. */
+        var m = counter.textContent.match(/\/\s*(\d+)/);
+        counter.textContent = done.length + ' / ' + (m ? m[1] : '') + ' complete';
+      }
     }
   }
 

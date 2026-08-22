@@ -1,0 +1,76 @@
+<p class="kicker learn">the closing walk</p>
+<h1>A single request, end to end</h1>
+<p class="hook">The introduction made a promise: that the fundamentals would let you account,
+from the inside, for the one thing everyone can describe from the outside. This
+page keeps it. There is nothing new here. Every part is something you built,
+ran,
+or can now name, pulled from a different chapter, and the only new thing is
+seeing all of them in a single line from the key press to the pixels. If a
+sentence below feels like a summary of a chapter, that is because it is one.</p>
+
+<h2 id="walk">One request, all the way down</h2>
+
+<p>Somebody types an address, presses enter, and a page appears. This is what
+happened.</p>
+
+<p>The browser cut the address into a scheme, a host and a path, and asked the
+operating system to turn the host into an address. The operating system asked a
+resolver, which asked a root server, which knew nothing about the site but knew
+who to ask about the last part of the name, and so on down until an address came
+back, along with a number of seconds for which the answer may be reused.</p>
+
+<p>The browser asked the operating system for a socket and asked it to connect to
+that address on port 443. The operating system, which owns the network card,
+made a note in a table, put a packet on the wire, and took the process off the
+schedule until an answer came. The packet went to a router in the building,
+which read the address, chose a link, and forgot about it, and then to a handful
+of machines belonging to companies with no relationship to either end. Some
+packets arrived out of order and at least one probably did not arrive at all,
+and TCP on the two end machines put them in order and asked again for the
+missing one, because the machines in the middle do not know that any of this is
+a conversation.</p>
+
+<p>On the far machine a program had been running for weeks, doing nothing. It had
+asked the operating system for a socket, bound it to port 443, and called
+accept, at which point it was taken off the schedule and used no processor at
+all. The arriving connection put it back on. It returned a second socket for
+this one conversation and went back to waiting. The browser wrote a request
+line, some headers including which site it wanted, and a blank line. The server
+read until the blank line, then read exactly as many further bytes as a header
+told it to, because the stream underneath has no message boundaries.</p>
+
+<p>The path did not name a file. It selected a function, which ran, read some rows
+out of a program on another machine that speaks its own protocol on its own
+port, and built a page. Or it did not run, because an identical answer was
+already sitting in a cache somewhere and the site's machines were never
+involved. Either way what came back was a status line, some headers, a blank
+line, and a body, produced by one of many threads or by one loop holding
+thousands of connections, on one of many machines behind a program that holds
+the public port so that any of them can be replaced without anybody noticing.</p>
+
+<p>The browser read the response, worked out which of the things it referred to
+were parts of the page and which were places you might go, fetched the parts in
+parallel, built a tree out of tags according to a specification that also says
+exactly how to handle the tags that are wrong, worked out where every box
+belongs on a screen the author never saw, and drew it. If a model was involved,
+it was a process on a machine, reading numbers it had saved to a disk, sitting
+behind a queue and a cache, writing text down a socket in pieces with a length
+in front of each one.</p>
+
+<p class="thesis">There is no layer in that account where the honest answer is that something
+happens.</p>
+
+<h2 id="done">What this was for</h2>
+
+<p>You came to this course having followed tutorials, and able to build what they
+showed you and not much else. The introduction promised that the fundamentals
+would let you form your own intuitions, so that the next higher level idea you
+meet lands on something. That is what the account above is. You can name every
+part of it, you have written a small version of most of them, and when the next
+tool or the next framework or the next kind of system arrives with its own
+vocabulary, you will be able to ask what it is underneath and recognise the
+answer. That was the whole point.</p>
+
+<p>The tools will keep changing. The constraints under them are the ones in this
+course, and they change slowly if at all. That is the difference the hard way
+was for.</p>
