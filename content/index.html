@@ -15,35 +15,26 @@ yourself.</p>
 
 <h2 id="hard-way">Why the hard way</h2>
 
-<p>It is called the hard way because it does the things a tutorial lets you
-skip. A tutorial hands you a framework and a folder of files and has you fill
-in the blanks, and you end up able to ship something and unable to say what any
-of it does. Here you meet each problem before you meet the tool that solves it,
-so that when the tool arrives it feels like relief instead of another thing to
-memorise. By the end you will have written a web server in a single file,
-broken it on purpose, and understood every framework you ever pick up as a set
-of answers to problems you felt in your own hands.</p>
+<p>It is called the hard way because it does what a course usually lets you
+skip. Most hand you a framework and a folder of files to fill in, and you end
+up able to ship something and unable to say what any of it does. Here you meet
+each problem before the tool that solves it: you write the accept loop before
+anybody says a framework has one, lose data to a file before anybody says
+database, and watch two visitors collide before you hear the word thread. By
+the end, FastAPI, nginx, Postgres and Docker are not things to memorise. They
+are answers to problems you felt in your own hands.</p>
 
 <h2 id="scope">What kind of software this builds</h2>
 
-<p>The words software engineering cover an enormous range, and most of it is
-not the web. The app on your phone, the operating system underneath it, the
-firmware in a microwave or a car, a video game, a spreadsheet on the desktop,
-a data pipeline that runs overnight: each is software, and each is shaped by
-the device it runs on and the way it runs.</p>
-
-<p>This course builds one of those kinds in depth, web software: programs that
-run on a server somewhere and answer requests arriving over a network. It is
-the kind most people are drawn to first, it is the kind whose whole stack you
-can hold in your head and build end to end, and the ideas you meet building it,
-processes, protocols, storage, doing more than one thing at once, are the same
-ideas underneath the phone app and the game and the operating system. Learn
-them here and the rest have ground to stand on.</p>
-
-<p>It ends with AI, on purpose. The systems everyone is suddenly talking about
-are, at their core, software engineering: a process that reads a great deal of
-data, a server that answers requests, the same pieces you will have built by
-then, arranged a new way. When you get there it should look familiar.</p>
+<p>Software engineering covers an enormous range, and most of it is not the
+web. The app on your phone, the operating system underneath it, the firmware
+in a car, a video game: each is shaped by the device it runs on. This course
+builds one kind in depth, web software, meaning programs that run on a machine
+somewhere and answer requests arriving over a network. It is the kind whose
+whole stack you can hold in your head and build end to end, and its ideas are
+the same ideas underneath the phone app and the game. It ends with AI on
+purpose, because those systems are a process reading data and a server
+answering requests, which by then you will have built twice.</p>
 
 <h2 id="who">Who this is for</h2>
 
@@ -52,14 +43,35 @@ assumed. If you already have one, the early chapters will move fast and the
 later ones will still have something for you, because the point is never the
 facts on their own but the way they connect.</p>
 
+<h2 id="shape">How a chapter works</h2>
+
+<p>Every chapter opens with the question the last one left unanswered, then
+builds something small enough to type, then breaks it. Five things recur, and
+they always mean the same thing.</p>
+
+<ul>
+<li>A <strong>puzzle</strong> appears where two facts collide. It asks a
+question and stops. The page answers it by running something, not by telling
+you in the next sentence.</li>
+<li><strong>Check it yourself</strong> is a short observation that proves the
+chapter was telling the truth, with the output you should get.</li>
+<li><strong>Three exercises</strong> close every chapter. Predict what a run
+will print before you run it, build the thing the chapter said was missing,
+then break it on purpose. Each says what you should see. None gives you the
+answer.</li>
+<li><strong>In the wild</strong> names the real tool that does what you just
+built by hand, and the exact line in it.</li>
+<li><strong>Where this runs out</strong> is the limit you just hit. It is the
+next chapter's first paragraph.</li>
+</ul>
+
 <h2 id="map">The journey</h2>
 
-<p>Five parts, eighteen chapters. It starts on a single computer, with a
-program that has not yet run, and ends with the systems that serve billions of
-people, the AI systems among them. Nothing in between is skipped, and nothing
-is called magic. Each chapter opens with the exact question the last one left
-unanswered, so the whole thing reads as a single line of reasoning rather than
-a pile of topics.</p>
+<p>Eighteen chapters and a closing walk. It starts on a single computer, with
+a program that has not yet run, and ends with the systems that serve billions
+of people. Each chapter opens on the exact question the last one left, so the
+whole thing reads as a single line of reasoning rather than a pile of
+topics.</p>
 
 <figure>
   <div class="dgm">{{ diagram:journey-map }}</div>
@@ -69,10 +81,48 @@ and back up to the page, then out to many machines</figcaption>
 
 <p class="thesis">meaning is an agreement; everything else is a cost.</p>
 
-<p>That sentence turns out to be the whole course. A byte means a letter because
-we agreed it would. A request is a request because both sides agreed on the
-shape of the text. Every layer is one more agreement, and every agreement is
-paid for in time, memory, or the risk of getting it wrong.</p>
+<p>Nothing inside a computer means anything on its own. Two bytes are the word
+<code>hi</code> because a committee agreed in 1963 that they would be, and the
+same two bytes are the number 26,729 if you read them the other way.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 -c "print(bytes([104, 105]).decode(),
+    int.from_bytes(bytes([104, 105]), 'big'))"</span>
+<span class="out">hi 26729</span></pre></div>
+</figure>
+
+<p>Every layer in this course is one more agreement of that kind, and every
+agreement is paid for in time, in memory, or in the risk of getting it
+wrong.</p>
+
+<h2 id="need">What you need</h2>
+
+<p>A laptop, a terminal, and Python 3. Everything else below is already on
+macOS and on most Linux machines, and each is introduced where it is first
+needed. Nothing gets installed until a chapter has argued for it, which
+happens exactly once, in chapter sixteen.</p>
+
+<div class="callout">
+  <span class="callout-label">the tools this course uses</span>
+  <p><code>python3</code> throughout. <code>traceroute</code> in chapter two,
+<code>dig</code> in four, <code>curl</code> in six, <code>nc</code> in seven,
+<code>ps</code> in eight, <code>lsof</code> in nine and twelve. The commands
+are written for macOS and Linux. On Windows, use WSL.</p>
+</div>
+
+<h2 id="running">Running the code</h2>
+
+<p>Every chapter that shows code ships it as a real file under
+<code>code/</code>, one folder per chapter, and the output printed on the page
+is that file's actual output. Some of the programs are servers: they print the
+address they are listening on and run until you stop them with control C, and
+the page says what to do from a second terminal.</p>
+
+<p>Every measurement here came from one laptop, an Apple silicon MacBook
+reporting eighteen processors. Your numbers will differ. What the text claims
+is the shape of a result and the ratio between two of them, never the
+digits.</p>
 
 <h2 id="chapters">The chapters</h2>
 
@@ -81,29 +131,5 @@ paid for in time, memory, or the risk of getting it wrong.</p>
 <p style="margin-top:1.4rem"><a href="further-watching.html">Further
 watching</a>: every outside video and course this site points at, gathered in
 one place and mapped to its chapter.</p>
-
-<h2 id="running">Running the code</h2>
-
-<p>Every chapter that shows code ships that code as a real file you can run,
-under <code>code/</code>, one folder per chapter. The output printed in the text
-is the actual output of the actual file. Where a number depends on your machine,
-the text says so, and what it claims is the shape of the result, not the
-digits.</p>
-
-<div class="callout">
-  <p>Every chapter but one needs only Python three and its standard library.
-Chapter sixteen installs one framework, and only after you have felt why it
-needs to exist. The servers run until you stop
-them with control C. Everything here was written and run on macOS and Linux; on
-Windows, use WSL.</p>
-</div>
-
-<h2 id="machine">The machine these numbers came from</h2>
-
-<p>Every measurement on this site was produced by running the code on one
-laptop, an Apple silicon MacBook reporting eighteen processors. Your absolute
-numbers will be different, and that is expected. What the site claims are the
-ratios and the shapes, one strategy against another, and those hold across
-machines.</p>
 
 <p>Start with one computer.</p>

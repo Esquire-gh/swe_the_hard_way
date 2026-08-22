@@ -427,6 +427,33 @@ caption {
 .trouble p { max-width: none; }
 .trouble > :last-child { margin-bottom: 0; }
 
+/* three exercises per chapter: predict, build, break */
+.exercises {
+  list-style: none; counter-reset: ex; margin: 1.2rem 0 1.4rem; padding: 0;
+  max-width: var(--measure); border-top: 1px solid var(--rule-hard);
+}
+.exercises > li {
+  counter-increment: ex; position: relative;
+  border-bottom: 1px solid var(--rule); padding: .95rem 0 .95rem 2.3rem;
+}
+.exercises > li::before {
+  content: counter(ex); position: absolute; left: .15rem; top: 1.05rem;
+  font-family: var(--mono); font-size: .78rem; color: var(--ink-3);
+}
+.ex-kind {
+  display: block; font-family: var(--mono); font-size: .63rem;
+  letter-spacing: .14em; text-transform: uppercase; margin-bottom: .35rem;
+}
+.ex-kind.predict { color: var(--ink-2); }
+.ex-kind.build   { color: var(--learn); }
+.ex-kind.brk     { color: var(--break); }
+.exercises p { margin: 0 0 .5rem; max-width: none; }
+.exercises > li > :last-child { margin-bottom: 0; }
+.ex-look {
+  font-size: .92rem; color: var(--ink-2);
+  border-left: 2px solid var(--rule-hard); padding-left: .75rem;
+}
+
 .book {
   font-family: var(--body);
 }
