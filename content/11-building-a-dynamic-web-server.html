@@ -113,6 +113,14 @@ into a page. Not most places. Every place. The one you forget is the bug, it
 will not show up in testing because you will type your own name into the form,
 and the file is now fifty two lines.</p>
 
+<p><code>curl</code> printed that script back and nothing happened, which is misleading, because
+<code>curl</code> does not run scripts. A browser does. <code>cookie_theft.py</code>, in the exercises
+folder, serves the unescaped page and hands the visitor two cookies, so you can
+point a real browser at the same crafted address and watch the injected script
+execute on your own page. What it can and cannot read once it runs is the
+subject
+of step four, and it is a sharper lesson seen than described.</p>
+
 <h2 id="form">Step three: accepting something and keeping it</h2>
 
 <p>A guestbook needs a form, and a form needs a method other than <code>GET</code>, because <code>GET</code>
@@ -207,7 +215,13 @@ any visitor can edit the cookie and become anybody. <code>secrets.token_hex</cod
 rather than anything simpler because the token is the only thing standing
 between a stranger and somebody else's account. A guessable session id is an
 account anybody can take. <code>HttpOnly</code> tells the browser not to let scripts on the
-page read the cookie, which limits the damage from the mistake in step two.</p>
+page read the cookie, which limits the damage from the mistake in step two. Two
+more words belong on that line in real code. <code>Secure</code> tells the browser to send
+the cookie only over an encrypted connection, so it cannot be read off the wire.
+<code>SameSite</code> tells the browser not to send it when the request came from another
+site, which is a different attack from step two and one this course does not
+otherwise reach. None of the three is the session; they are instructions to the
+browser about when it may show the key back.</p>
 
 <figure>
   <div class="term-block"><div class="term-head">terminal two</div>
@@ -251,10 +265,9 @@ badly the first time. Then imagine the twentieth page.</p>
 
 <h2 id="still-wrong">The things that are still wrong</h2>
 
-<p>The file works, and a fair description of it is that it is a hundred lines of
-machinery holding thirty lines of guestbook. That would be tolerable if the
-machinery were finished. It is not, and here is what is still missing from it.
-Start with the worst one, because it takes one line to demonstrate. Send the
+<p>The file works, and a fair description of it is a hundred lines of machinery
+holding thirty lines of guestbook. That would be tolerable if the machinery were
+finished. It is not, and the worst gap takes one line to demonstrate. Send the
 server something that is not a request.</p>
 
 <figure>
@@ -275,32 +288,86 @@ ValueError: too many values to unpack (expected 3)</pre></div>
 
 <p>The server is gone. Five words that are not a request line, and the process that
 was serving everybody has exited, taking the guestbook and every session with
-it. Chapter five said that a server which stops working because somebody sent it
+it. Chapter five said a server that stops working because somebody sent it
 something unexpected is a server any stranger can turn off, and this is that
-server. The right answer was a <code>400</code>, which chapter six listed and which this code
-never sends.</p>
+server. The right answer was a <code>400</code>, which chapter six listed and this code never
+sends. The exercises below make you provoke two more failures the same way, by
+hand, because the point of this chapter is that you can now see them coming.</p>
 
-<p>Nothing limits the size of a body. A visitor who claims a <code>Content-Length</code> of four
-billion will have the <code>while</code> loop in <code>read_request</code> cheerfully try to collect it,
-and the process will run out of memory. That is one line to send and a whole
-server to take down. Nothing handles a request that never finishes arriving.
-Open a connection, send half a header, and go for lunch, and the server waits,
-because chapter eight's blocking is doing exactly what it was asked. Escaping is
-a rule in your head, and there is nothing in the design that stops you
-forgetting it once. Every page builds HTML by pasting strings together, and the
-moment a page has a loop, a condition and a heading, that becomes hard to read
-and easy to break. There is no logging, so when something is wrong you have no
-way of knowing what was asked for. Anything the process is holding disappears
-when it stops: sign the guestbook, press control C, and the guestbook is empty,
-and the sessions go too. And the whole thing still answers one visitor at a
-time.</p>
+<p>The rest of the list is shorter to state than to fix. Escaping is a rule in your
+head rather than anything the design enforces, so the one page you forget is the
+hole. Every page builds HTML by pasting strings together, which stops being
+readable the moment a page has a loop and a condition in it. There is no
+logging,
+so a request that goes wrong leaves no trace of what was asked. And everything
+the process is holding, the messages and the sessions alike, disappears the
+moment you press control C, because it lives in memory belonging to a process.</p>
 
-<p>Every one of those has a standard answer, every standard answer is a known
-amount of work, and none of it has anything to do with the guestbook. It is
-worth stating exactly what the complaint is, because it is not that this was
-difficult. It was not difficult. It was tedious, it is easy to get subtly wrong,
-and it is identical in every web application anybody has ever written. Chapter
-sixteen is where that observation turns into something you can install.</p>
+<p>None of that has anything to do with the guestbook. It is not that any of it was
+difficult; it was tedious, it is easy to get subtly wrong, and it is identical
+in
+every web application anybody has ever written. Chapter sixteen is where that
+observation turns into something you can install.</p>
+
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>A form has one field called <code>name</code>, and a visitor sends it twice:
+<code>name=Ada&amp;name=Grace</code>. Read <code>parse_fields</code> and say which value the page ends up
+with, and why. Then predict what Python's own <code>parse_qs</code> does with the same
+bytes.</p>
+<p class="ex-look">Our parser keeps <code>Grace</code>, because each pair overwrites the last into the same
+dictionary key, so the last value wins. <code>parse_qs</code> keeps both, returning
+<code>{'name': ['Ada', 'Grace']}</code>, because it was built by people who had been bitten.
+The gap matters: a login form that trusts the first value while a filter trusts
+the last is a real class of bug, and it exists because the format allows a
+repeat and never says what a repeat means. You had to decide, and you decided by
+accident.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Add a page at <code>/messages/3</code> that shows one message by its number. The chain of
+<code>if</code> statements cannot express it, because the number is part of the path, so
+write the matching by hand: split the path, check the first piece is
+<code>messages</code>, turn the second into an integer, and answer <code>404</code> when it is not a
+number or not in range.</p>
+<p class="ex-look">You have just written the beginning of a router. Notice how much care the
+integer
+takes: a missing number, a number that is not a number, and a number with no
+message behind it are three different <code>404</code>s, and you wrote all three. Now
+imagine <code>/users/12/messages/3</code>, and imagine twenty such patterns. What you are
+feeling is the exact pressure that produced <code>@app.get("/messages/{id}")</code>, and
+chapter sixteen is where that line arrives already written.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Two failures, both one client program. First claim a <code>Content-Length</code> of four
+billion and dribble a body in, and watch <code>read_request</code> collect it until memory
+runs out. Then open a connection, send half a header, and go quiet, and watch
+the
+whole server stop. Fix the second one with a single line.</p>
+<p class="ex-look"><code>oversized_body.py</code> holds five hundred megabytes of one request before its own
+safety valve stops it, and the real loop has no valve. <code>slow_header.py</code> shows the
+server stuck inside <code>recv</code>, unable to <code>accept</code> anyone else, because chapter eight's
+blocking is doing exactly what it was told. The fix is <code>connection.settimeout</code>,
+which turns the endless wait into a <code>socket.timeout</code> you can catch and answer with
+a <code>408</code>. Both attacks cost the attacker almost nothing and cost you the whole
+server, which is why a real server caps the body size and times out a slow
+client before it does anything else.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>Every function in this file has a name in a framework. Flask's <code>session</code> is the
+dictionary you built in step four, except the token is signed rather than
+stored,
+so the server keeps nothing. A Jinja template is <code>guestbook_page</code> with the
+string pasting replaced by a page that escapes by default, so the mistake in
+step
+two becomes the thing you have to ask for rather than the thing you forget.
+<code>@app.route</code> is the <code>if</code> chain in step one, written once and read by the framework.
+None of it is new work. It is this chapter, packaged so you write the thirty
+lines and not the hundred.</p>
+</div>
 
 <h2 id="limit">Two programs, one word</h2>
 
