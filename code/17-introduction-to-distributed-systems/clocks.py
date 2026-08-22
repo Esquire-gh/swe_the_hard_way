@@ -5,7 +5,7 @@ Run it with: python3 clocks.py
 
 import time
 
-# Machine B's clock is a tenth of a second ahead. This is an ordinary amount.
+# Machine B's clock is 120 ms ahead of A's. This is an ordinary amount.
 OFFSET = 0.120
 
 

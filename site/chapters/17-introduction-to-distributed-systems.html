@@ -29,6 +29,25 @@ program on several machines and have the proxy spread requests across them.
 Adding machines rather than buying a bigger one is called <span class="term">horizontal scaling</span>,
 and it is the reason the proxy existed in the first place.</p>
 
+<p>It is worth running once rather than taking on faith. <code>horizontal.py</code> starts two
+copies of a work-doing server as separate processes, so each gets its own core
+and its own interpreter lock, puts chapter twelve's proxy in front spreading
+requests across them, and measures the rate through one copy and then through
+both.</p>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 horizontal.py</span>
+<span class="out">through one copy:   123 requests per second
+through two copies: 240 requests per second
+the second process bought about 2.0 times the throughput</span></pre></div>
+</figure>
+
+<p>Twice the machines, twice the work, because the ceiling was one core and there
+are now two. That the copies are separate processes matters: two threads in one
+process would have shared the lock and bought nothing, which is the trap chapter
+thirteen described from the other side.</p>
+
 <p>The second thing to stop fitting is the data. It can be copied to several
 machines so that it survives one of them dying and so that more readers can be
 served at once, which is <span class="term">replication</span>. Or it can be split across machines
@@ -45,15 +64,15 @@ open one file, but they can all connect to one program.</p>
 capability; every new line is the network</figcaption>
 </figure>
 
-<p>The vagueness is worth avoiding, because the change is precise. On one machine,
-two processes share a clock, a disk, and physical memory, and when one asks the
-other to do something either the answer comes back or the whole machine has
-gone. Across machines none of that is true. Everything between them travels over
-the network from chapter two, which delivers packets out of order, loses some,
-and never tells you how long it will take. This is not the same subject with
-larger numbers in it. Specific things that were reliably true stop being true,
-and the rest of the chapter is those things in order of how much trouble they
-cause.</p>
+<p>The change is precise. On one machine, two processes share a clock, a disk, and
+memory, and when one asks the other for something either the answer comes back
+or
+the whole machine is gone. Across machines none of that holds: everything
+travels
+over chapter two's network, which reorders packets, loses some, and never says
+how
+long it will take. Specific things that were reliably true stop being true, and
+the rest of the chapter is those things, worst first.</p>
 
 <h2 id="impossible">The thing that becomes impossible</h2>
 
@@ -166,7 +185,47 @@ chapter fifteen's p99 was for.</p>
 
 <p>The natural way to settle which of two writes is newer is to compare timestamps.
 It does not work, and the way it fails is quiet. <code>clocks.py</code> has one machine's
-clock a tenth of a second ahead of another's, which is an ordinary amount.</p>
+clock 120 milliseconds ahead of another's, which is an ordinary amount, and the
+offset is written down plainly at the top of the file.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;Two clocks that disagree, and what that does to keeping the latest write.
+
+Run it with: python3 clocks.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> time
+
+<span class="c-cm"># Machine B&#x27;s clock is 120 ms ahead of A&#x27;s. This is an ordinary amount.</span>
+OFFSET = 0.120
+
+
+<span class="c-kw">def</span> <span class="c-fn">clock_on_a</span>():
+    <span class="c-kw">return</span> time.time()
+
+
+<span class="c-kw">def</span> <span class="c-fn">clock_on_b</span>():
+    <span class="c-kw">return</span> time.time() + OFFSET
+
+
+<span class="c-cm"># B writes first. A writes fifty milliseconds later, so A&#x27;s value is the newer.</span>
+b_write = (<span class="c-st">&quot;the old value&quot;</span>, clock_on_b())
+time.sleep(0.050)
+a_write = (<span class="c-st">&quot;the new value&quot;</span>, clock_on_a())
+
+print(f<span class="c-st">&quot;written on B first, stamped {b_write[1]:.3f}&quot;</span>)
+print(f<span class="c-st">&quot;written on A after,  stamped {a_write[1]:.3f}&quot;</span>)
+
+keep = max([a_write, b_write], key=<span class="c-kw">lambda</span> write: write[1])
+print(f<span class="c-st">&quot;\nkeeping whichever stamp is larger gives: {keep[0]!r}&quot;</span>)
+print(f<span class="c-st">&quot;the write that really happened last was: {a_write[0]!r}&quot;</span>)
+
+print(<span class="c-st">&quot;\ntime.time can also move backwards when a machine corrects its clock:&quot;</span>)
+print(f<span class="c-st">&quot;  time.time      {time.time():.3f}  is the wall clock, and is adjusted&quot;</span>)
+print(f<span class="c-st">&quot;  time.monotonic {time.monotonic():.3f}  only ever goes forward&quot;</span>)
+</pre></div>
+<figcaption>clocks.py</figcaption>
+</figure>
 
 <figure>
   <div class="term-block"><div class="term-head">terminal</div>
@@ -192,11 +251,11 @@ program shows the other half of it.</p>
   time.monotonic 2915175.900  only ever goes forward</pre></div>
 </figure>
 
-<p>The wall clock is a number somebody is allowed to change, including backwards.
-This is why <code>time.monotonic</code> exists, why every measurement in this course used it
-or <code>perf_counter</code>, and why timing anything with <code>time.time</code> is a bug waiting for a
-clock correction. The way out is to stop asking when something happened and
-start asking what it knew. If every write carries a record of the writes it had
+<p>The wall clock is a number somebody may change, including backwards, which is
+why
+every measurement in this course used <code>time.monotonic</code> or <code>perf_counter</code> instead.
+The way out is to stop asking when something happened and start asking what it
+knew. If every write carries a record of the writes it had
 already seen, then the system can tell the difference between one write that
 came after another and two writes made by parties who had not heard of each
 other. Counters used that way are called <span class="term">logical clocks</span>. They do not remove the
@@ -207,7 +266,62 @@ somebody has to decide what the answer is.</p>
 
 <p>Replication keeps the same data on more than one machine, and once there is more
 than one copy, a write arrives at one of them and a read may be served by
-another. There are exactly two things you can do about it. The write is not
+another
+that has not caught up yet. Twenty lines are enough to watch it happen.</p>
+
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;A write to the primary, a read from a copy that has not caught up yet.
+
+Replication keeps the same data on more than one machine so reads can be
+spread and one machine can die without losing anything. The copy is
+brought up to date a moment after the primary, not at the same instant,
+and a read served by the copy in that moment sees the old value. This is
+one primary, one copy a little behind, and a reader who asks too soon.
+
+Run it with:  python3 replication_lag.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> threading
+<span class="c-kw">import</span> time
+
+primary = {<span class="c-st">&quot;balance&quot;</span>: 0}
+replica = {<span class="c-st">&quot;balance&quot;</span>: 0}
+LAG = 0.2                      <span class="c-cm"># the copy trails the primary by this much</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">replicate</span>():
+    <span class="c-st">&quot;&quot;&quot;Carry each change to the copy, a little late.&quot;&quot;&quot;</span>
+    <span class="c-kw">while</span> <span class="c-kw">True</span>:
+        time.sleep(0.02)
+        <span class="c-kw">if</span> replica[<span class="c-st">&quot;balance&quot;</span>] != primary[<span class="c-st">&quot;balance&quot;</span>]:
+            time.sleep(LAG)                    <span class="c-cm"># the write is in flight</span>
+            replica[<span class="c-st">&quot;balance&quot;</span>] = primary[<span class="c-st">&quot;balance&quot;</span>]
+
+
+threading.Thread(target=replicate, daemon=<span class="c-kw">True</span>).start()
+
+primary[<span class="c-st">&quot;balance&quot;</span>] = 100      <span class="c-cm"># the write lands on the primary at once</span>
+print(<span class="c-st">&quot;wrote balance=100 to the primary&quot;</span>)
+
+<span class="c-cm"># A read routed to the copy, the way a load balancer spreads reads.</span>
+print(f<span class="c-st">&quot;read from the copy immediately: {replica[&#x27;balance&#x27;]}  (stale)&quot;</span>)
+time.sleep(LAG + 0.1)
+print(f<span class="c-st">&quot;read from the copy after {LAG}s: {replica[&#x27;balance&#x27;]}  (caught up)&quot;</span>)
+</pre></div>
+<figcaption>replication_lag.py, a read served by the copy before it caught up</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 replication_lag.py</span>
+<span class="out">wrote balance=100 to the primary
+read from the copy immediately: 0  (stale)
+read from the copy after 0.2s: 100  (caught up)</span></pre></div>
+</figure>
+
+<p>The copy answered <code>0</code> for a balance that was already <code>100</code>, and nothing was broken;
+the write was still in flight. There are exactly two things you can do about it.
+The write is not
 finished until every copy has it. Then every read is correct, writes take as
 long as the slowest copy, and if one copy is unreachable you cannot write at
 all. Or the write is finished when one copy has it and spreads afterwards. Then
@@ -237,8 +351,12 @@ meantime, which is a question about your users rather than about databases.</p>
 <p>Copies help reading and help survival. They do nothing for writing or for size,
 because every machine still holds everything and every write still goes
 everywhere. So the other move is sharding, sending some records to one machine
-and some to another according to a key. The word <span class="term">partitioning</span> means the same
-thing. It buys write capacity and lets the data be larger than any single
+and some to another according to a key. The word <span class="term">partitioning</span> means this same
+splitting of data, and is worth keeping apart from the <span class="term">partition</span> above, which
+was
+the network splitting into groups that cannot reach each other; one word, two
+unrelated meanings. It buys write capacity and lets the data be larger than any
+single
 machine, and it costs in two ways worth knowing in advance. Any question that
 spans shards has to be asked of several machines and the answers combined, so
 questions that were one line become a small distributed program of their own.
@@ -274,6 +392,70 @@ broken. Retries make it worse rather than better. A service that is struggling
 starts receiving more traffic than it did when it was healthy, because everybody
 who gave up is asking again.</p>
 
+<figure>
+<div class="code"><pre><span class="c-st">&quot;&quot;&quot;How one slow service takes down a healthy one in front of it.
+
+Your server has a fixed pool of worker threads, from chapter thirteen.
+Each request to /slow calls another service that has become slow, and
+holds a worker thread for the whole wait. Fill all the workers with slow
+calls and there is nobody left to serve /fast, which does no slow work at
+all. The fast page stalls, and your server is not broken. The one behind
+it is.
+
+Run it with:  python3 cascade.py
+&quot;&quot;&quot;</span>
+
+<span class="c-kw">import</span> concurrent.futures
+<span class="c-kw">import</span> threading
+<span class="c-kw">import</span> time
+
+POOL = 4                       <span class="c-cm"># the fixed number of workers, as in chapter 13</span>
+downstream_delay = 2.0         <span class="c-cm"># the other service, now slow</span>
+
+pool = concurrent.futures.ThreadPoolExecutor(max_workers=POOL)
+
+
+<span class="c-kw">def</span> <span class="c-fn">slow_page</span>():
+    time.sleep(downstream_delay)      <span class="c-cm"># waiting on the slow downstream service</span>
+    <span class="c-kw">return</span> <span class="c-st">&quot;slow done&quot;</span>
+
+
+<span class="c-kw">def</span> <span class="c-fn">fast_page</span>():
+    <span class="c-kw">return</span> <span class="c-st">&quot;fast done&quot;</span>                <span class="c-cm"># no downstream call at all</span>
+
+
+<span class="c-cm"># Fill every worker with a slow request.</span>
+slow_futures = [pool.submit(slow_page) <span class="c-kw">for</span> _ <span class="c-kw">in</span> range(POOL)]
+time.sleep(0.1)
+
+<span class="c-cm"># Now a visitor asks for the fast page, which needs one free worker.</span>
+start = time.monotonic()
+fast_future = pool.submit(fast_page)
+fast_future.result()
+waited = time.monotonic() - start
+
+print(f<span class="c-st">&quot;the pool has {POOL} workers, all filled with slow requests&quot;</span>)
+print(f<span class="c-st">&quot;the fast page needed no slow work, and still waited {waited:.1f}s&quot;</span>)
+print(<span class="c-st">&quot;it waited for a worker, not for its own work: the queue backed up&quot;</span>)
+pool.shutdown()
+</pre></div>
+<figcaption>cascade.py, a healthy server whose workers all wait on a slow one</figcaption>
+</figure>
+
+<figure>
+  <div class="term-block"><div class="term-head">terminal</div>
+<pre><span class="prompt">$ python3 cascade.py</span>
+<span class="out">the pool has 4 workers, all filled with slow requests
+the fast page needed no slow work, and still waited 1.9s
+it waited for a worker, not for its own work: the queue backed up</span></pre></div>
+</figure>
+
+<p>The fast page does no slow work and still took nearly two seconds, because all
+four workers were waiting on the slow service and there was none left to run it.
+That is the whole cascade in one process: the slowness of a machine you do not
+control becomes the slowness of yours, through the fixed pool from chapter
+thirteen, and then of whatever calls you.</p>
+
 <p>The answers all have the shape of giving up on purpose. Have a worse answer
 ready and use it, such as a cached page or a sensible default. Stop sending
 requests to something that keeps failing, for a while, so it can recover, which
@@ -304,6 +486,65 @@ is a judgement your client makes from incomplete information, using a threshold
 you picked, and it can be wrong in both directions.</p>
 </div>
 
+<h2 id="exercises">Exercises</h2>
+
+<ol class="exercises">
+<li><span class="ex-kind predict">predict</span>
+<p>A client charges a card, times out, and retries, up to three attempts, against a
+server that is slow but healthy and charges on every request it receives.
+Predict
+how many times the card is charged before you run <code>retry_charges.py</code>.</p>
+<p class="ex-look">Three times. Every attempt reached the server and did its work; the client gave
+up each time before the reply arrived and, having no way to know the charge
+happened, asked again. This is the impossible-to-tell problem from the top of
+the
+chapter turned into money: the retry is not a bug, it is the only move
+available,
+and it is exactly what makes the double charge. The customer's anger is the
+system working as designed.</p></li>
+
+<li><span class="ex-kind build">build</span>
+<p>Make the retry safe. Have the client put the same <code>Idempotency-Key</code> on every
+attempt of one charge, and have the server keep a set of the keys it has already
+applied and skip the work when it sees one again. Keep retrying until the charge
+lands exactly once.</p>
+<p class="ex-look"><code>idempotency_key.py</code> charges once across three attempts. The two halves both
+matter: the client chooses the key, because only the client knows the three
+attempts are one charge, and the server keeps the set, because only the server
+can refuse to do the work twice. This is the whole of what "make it idempotent"
+means in practice, and it is a few lines, but notice the set lives in memory and
+dies with the process, so a real one keeps those keys in the database from
+chapter fourteen, which is where every hard part in this course eventually goes.</p></li>
+
+<li><span class="ex-kind brk">break</span>
+<p>Take <code>no_answer.py</code> and move the server's <code>sleep</code> to sit between charging the card
+and sending the reply, then run it. Compare what the client believes with what
+the server's ledger records, and decide which one is right.</p>
+<p class="ex-look"><code>whose_ledger.py</code> runs both orderings, and in both the client times out believing
+nothing happened while the server's ledger says the charge went through. The
+server's ledger is right, always, because the charge is a fact on the server and
+the client's belief is a guess from a timeout. This is the mental shift the
+chapter is really about: inside one process, whether a function ran is a fact;
+across machines, whether a request succeeded is an opinion the client holds with
+incomplete evidence, and the two can disagree in both directions.</p></li>
+</ol>
+
+<div class="callout">
+  <span class="callout-label">in the wild</span>
+  <p>Each idea here is a product or a protocol. Stripe's <code>Idempotency-Key</code> header is
+exactly the build exercise: you send it with a charge, and a retry with the same
+key never charges twice. NTP is the clock section's losing battle, keeping
+machines in step to within some error and never exactly. Read replicas are the
+copies, and their lag is why an app sometimes shows you a comment that vanishes
+on
+refresh. etcd and ZooKeeper are consensus as a service, used for the small
+important decisions, who is in charge and what the configuration is, and nothing
+else. And <code>429 Too Many Requests</code> with a <code>Retry-After</code> header is backpressure
+written into HTTP: a server refusing you fast, on purpose, and telling you when
+to
+come back, which is kinder than a connection that hangs.</p>
+</div>
+
 <h2 id="limit">The part that gets left out</h2>
 
 <p>That is the shape of the subject. Nothing can be known for certain, clocks
@@ -312,16 +553,15 @@ agreement costs a majority and a round trip, and slow is worse than dead.</p>
 
 <div class="limit">
   <span class="limit-label">where this runs out</span>
-  <p>Most treatments of this material stop about here, and it is a reasonable place
-to stop. The trouble is that the loudest part of the industry sits on the other
-side of that stopping point, and the way it is written about makes it sound like
-a separate discipline with its own physics. It is not. A model being trained is
-a process on a machine, reading files off a disk, given turns by an operating
-system, spread across many machines with precisely the coordination problems in
-this chapter. A model answering questions is a server, listening on a socket,
-accepting requests, and writing text back, behind a queue and a cache.</p>
-  <p class="to">The last chapter walks the whole stack again with the other set of names
-attached, and the point of it is not to teach you anything new.</p>
+  <p>Most treatments stop about here. The trouble is that the loudest part of the
+industry sits just past that line and is written about as if it had its own
+physics. It does not. A model being trained is a process reading files off a
+disk,
+given turns by an operating system, spread across machines with the coordination
+problems in this chapter; a model answering questions is a server on a socket,
+behind a queue and a cache.</p>
+  <p class="to">The last chapter walks the whole stack again with those names attached, and its
+point is not to teach you anything new.</p>
 </div>
 
 <h2 id="resources">Watch and read alongside this chapter</h2>
